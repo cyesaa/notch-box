@@ -70,7 +70,11 @@ duruyor ve bozulursa kısıtlı moda geçiliyor (bkz. §7).
 | `HoverTracker` | App | Global + yerel `mouseMoved` izleyicileriyle imlecin "sıcak bölge" (o an görünen siyah şekil) içinde olup olmadığını bildirir. `mouseMoved` için izin gerekmez. |
 | `NotchStateMachine` | Core | Hover, müzik durumu ve zamana göre 4 hal arasında geçişi yöneten saf durum makinesi. Saat dışarıdan verilir (testte taklit edilir). |
 | `NowPlayingService` (protokol) | Core | Şarkı durumunu yayınlar; komut alır: `togglePlayPause`, `next`, `previous`, `seek(to:)`. |
-| `AdapterNowPlayingService` | App | Protokolün adaptörlü uygulaması. Perl sürecini başlatır, JSON satırlarını okur, komutları gönderir. Saf mantık (`AdapterStreamParser`, `AdapterCommandLine`, `AdapterSupervisor`) Core'dadır. |
+| `AdapterNowPlayingService` | App | Protokolün adaptörlü uygulaması. Perl sürecini başlatır, JSON satırlarını okur, komutları gönderir, sağlık kontrolünü çalıştırır. Yalnızca zamanlayıcı kurar; saf mantık (`AdapterLineAssembler`, `AdapterStreamParser`, `NothingPlayingFilter`, `AdapterCommandLine`, `AdapterSupervisor`, `AdapterHealthMonitor`) Core'dadır. |
+| `AdapterLineAssembler` | Core | stdout parçalarını satırlara böler; yeni satır gelmeden 8 MB'ı aşan yarım satırı atar. |
+| `NothingPlayingFilter` | Core | Yayınlanacak `NowPlayingState`'i seçer: "hiçbir şey çalmıyor" 1.5 sn bekletilir (§7). |
+| `AdapterHealthMonitor` | Core | Adaptörün `test` komutunun ne zaman çalışacağını ve son sonucunu tutar (§7). |
+| `ArtworkHold` | Core | Gösterilecek kapak: yeni şarkı kapaksız gelince eskisi 1 sn tutulur, aynı bayt tekrar çözülmez (§5.4). `NSImage`'a bağlı kalmamak için görüntü tipi üzerinden geneldir. |
 | `NowPlayingPayload` | Core | Adaptörün JSON çıktısının `Decodable` modeli. |
 | `PlaybackClock` | Core | Geçen süreyi hesaplar: çalıyorsa `elapsed + (şimdi − timestamp) × playbackRate`. |
 | `AdapterSupervisor` | Core | Yeniden deneme süreleri (1, 2, 5, 10, 30 sn; 30'da sabitlenir) ve kısıtlı moda geçiş kararı. |
@@ -153,8 +157,10 @@ Müzik 5 dakika boyunca duraklatılmış kalırsa Mini → Boşta. Hover edilinc
 
 - Adaptör `Vendor/mediaremote-adapter` altında **git submodule** olarak, son sürüm etiketine sabitlenir.
 - `scripts/build-adapter.sh`, adaptörün framework'ünü `clang` ile derler.
+- `scripts/build-adapter.sh` ayrıca upstream'in `MediaRemoteAdapterTestClient` yardımcısını (`src/test/`,
+  Foundation + MediaPlayer) derler; sağlık kontrolü bunu kullanır.
 - Paketlemede framework `NotchBox.app/Contents/Frameworks/` içine, perl scripti
-  `NotchBox.app/Contents/Resources/` içine kopyalanır.
+  `NotchBox.app/Contents/Resources/` içine, test istemcisi `NotchBox.app/Contents/MacOS/` içine kopyalanır.
 - `AdapterNowPlayingService`, `/usr/bin/perl <script> <framework> stream` sürecini uygulama açıkken
   sürekli çalıştırır; stdout'tan gelen JSON satırlarını `NowPlayingPayload` olarak çözer.
 - Komutlar ayrı, kısa ömürlü perl süreçleriyle gönderilir (`send <komut>`, `seek <süre>`).
@@ -170,11 +176,12 @@ Müzik 5 dakika boyunca duraklatılmış kalırsa Mini → Boşta. Hover edilinc
 | Adaptör süreci kapandı / çöktü | `AdapterSupervisor` sürelerine göre yeniden başlatılır. Bu sırada son bilinen şarkı ekranda kalır. |
 | Adaptör üst üste 3 kez, başladıktan sonraki 5 sn içinde kapandı | **Kısıtlı mod.** Panelde "Şarkı bilgisi alınamıyor"; butonlar `MediaKeySender` ile çalışır. Arka planda her 60 sn'de bir adaptör yeniden denenir; çalışırsa normal moda dönülür. |
 | Kısıtlı modda ilk buton basışı | Erişilebilirlik izni yoksa macOS izin penceresi istenir. İzin normal modda hiç istenmez. |
+| macOS MediaRemote'u sessizce engelledi (`stream` çalışıyor ama hep boş payload veriyor) | **Sağlık kontrolü:** açılışta, uyanınca ve 30 dk'da bir `/usr/bin/perl <script> <framework> <test istemcisi> test` çalıştırılır. Çıkış kodu 0 değilse, süreç başlatılamazsa ya da 30 sn'de bitmezse (durdurulur) kısıtlı moda geçilir. `stream`'den gerçek şarkı bilgisi gelirse ya da sonraki kontrol geçerse normal moda dönülür. Not: hiçbir şey çalmıyorken `test`, test istemcisiyle kısa bir süre sahte bir "Şu An Çalıyor" kaydı ("Is It Broken Yet?") oluşturur; bundle kimliği olmadığı için `stream` bunu göstermez. |
 | JSON satırı çözülemedi | Satır atlanır ve loglanır; süreç çalışmaya devam eder. |
 | Şarkı geçişinde adaptör kısa bir an "hiçbir şey çalmıyor" bildirdi | Bu durum 1.5 sn bekletilir; arada şarkı bilgisi gelirse uygulanmaz. Böylece mini görünüm titremez (bkz. `docs/spike-results.md`). |
 | Kapak yok / çözülemedi | Gradyan zemin üzerinde müzik notası. |
 | Ses cihazı ses kontrolünü desteklemiyor | Kaydırıcı soluk ve devre dışı. |
-| Mac uykudan uyandı | Adaptör süreci kontrol edilir; çalışmıyorsa yeniden başlatılır. |
+| Mac uykudan uyandı | Adaptör süreci kontrol edilir; çalışmıyorsa yeniden başlatılır. Sağlık kontrolü de çalıştırılır. |
 | Uygulama SIGTERM ile kapatıldı (ör. `pkill`) | Sinyal yakalanır ve normal kapanış yolu çalışır; adaptör süreci de sonlandırılır. |
 | Notch'lu ekran yok (ör. kapak kapalı, harici monitör) | Panel gizlenir; uygulama bekler, menü çubuğu ikonu çalışır. Ekran geri gelince panel geri gelir. |
 
@@ -239,6 +246,8 @@ notch-box/
 - `NowPlayingPayload`: örnek adaptör JSON'larının çözülmesi (tam, eksik alanlı, bozuk).
 - `PlaybackClock`: çalarken / duraklatılmışken / farklı hızlarda geçen süre.
 - `AdapterSupervisor`: bekleme sırası ve 3 hızlı çöküşte kısıtlı moda geçiş.
+- `AdapterLineAssembler`, `NothingPlayingFilter`, `ArtworkHold`, `AdapterHealthMonitor`: 8 MB sınırı,
+  1.5 sn bekleme, 1 sn kapak tutma ve sağlık kontrolü zamanlaması; saat dışarıdan verilir.
 
 ### Elle (`docs/manual-testing.md`, README'den bağlantılı)
 
