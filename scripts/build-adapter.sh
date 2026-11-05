@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
-# Builds MediaRemoteAdapter.framework from the vendored submodule with plain clang (no CMake).
-# Output: build/adapter/MediaRemoteAdapter.framework (versioned layout, ad-hoc signed).
+# Builds MediaRemoteAdapter.framework and MediaRemoteAdapterTestClient from the vendored submodule
+# with plain clang (no CMake).
+# Output (ad-hoc signed):
+#   build/adapter/MediaRemoteAdapter.framework   (versioned layout)
+#   build/adapter/MediaRemoteAdapterTestClient   (helper for the adapter's `test` command)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="$ROOT/Vendor/mediaremote-adapter"
 OUT="$ROOT/build/adapter"
 FW="$OUT/MediaRemoteAdapter.framework"
+CLIENT="$OUT/MediaRemoteAdapterTestClient"
 
 if [ ! -f "$SRC/bin/mediaremote-adapter.pl" ]; then
   echo "error: adapter sources missing. Run: git submodule update --init" >&2
   exit 1
 fi
 
-rm -rf "$FW"
+rm -rf "$FW" "$CLIENT"
 mkdir -p "$FW/Versions/A/Resources"
 
 cd "$SRC"
@@ -56,3 +60,17 @@ ln -s Versions/Current/Resources "$FW/Resources"
 
 codesign --force --sign - "$FW"
 echo "Built $FW"
+
+# Same sources and frameworks as the MediaRemoteAdapterTestClient target in the upstream CMakeLists.txt.
+# -Wno-gnu-folding-constant: upstream main.m sizes a stack buffer with a `static const`, which clang flags.
+TEST_SOURCES=(src/test/main.m src/test/NowPlayingTest.m)
+clang \
+  -fobjc-arc -fmodules -Wno-gnu-folding-constant \
+  -arch arm64 -mmacosx-version-min=14.0 \
+  -Isrc/test \
+  -framework Foundation -framework MediaPlayer \
+  -o "$CLIENT" \
+  "${TEST_SOURCES[@]}"
+
+codesign --force --sign - "$CLIENT"
+echo "Built $CLIENT"

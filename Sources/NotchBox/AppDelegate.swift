@@ -25,7 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
         ) { _ in
-            MainActor.assumeIsolated { nowPlayingService.ensureRunning() }
+            MainActor.assumeIsolated { nowPlayingService.systemDidWake() }
         }
     }
 
