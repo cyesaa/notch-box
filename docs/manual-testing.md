@@ -45,10 +45,10 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 
 ## Degraded mode
 
-- [ ] `defaults write com.notchbox.NotchBox AdapterScriptOverride /nonexistent.pl`, then `make run`.
+- [ ] `defaults write com.notchbox.NotchBox SimulateAdapterFailure -bool true`, then `make run`.
 - [ ] Within about 10 s, hovering shows "Can't read track info" with controls and no mini artwork.
 - [ ] The first control press asks for Accessibility permission; after granting it (System Settings → Privacy & Security → Accessibility), the buttons control playback.
-- [ ] `defaults delete com.notchbox.NotchBox AdapterScriptOverride`, then `make run`: normal mode is back.
+- [ ] `defaults delete com.notchbox.NotchBox SimulateAdapterFailure`, then `make run`: normal mode is back.
 
 ## Languages
 

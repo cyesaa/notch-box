@@ -20,6 +20,7 @@ app:
 
 run: app
 	-pkill -x NotchBox
+	@while pgrep -x NotchBox >/dev/null; do sleep 0.1; done
 	open build/NotchBox.app
 
 dist: app
