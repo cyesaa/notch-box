@@ -1,6 +1,8 @@
 # Third-party notices
 
-NotchBox bundles [mediaremote-adapter](https://github.com/ungive/mediaremote-adapter) v0.7.7.
+NotchBox bundles [mediaremote-adapter](https://github.com/ungive/mediaremote-adapter) v0.7.7: the script,
+`MediaRemoteAdapter.framework` and `MediaRemoteAdapterTestClient`. The test client and the adapter's `test`
+command come from files marked "Copyright (c) 2025 Alexander5015", also under the BSD 3-Clause License below.
 
 ```text
 BSD 3-Clause License

@@ -43,6 +43,21 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 - [ ] With the lid closed on an external display, nothing appears; reopening the lid brings the panel back.
 - [ ] After sleep and wake, track info updates again.
 
+## Health check
+
+Watch the log in a second terminal. zsh has its own `log` command, so use the full path:
+`/usr/bin/log stream --level info --predicate 'subsystem == "com.notchbox.NotchBox"'`
+
+- [ ] Shortly after `make run`, the log shows "Adapter test passed".
+- [ ] After sleep and wake, the log shows "Adapter test passed" again.
+- [ ] Quit every player and close tabs that played media (a paused player still counts as playing), then `make run`.
+  The log shows "Adapter test passed", hovering still shows "Nothing playing", and NotchBox never shows the
+  "Is It Broken Yet?" test track (it may flash in Control Center).
+- [ ] With nothing playing, `defaults write com.notchbox.NotchBox SimulateHealthCheckFailure -bool true`, then `make run`.
+  Within a few seconds the log shows "Adapter test exited with status 2" and hovering shows "Can't read track info".
+- [ ] Still simulating, start a track: its info and the mini view come back.
+- [ ] `defaults delete com.notchbox.NotchBox SimulateHealthCheckFailure`, then `make run`: normal mode is back.
+
 ## Degraded mode
 
 - [ ] `defaults write com.notchbox.NotchBox SimulateAdapterFailure -bool true`, then `make run`.
