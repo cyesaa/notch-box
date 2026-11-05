@@ -55,3 +55,15 @@ JSON alan adları ve tipleri planla aynı. `playing` boolean geliyor; `album` bo
 
 **Devam.** Adaptör macOS 27.2'de üç kaynakta da bilgi okuyor ve bütün komutları iletiyor. Parser'da değişiklik gerekmiyor.
 Tek plan değişikliği, 1. gözlem için Task 9'a eklenen 1.5 sn bekleme.
+
+## Task 8 kontrolü (Aşama 0 soru 4–5)
+
+Kullanıcıyla 2026-11-06'da yapıldı. Ekran ölçeklemesi 1800×1169 pt, notch 220×38 pt.
+
+- **Soru 4:** Global `mouseMoved` izleyicisi izin istemeden çalışıyor.
+  - Hover'da panel açılıyor ve 0.3 sn sonra kapanıyor.
+  - Hızlı geçişte panel açılmıyor.
+  - Hiçbir izin penceresi çıkmadı.
+- **Soru 5:** Panel kapalıyken notch'un iki yanındaki menü çubuğu öğelerine tıklanabiliyor.
+- **Diğer:** Space değişiminde ve tam ekranda panel çalışıyor. Menü çubuğu ikonu ve Türkçe menü doğru; "Çık" çalışıyor.
+- Yedek çözümlere (yoklama zamanlayıcısı, `ignoresMouseEvents` değişikliği) gerek kalmadı.
