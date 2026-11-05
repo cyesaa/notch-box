@@ -6,9 +6,6 @@ import Observation
 @MainActor
 @Observable
 final class NotchViewModel {
-    /// The adapter sends the new track's metadata before its artwork, so the old cover is kept this long to avoid a placeholder blink.
-    static let artworkHoldDuration: TimeInterval = 1.0
-
     private(set) var displayState: NotchDisplayState = .idle
     private(set) var notchSize = CGSize(width: 185, height: 32)
     private(set) var nowPlaying: NowPlayingState = .nothing
@@ -23,9 +20,8 @@ final class NotchViewModel {
     @ObservationIgnored var onDisplayStateChange: ((NotchDisplayState) -> Void)?
     @ObservationIgnored private var machine = NotchStateMachine()
     @ObservationIgnored private var deadlineTimer: Timer?
-    @ObservationIgnored private var artworkClearWork: DispatchWorkItem?
-    /// Bytes of the cover currently shown, to skip rebuilding an identical image.
-    @ObservationIgnored private var displayedArtwork: Data?
+    @ObservationIgnored private var artwork = ArtworkHold<NSImage> { NSImage(data: $0) }
+    @ObservationIgnored private var artworkTimer: Timer?
     @ObservationIgnored private let nowPlayingService: NowPlayingService?
     @ObservationIgnored private let volumeControl: VolumeControlling?
     @ObservationIgnored private let mediaKeys: MediaKeySending?
@@ -62,7 +58,8 @@ final class NotchViewModel {
 
     func stop() {
         deadlineTimer?.invalidate()
-        cancelArtworkClear()
+        artworkTimer?.invalidate()
+        artwork.cancelPending()
         nowPlayingService?.stop()
     }
 
@@ -121,7 +118,7 @@ final class NotchViewModel {
         let old = info
         nowPlaying = state
         let current = info
-        updateArtwork(old: old, current: current)
+        updateArtwork(current)
         if current?.sourceBundleIdentifier != old?.sourceBundleIdentifier {
             sourceAppIcon = current.flatMap { AppIconProvider.icon(for: $0.sourceBundleIdentifier) }
         }
@@ -129,41 +126,25 @@ final class NotchViewModel {
         apply()
     }
 
-    private func updateArtwork(old: NowPlayingInfo?, current: NowPlayingInfo?) {
-        guard let current else {
-            cancelArtworkClear()
-            if artworkImage != nil {
-                artworkImage = nil
-                displayedArtwork = nil
-                artworkVersion += 1
-            }
-            return
-        }
-        if let data = current.artwork {
-            cancelArtworkClear()
-            if data != displayedArtwork {
-                artworkImage = NSImage(data: data)
-                displayedArtwork = data
-                artworkVersion += 1
-            }
-        } else if artworkImage != nil, artworkClearWork == nil {
-            let work = DispatchWorkItem { [weak self] in
-                MainActor.assumeIsolated {
-                    guard let self else { return }
-                    self.artworkClearWork = nil
-                    self.artworkImage = nil
-                    self.displayedArtwork = nil
-                    self.artworkVersion += 1
-                }
-            }
-            artworkClearWork = work
-            DispatchQueue.main.asyncAfter(deadline: .now() + Self.artworkHoldDuration, execute: work)
-        }
+    private func updateArtwork(_ current: NowPlayingInfo?) {
+        artwork.update(for: current, at: now())
+        applyArtwork()
     }
 
-    private func cancelArtworkClear() {
-        artworkClearWork?.cancel()
-        artworkClearWork = nil
+    /// Publishes the hold's cover and arms the timer for its next deadline.
+    private func applyArtwork() {
+        if artwork.version != artworkVersion {
+            artworkImage = artwork.image
+            artworkVersion = artwork.version
+        }
+        artworkTimer?.invalidate()
+        artworkTimer = nil
+        guard let deadline = artwork.nextDeadline else { return }
+        artworkTimer = makeTimer(firingAfter: deadline) { [weak self] in
+            guard let self else { return }
+            self.artwork.tick(at: self.now())
+            self.applyArtwork()
+        }
     }
 
     private func volumeChanged() {
@@ -189,11 +170,16 @@ final class NotchViewModel {
         deadlineTimer?.invalidate()
         deadlineTimer = nil
         guard let deadline = machine.nextDeadline else { return }
+        deadlineTimer = makeTimer(firingAfter: deadline) { [weak self] in self?.tick() }
+    }
+
+    /// A one-shot main run loop timer that fires just after `deadline`.
+    private func makeTimer(firingAfter deadline: Date, action: @escaping @MainActor () -> Void) -> Timer {
         let interval = max(0.01, deadline.timeIntervalSince(now()) + 0.005)
-        let timer = Timer(timeInterval: interval, repeats: false) { [weak self] _ in
-            MainActor.assumeIsolated { self?.tick() }
+        let timer = Timer(timeInterval: interval, repeats: false) { _ in
+            MainActor.assumeIsolated { action() }
         }
         RunLoop.main.add(timer, forMode: .common)
-        deadlineTimer = timer
+        return timer
     }
 }

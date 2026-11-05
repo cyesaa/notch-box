@@ -5,10 +5,6 @@ import os
 /// Runs `mediaremote-adapter.pl … stream` for the app's lifetime and restarts it when it exits.
 @MainActor
 final class AdapterNowPlayingService: NowPlayingService {
-    /// On a track change the adapter briefly reports an empty payload between two tracks.
-    /// "Nothing playing" is applied only if no track arrives within this time (see docs/spike-results.md).
-    static let nothingPlayingGrace: TimeInterval = 1.5
-
     private(set) var state: NowPlayingState = .nothing
     var onChange: ((NowPlayingState) -> Void)?
 
@@ -17,15 +13,15 @@ final class AdapterNowPlayingService: NowPlayingService {
     private var process: Process?
     private var supervisor = AdapterSupervisor()
     private var restartWork: DispatchWorkItem?
-    private var pendingNothing: DispatchWorkItem?
-    private var buffer = Data()
+    private var nothingFilter = NothingPlayingFilter()
+    private var filterTick: DispatchWorkItem?
+    private var lineAssembler = AdapterLineAssembler()
     private var isStopped = true
+    private let now: () -> Date
 
-    /// A single adapter line is far smaller; beyond this without a newline the stream is garbage.
-    static let maxLineBytes = 8 * 1024 * 1024
-
-    init(location: AdapterLocation) {
+    init(location: AdapterLocation, now: @escaping () -> Date = Date.init) {
         self.location = location
+        self.now = now
     }
 
     func start() {
@@ -38,7 +34,8 @@ final class AdapterNowPlayingService: NowPlayingService {
         isStopped = true
         restartWork?.cancel()
         restartWork = nil
-        cancelPendingNothing()
+        nothingFilter.cancelPending()
+        scheduleFilterTick()
         process?.terminate()
         process = nil
     }
@@ -65,7 +62,7 @@ final class AdapterNowPlayingService: NowPlayingService {
     }
 
     private func launch() {
-        buffer.removeAll()
+        lineAssembler.reset()
         let streamProcess = Process()
         streamProcess.executableURL = URL(fileURLWithPath: AdapterCommandLine.perlPath)
         streamProcess.arguments = location.baseArguments + AdapterCommandLine.streamArguments
@@ -99,7 +96,7 @@ final class AdapterNowPlayingService: NowPlayingService {
             }
         }
 
-        supervisor.processStarted(at: Date())
+        supervisor.processStarted(at: now())
         do {
             try streamProcess.run()
             process = streamProcess
@@ -113,50 +110,28 @@ final class AdapterNowPlayingService: NowPlayingService {
 
     private func consume(_ data: Data, from source: Process) {
         guard source === process else { return }
-        buffer.append(data)
-        while let newline = buffer.firstIndex(of: 0x0A) {
-            let lineData = buffer[buffer.startIndex..<newline]
-            buffer.removeSubrange(buffer.startIndex...newline)
-            if let line = String(data: lineData, encoding: .utf8) {
-                handle(line: line)
-            }
+        let output = lineAssembler.append(data)
+        for line in output.lines {
+            handle(line: line)
         }
-        if buffer.count > Self.maxLineBytes {
-            logger.error("Adapter output exceeded \(Self.maxLineBytes) bytes without a newline; discarding buffer")
-            buffer.removeAll()
+        if output.discardedOverlongLine {
+            logger.error("Adapter output exceeded \(self.lineAssembler.maxLineBytes) bytes without a newline; discarding buffer")
         }
     }
 
     private func handle(line: String) {
-        switch AdapterStreamParser.parse(line: line, receivedAt: Date()) {
+        switch AdapterStreamParser.parse(line: line, receivedAt: now()) {
         case .invalid:
             logger.debug("Skipped unparseable adapter line")
         case .nothingPlaying:
             supervisor.receivedOutput()
-            scheduleNothingPlaying()
+            nothingFilter.receivedNothing(at: now())
+            apply()
         case .info(let info):
             supervisor.receivedOutput()
-            cancelPendingNothing()
-            update(.info(info))
+            nothingFilter.received(info)
+            apply()
         }
-    }
-
-    private func scheduleNothingPlaying() {
-        guard state != .nothing, pendingNothing == nil else { return }
-        let work = DispatchWorkItem { [weak self] in
-            MainActor.assumeIsolated {
-                guard let self else { return }
-                self.pendingNothing = nil
-                self.update(.nothing)
-            }
-        }
-        pendingNothing = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + Self.nothingPlayingGrace, execute: work)
-    }
-
-    private func cancelPendingNothing() {
-        pendingNothing?.cancel()
-        pendingNothing = nil
     }
 
     private func handleExit(of finished: Process) {
@@ -168,10 +143,10 @@ final class AdapterNowPlayingService: NowPlayingService {
     }
 
     private func scheduleRestart() {
-        let delay = supervisor.processExited(at: Date())
+        let delay = supervisor.processExited(at: now())
         if supervisor.isDegraded {
-            cancelPendingNothing()
-            update(.unavailable)
+            nothingFilter.becameUnavailable()
+            apply()
         }
         let work = DispatchWorkItem { [weak self] in
             MainActor.assumeIsolated {
@@ -184,9 +159,29 @@ final class AdapterNowPlayingService: NowPlayingService {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
     }
 
-    private func update(_ newState: NowPlayingState) {
-        guard newState != state else { return }
-        state = newState
-        onChange?(newState)
+    /// Publishes the filter's state and arms the timer for its next deadline.
+    private func apply() {
+        let newState = nothingFilter.state
+        if newState != state {
+            state = newState
+            onChange?(newState)
+        }
+        scheduleFilterTick()
+    }
+
+    private func scheduleFilterTick() {
+        filterTick?.cancel()
+        filterTick = nil
+        guard let deadline = nothingFilter.nextDeadline else { return }
+        let work = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.filterTick = nil
+                self.nothingFilter.tick(at: self.now())
+                self.apply()
+            }
+        }
+        filterTick = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, deadline.timeIntervalSince(now())), execute: work)
     }
 }
