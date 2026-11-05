@@ -19,4 +19,10 @@ struct AdapterCommandLineTests {
         #expect(AdapterCommandLine.baseArguments(scriptPath: "/a.pl", frameworkPath: "/B.framework") == ["/a.pl", "/B.framework"])
         #expect(AdapterCommandLine.perlPath == "/usr/bin/perl")
     }
+
+    @Test func seekSanitizesNonFiniteAndHugeValues() {
+        #expect(AdapterCommandLine.arguments(for: .seek(to: .infinity)) == ["seek", "0"])
+        #expect(AdapterCommandLine.arguments(for: .seek(to: .nan)) == ["seek", "0"])
+        #expect(AdapterCommandLine.arguments(for: .seek(to: .greatestFiniteMagnitude)) == ["seek", "10000000000000"])
+    }
 }

@@ -124,4 +124,36 @@ struct NotchStateMachineTests {
         machine.tick(at: at(0.1))
         #expect(machine.displayState == .expanded)
     }
+
+    @Test func pausedWhileOpenGoesIdleAfterCloseWhenPauseTimeoutPassed() {
+        var machine = NotchStateMachine()
+        machine.setMedia(.paused, at: t0)
+        machine.setHovering(true, at: at(299))
+        machine.tick(at: at(299.1))
+        #expect(machine.displayState == .expanded)
+        machine.tick(at: at(300))
+        machine.setHovering(false, at: at(301))
+        machine.tick(at: at(301.3))
+        #expect(machine.displayState == .idle)
+    }
+
+    @Test func nextDeadlineIsCloseDeadlineWhileOpenEvenIfPauseTimeoutIsEarlier() {
+        var machine = NotchStateMachine()
+        machine.setMedia(.paused, at: t0)
+        machine.setHovering(true, at: at(1))
+        machine.tick(at: at(1.1))
+        machine.setHovering(false, at: at(2))
+        #expect(machine.nextDeadline == at(2.3))
+        var late = NotchStateMachine()
+        late.setMedia(.paused, at: t0)
+        late.setHovering(true, at: at(299.5))
+        late.tick(at: at(299.6))
+        late.setHovering(false, at: at(299.9))
+        #expect(late.nextDeadline == at(299.9).addingTimeInterval(0.3))
+    }
+
+    @Test func unavailableWhileOpenIsExpandedNeverEmpty() {
+        let machine = openMachine(media: .unavailable)
+        #expect(machine.displayState == .expanded)
+    }
 }

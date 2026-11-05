@@ -19,7 +19,8 @@ public enum AdapterCommandLine {
         case .previous:
             return ["send", "5"]
         case .seek(let seconds):
-            let micros = Int64((max(0, seconds) * 1_000_000).rounded())
+            let safe = seconds.isFinite ? min(max(0, seconds), AdapterStreamParser.maxSeconds) : 0
+            let micros = Int64((safe * 1_000_000).rounded())
             return ["seek", String(micros)]
         }
     }
