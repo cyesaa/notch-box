@@ -21,9 +21,14 @@ struct NotchRootView: View {
     @ViewBuilder
     private var content: some View {
         switch model.displayState {
-        case .idle, .mini, .expanded:
-            // .mini and .expanded need a now playing service; their views arrive in Task 9.
+        case .idle:
             Color.clear
+        case .mini:
+            CollapsedView(model: model)
+                .transition(.notchContent)
+        case .expanded:
+            ExpandedView(model: model)
+                .transition(.notchContent)
         case .expandedEmpty:
             NothingPlayingView()
                 .padding(.top, model.notchSize.height)
