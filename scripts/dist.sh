@@ -14,5 +14,13 @@ fi
 
 mkdir -p "$ROOT/dist"
 rm -f "$ZIP"
-ditto -c -k --keepParent "$APP" "$ZIP"
+ditto -c -k --norsrc --noextattr --keepParent "$APP" "$ZIP"
+
+CHECK="$(mktemp -d)"
+if ! { ditto -x -k "$ZIP" "$CHECK" && codesign --verify --deep --strict "$CHECK/NotchBox.app"; }; then
+  rm -rf "$CHECK"
+  echo "error: $ZIP failed signature verification" >&2
+  exit 1
+fi
+rm -rf "$CHECK"
 echo "Created $ZIP"
