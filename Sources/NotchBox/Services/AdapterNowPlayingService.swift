@@ -21,6 +21,9 @@ final class AdapterNowPlayingService: NowPlayingService {
     private var buffer = Data()
     private var isStopped = true
 
+    /// A single adapter line is far smaller; beyond this without a newline the stream is garbage.
+    static let maxLineBytes = 8 * 1024 * 1024
+
     init(location: AdapterLocation) {
         self.location = location
     }
@@ -73,7 +76,11 @@ final class AdapterNowPlayingService: NowPlayingService {
 
         stdout.fileHandleForReading.readabilityHandler = { [weak self] handle in
             let data = handle.availableData
-            guard !data.isEmpty else { return }
+            guard !data.isEmpty else {
+                // EOF: stop the handler, otherwise it spins on empty reads until the process exit is reported.
+                handle.readabilityHandler = nil
+                return
+            }
             DispatchQueue.main.async {
                 MainActor.assumeIsolated { self?.consume(data, from: streamProcess) }
             }
@@ -113,6 +120,10 @@ final class AdapterNowPlayingService: NowPlayingService {
             if let line = String(data: lineData, encoding: .utf8) {
                 handle(line: line)
             }
+        }
+        if buffer.count > Self.maxLineBytes {
+            logger.error("Adapter output exceeded \(Self.maxLineBytes) bytes without a newline; discarding buffer")
+            buffer.removeAll()
         }
     }
 

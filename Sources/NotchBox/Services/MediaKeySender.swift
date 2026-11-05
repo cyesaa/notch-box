@@ -2,16 +2,21 @@ import AppKit
 import ApplicationServices
 
 /// Degraded-mode fallback: posts system media key events. Needs Accessibility permission,
-/// which is requested the first time a key is sent.
+/// which is requested at most once per launch, the first time a key is sent.
 @MainActor
 final class MediaKeySender: MediaKeySending {
+    private var hasPrompted = false
+
     func send(code: Int32) {
-        guard isTrusted(prompt: true) else { return }
+        let shouldPrompt = !hasPrompted
+        hasPrompted = true
+        guard isTrusted(prompt: shouldPrompt) else { return }
         post(code: code, down: true)
         post(code: code, down: false)
     }
 
     private func isTrusted(prompt: Bool) -> Bool {
+        // Literal key: referencing the C global kAXTrustedCheckOptionPrompt triggers a Swift 6 global-variable concurrency diagnostic.
         let options = ["AXTrustedCheckOptionPrompt": prompt] as CFDictionary
         return AXIsProcessTrustedWithOptions(options)
     }

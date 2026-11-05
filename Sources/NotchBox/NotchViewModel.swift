@@ -24,6 +24,8 @@ final class NotchViewModel {
     @ObservationIgnored private var machine = NotchStateMachine()
     @ObservationIgnored private var deadlineTimer: Timer?
     @ObservationIgnored private var artworkClearWork: DispatchWorkItem?
+    /// Bytes of the cover currently shown, to skip rebuilding an identical image.
+    @ObservationIgnored private var displayedArtwork: Data?
     @ObservationIgnored private let nowPlayingService: NowPlayingService?
     @ObservationIgnored private let volumeControl: VolumeControlling?
     @ObservationIgnored private let mediaKeys: MediaKeySending?
@@ -132,14 +134,16 @@ final class NotchViewModel {
             cancelArtworkClear()
             if artworkImage != nil {
                 artworkImage = nil
+                displayedArtwork = nil
                 artworkVersion += 1
             }
             return
         }
         if let data = current.artwork {
-            if data != old?.artwork {
-                cancelArtworkClear()
+            cancelArtworkClear()
+            if data != displayedArtwork {
                 artworkImage = NSImage(data: data)
+                displayedArtwork = data
                 artworkVersion += 1
             }
         } else if artworkImage != nil, artworkClearWork == nil {
@@ -148,6 +152,7 @@ final class NotchViewModel {
                     guard let self else { return }
                     self.artworkClearWork = nil
                     self.artworkImage = nil
+                    self.displayedArtwork = nil
                     self.artworkVersion += 1
                 }
             }
@@ -185,8 +190,10 @@ final class NotchViewModel {
         deadlineTimer = nil
         guard let deadline = machine.nextDeadline else { return }
         let interval = max(0.01, deadline.timeIntervalSince(now()) + 0.005)
-        deadlineTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
+        let timer = Timer(timeInterval: interval, repeats: false) { [weak self] _ in
             MainActor.assumeIsolated { self?.tick() }
         }
+        RunLoop.main.add(timer, forMode: .common)
+        deadlineTimer = timer
     }
 }
