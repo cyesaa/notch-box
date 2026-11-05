@@ -4,7 +4,7 @@ ifeq ($(DEV_DIR),/Library/Developer/CommandLineTools)
 TEST_FLAGS := -Xswiftc -plugin-path -Xswiftc $(DEV_DIR)/usr/lib/swift/host/plugins/testing
 endif
 
-.PHONY: build test adapter app run clean
+.PHONY: build test adapter app run dist clean
 
 build:
 	swift build
@@ -21,6 +21,9 @@ app:
 run: app
 	-pkill -x NotchBox
 	open build/NotchBox.app
+
+dist: app
+	scripts/dist.sh
 
 clean:
 	rm -rf .build build dist
