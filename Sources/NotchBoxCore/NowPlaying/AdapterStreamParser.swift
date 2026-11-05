@@ -59,7 +59,7 @@ public enum AdapterStreamParser {
     /// Bounds for untrusted adapter values.
     static let maxSeconds: TimeInterval = 10_000_000
     static let maxRate: Double = 16
-    private static let maxEpochSeconds: TimeInterval = 4_102_444_800 // year 2100
+    static let maxEpochSeconds: TimeInterval = 4_102_444_800 // year 2100
 
     public static func parse(line: String, receivedAt now: Date) -> Result {
         let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)

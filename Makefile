@@ -20,7 +20,11 @@ app:
 
 run: app
 	-pkill -x NotchBox
-	@while pgrep -x NotchBox >/dev/null; do sleep 0.1; done
+	@tries=0; while pgrep -x NotchBox >/dev/null; do \
+		tries=$$((tries + 1)); \
+		if [ $$tries -ge 50 ]; then echo "error: NotchBox did not quit within 5 s" >&2; exit 1; fi; \
+		sleep 0.1; \
+	done
 	open build/NotchBox.app
 
 dist: app
