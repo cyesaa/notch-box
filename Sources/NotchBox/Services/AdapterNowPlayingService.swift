@@ -98,6 +98,8 @@ final class AdapterNowPlayingService: NowPlayingService {
             process = streamProcess
         } catch {
             logger.error("Adapter failed to launch: \(error.localizedDescription, privacy: .public)")
+            stdout.fileHandleForReading.readabilityHandler = nil
+            stderr.fileHandleForReading.readabilityHandler = nil
             scheduleRestart()
         }
     }
