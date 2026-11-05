@@ -52,7 +52,7 @@ If a macOS update instead silently stops providing the data, NotchBox may just s
 Needs only the Xcode Command Line Tools with Swift 6 or later (Xcode 16 tools; `xcode-select --install`); Xcode itself is optional.
 
 ```bash
-git clone --recursive <this repo>
+git clone --recursive https://github.com/cyesaa/notch-box.git
 make test   # unit tests (Swift Testing)
 make run    # build build/NotchBox.app and open it
 make dist   # dist/NotchBox-<version>.zip
