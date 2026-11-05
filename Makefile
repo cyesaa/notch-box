@@ -4,7 +4,7 @@ ifeq ($(DEV_DIR),/Library/Developer/CommandLineTools)
 TEST_FLAGS := -Xswiftc -plugin-path -Xswiftc $(DEV_DIR)/usr/lib/swift/host/plugins/testing
 endif
 
-.PHONY: build test adapter app run dist clean
+.PHONY: build test adapter icon app run dist clean
 
 build:
 	swift build
@@ -14,6 +14,10 @@ test:
 
 adapter:
 	scripts/build-adapter.sh
+
+# Redraws Resources/AppIcon.icns from scripts/make-icon.swift (the .icns is committed).
+icon:
+	swift scripts/make-icon.swift
 
 app:
 	scripts/bundle.sh

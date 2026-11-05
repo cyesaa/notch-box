@@ -8,6 +8,8 @@
   <string>NotchBox</string>
   <key>CFBundleExecutable</key>
   <string>NotchBox</string>
+  <key>CFBundleIconFile</key>
+  <string>AppIcon</string>
   <key>CFBundleIdentifier</key>
   <string>com.notchbox.NotchBox</string>
   <key>CFBundleInfoDictionaryVersion</key>
