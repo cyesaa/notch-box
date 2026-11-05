@@ -82,12 +82,7 @@ final class AdapterNowPlayingService: NowPlayingService {
                 MainActor.assumeIsolated { self?.consume(data, from: streamProcess) }
             }
         }
-        let logger = self.logger
-        stderr.fileHandleForReading.readabilityHandler = { handle in
-            let data = handle.availableData
-            guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
-            logger.error("adapter stderr: \(text, privacy: .public)")
-        }
+        Self.log(stderr, as: "adapter stderr", to: logger)
         streamProcess.terminationHandler = { [weak self] finished in
             stdout.fileHandleForReading.readabilityHandler = nil
             stderr.fileHandleForReading.readabilityHandler = nil
@@ -105,6 +100,20 @@ final class AdapterNowPlayingService: NowPlayingService {
             stdout.fileHandleForReading.readabilityHandler = nil
             stderr.fileHandleForReading.readabilityHandler = nil
             scheduleRestart()
+        }
+    }
+
+    /// Logs what a process writes to `pipe` as errors (the adapter prints only errors to stderr).
+    private static func log(_ pipe: Pipe, as label: String, to logger: Logger) {
+        pipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            guard !data.isEmpty else {
+                // EOF: stop the handler, otherwise it spins on empty reads until the process exit is reported.
+                handle.readabilityHandler = nil
+                return
+            }
+            guard let text = String(data: data, encoding: .utf8) else { return }
+            logger.error("\(label, privacy: .public): \(text, privacy: .public)")
         }
     }
 
