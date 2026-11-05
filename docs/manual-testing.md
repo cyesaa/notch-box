@@ -15,7 +15,7 @@ Run `make run` first. Tick every box before a release.
 
 ## Playback (repeat for each source)
 
-Sources: Spotify, Apple Music, YouTube in Safari, YouTube in Chrome.
+Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube in Chrome.
 
 - [ ] While playing, mini artwork shows left of the notch and the waveform moves right of it.
 - [ ] Pausing flattens the waveform.
@@ -24,6 +24,14 @@ Sources: Spotify, Apple Music, YouTube in Safari, YouTube in Chrome.
 - [ ] Dragging the progress bar seeks; the bar does not jump back after release.
 - [ ] Clicking the source app icon brings that app to the front.
 - [ ] A very long title ends with "…".
+- [ ] Changing tracks keeps the mini view; the old cover stays until the new one arrives (about 1 s at most), then crossfades with no music-note flash.
+
+## Menu bar and quitting
+
+- [ ] A music note icon appears in the menu bar and there is no Dock icon.
+- [ ] "Launch at Login" toggles on and off (check System Settings → General → Login Items).
+- [ ] "Quit NotchBox" quits the app; `pgrep -f mediaremote-adapter` then prints nothing.
+- [ ] `pkill -x NotchBox` also quits cleanly; `pgrep -f mediaremote-adapter` then prints nothing.
 
 ## Timeouts and system events
 
@@ -44,5 +52,5 @@ Sources: Spotify, Apple Music, YouTube in Safari, YouTube in Chrome.
 
 ## Languages
 
-- [ ] `open build/NotchBox.app --args -AppleLanguages '(tr)'` shows Turkish strings.
-- [ ] `open build/NotchBox.app --args -AppleLanguages '(en)'` shows English strings.
+- [ ] Quit NotchBox first, then `open build/NotchBox.app --args -AppleLanguages '(tr)'` shows Turkish strings.
+- [ ] Quit NotchBox first, then `open build/NotchBox.app --args -AppleLanguages '(en)'` shows English strings.

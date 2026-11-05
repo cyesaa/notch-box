@@ -2,8 +2,6 @@
 
 Control whatever is playing on your Mac from the MacBook notch.
 
-![NotchBox](docs/screenshot.png)
-
 - While music plays, a mini cover sits left of the notch and a small waveform moves on its right.
 - Hover the notch and it grows into a player: artwork, title, artist, previous / play-pause / next,
   a draggable progress bar, a volume slider and the icon of the app that is playing.
@@ -107,3 +105,5 @@ Bu resmi bir Apple arayüzü değildir; ileride bir macOS güncellemesi bozabili
 - Komutlar macOS'un aktif saydığı çalara gider; belirli bir uygulama seçilemez.
 - Ses kaydırıcısı uygulama bazında değil, sistem sesini değiştirir.
 - Yalnızca dahili ekran kullanılır.
+
+Geliştirme ve lisans bilgileri için yukarıdaki İngilizce "Development" ve "License" bölümlerine bakın.
