@@ -14,4 +14,19 @@ struct TimeFormatterTests {
         #expect(TimeFormatter.remaining(elapsed: 72, duration: 223) == "-2:31")
         #expect(TimeFormatter.remaining(elapsed: 300, duration: 223) == "-0:00")
     }
+
+    @Test func nonFiniteInputFormatsAsZero() {
+        #expect(TimeFormatter.string(from: .infinity) == "0:00")
+        #expect(TimeFormatter.string(from: .nan) == "0:00")
+        #expect(TimeFormatter.string(from: -.infinity) == "0:00")
+    }
+
+    @Test func hugeInputCapsAtNinetyNineHours() {
+        #expect(TimeFormatter.string(from: .greatestFiniteMagnitude) == "99:59:59")
+        #expect(TimeFormatter.string(from: 359_999) == "99:59:59")
+    }
+
+    @Test func remainingWithInfiniteDurationDoesNotTrapAndFormatsNonFiniteAsZero() {
+        #expect(TimeFormatter.remaining(elapsed: 0, duration: .infinity) == "-0:00")
+    }
 }

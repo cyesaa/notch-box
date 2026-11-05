@@ -56,6 +56,11 @@ public enum AdapterStreamParser {
         case invalid
     }
 
+    /// Bounds for untrusted adapter values.
+    static let maxSeconds: TimeInterval = 10_000_000
+    static let maxRate: Double = 16
+    private static let maxEpochSeconds: TimeInterval = 4_102_444_800 // year 2100
+
     public static func parse(line: String, receivedAt now: Date) -> Result {
         let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty,
@@ -71,13 +76,28 @@ public enum AdapterStreamParser {
 
     static func makeInfo(from payload: NowPlayingPayload, receivedAt now: Date) -> NowPlayingInfo? {
         guard let title = payload.title, !title.isEmpty, let bundle = payload.bundleIdentifier else { return nil }
-        let timestamp = payload.timestampEpochMicros.map { Date(timeIntervalSince1970: $0 / 1_000_000) } ?? now
+        var duration: TimeInterval?
+        if let micros = payload.durationMicros, micros.isFinite {
+            let value = micros / 1_000_000
+            if value > 0, value <= maxSeconds { duration = value }
+        }
+        var elapsed: TimeInterval = 0
+        if let micros = payload.elapsedTimeMicros, micros.isFinite {
+            elapsed = min(max(0, micros / 1_000_000), maxSeconds)
+        }
+        var rate = 1.0
+        if let value = payload.playbackRate, value.isFinite, abs(value) <= maxRate { rate = value }
+        var timestamp = now
+        if let micros = payload.timestampEpochMicros, micros.isFinite {
+            let value = micros / 1_000_000
+            if value >= 0, value <= maxEpochSeconds { timestamp = Date(timeIntervalSince1970: value) }
+        }
         let clock = PlaybackClock(
-            elapsed: (payload.elapsedTimeMicros ?? 0) / 1_000_000,
+            elapsed: elapsed,
             timestamp: timestamp,
-            rate: payload.playbackRate ?? 1,
+            rate: rate,
             isPlaying: payload.playing ?? false,
-            duration: payload.durationMicros.map { $0 / 1_000_000 }
+            duration: duration
         )
         return NowPlayingInfo(
             title: title,

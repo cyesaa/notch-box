@@ -42,4 +42,8 @@ struct PlaybackClockTests {
         #expect(!clock(duration: 0).hasDuration)
         #expect(!clock(duration: nil).hasDuration)
     }
+
+    @Test func negativeRateWhilePlayingAdvancesAtNormalSpeed() {
+        #expect(clock(rate: -2).elapsed(at: t0.addingTimeInterval(5)) == 15)
+    }
 }

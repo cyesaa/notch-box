@@ -72,4 +72,36 @@ struct AdapterStreamParserTests {
         #expect(info(line)?.artist == nil)
         #expect(info(line)?.album == nil)
     }
+
+    func payloadLine(_ fields: String) -> String {
+        #"{"type":"data","diff":false,"payload":{"bundleIdentifier":"com.apple.Music","playing":true,"title":"Song","# + fields + "}}"
+    }
+
+    @Test func hugeDurationBecomesNil() {
+        #expect(info(payloadLine(#""durationMicros":1.7976931348623157e308"#))?.clock.duration == nil)
+    }
+
+    @Test func hugeElapsedIsClampedToMaxSeconds() {
+        let clock = info(payloadLine(#""elapsedTimeMicros":1e300"#))?.clock
+        #expect(clock?.elapsed == AdapterStreamParser.maxSeconds)
+    }
+
+    @Test func absurdRateFallsBackToOne() {
+        #expect(info(payloadLine(#""playbackRate":1e300"#))?.clock.rate == 1)
+    }
+
+    @Test func absurdTimestampFallsBackToReceivedAt() {
+        #expect(info(payloadLine(#""timestampEpochMicros":1e300"#))?.clock.timestamp == received)
+    }
+
+    @Test func invalidBase64ArtworkIsDropped() {
+        let parsed = info(payloadLine(#""artworkData":"%%%""#))
+        #expect(parsed != nil)
+        #expect(parsed?.artwork == nil)
+    }
+
+    @Test func numericTitleMeansNothingPlaying() {
+        let line = #"{"type":"data","diff":false,"payload":{"bundleIdentifier":"com.apple.Music","title":42}}"#
+        #expect(parse(line) == .nothingPlaying)
+    }
 }
