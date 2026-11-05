@@ -19,10 +19,11 @@ public struct AdapterSupervisor: Sendable {
         startedAt = now
     }
 
-    /// Any parseable line proves the adapter works.
+    /// Any parseable line proves the adapter works: restart backoff and degraded mode reset.
+    /// Quick exits keep counting (they reset only after a run of at least `quickExitWindow`),
+    /// so an adapter that prints once and then crashes immediately still ends up degraded.
     public mutating func receivedOutput() {
         restartIndex = 0
-        consecutiveQuickExits = 0
         isDegraded = false
     }
 
