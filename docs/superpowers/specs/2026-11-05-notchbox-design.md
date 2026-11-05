@@ -1,7 +1,7 @@
 # NotchBox — Tasarım Dokümanı
 
 - **Tarih:** 2026-11-05
-- **Durum:** Onay bekliyor
+- **Durum:** Onaylandı (2026-11-05). Uygulama planı: `docs/superpowers/plans/2026-11-05-notchbox.md`
 - **Hedef cihaz (geliştirme):** MacBook Pro (Mac16,1), macOS 27.2, dahili ekranda notch var
 
 ## 1. Özet
@@ -40,7 +40,8 @@ herhangi bir kaynak (Spotify, Apple Music, tarayıcıdaki YouTube vb.) kontrol e
 | Minimum macOS | 14 (Sonoma) — `@Observable` için |
 | Derleme | Swift Package Manager. Xcode gerekmez, Command Line Tools yeterli |
 | Şarkı bilgisi | [mediaremote-adapter](https://github.com/ungive/mediaremote-adapter) (BSD-3) — Apple imzalı `/usr/bin/perl` üzerinden MediaRemote erişimi |
-| Test | Swift Testing (`import Testing`). XCTest Command Line Tools'ta yok |
+| Test | Swift Testing (`import Testing`). XCTest Command Line Tools'ta yok. `swift test`, CLT'nin `TestingMacros` eklentisini kendisi bulamıyor; Makefile `-Xswiftc -plugin-path -Xswiftc <CLT>/usr/lib/swift/host/plugins/testing` ekler |
+| SwiftUI makroları | `@State`, `#Preview` vb. kullanılmaz: macOS 27 SDK'da makro oldular ve `SwiftUIMacros` eklentisi yalnızca Xcode ile geliyor. Görünüm durumu `NotchViewModel`'de tutulur. `@Observable` kullanılabilir |
 | Çeviri | Klasik `Localizable.strings` (`.xcstrings` derlemesi Xcode istiyor) |
 | Adaptör derleme | CMake yok; adaptör kendi scriptimizle doğrudan `clang` ile derlenir |
 | Dağıtım | Ad-hoc imzalı `.app`, GitHub Releases'ta zip |
@@ -69,14 +70,14 @@ duruyor ve bozulursa kısıtlı moda geçiliyor (bkz. §7).
 | `HoverTracker` | App | Global + yerel `mouseMoved` izleyicileriyle imlecin "sıcak bölge" (o an görünen siyah şekil) içinde olup olmadığını bildirir. `mouseMoved` için izin gerekmez. |
 | `NotchStateMachine` | Core | Hover, müzik durumu ve zamana göre 4 hal arasında geçişi yöneten saf durum makinesi. Saat dışarıdan verilir (testte taklit edilir). |
 | `NowPlayingService` (protokol) | Core | Şarkı durumunu yayınlar; komut alır: `togglePlayPause`, `next`, `previous`, `seek(to:)`. |
-| `AdapterNowPlayingService` | Core | Protokolün adaptörlü uygulaması. Perl sürecini başlatır, JSON satırlarını okur, komutları gönderir. |
+| `AdapterNowPlayingService` | App | Protokolün adaptörlü uygulaması. Perl sürecini başlatır, JSON satırlarını okur, komutları gönderir. Saf mantık (`AdapterStreamParser`, `AdapterCommandLine`, `AdapterSupervisor`) Core'dadır. |
 | `NowPlayingPayload` | Core | Adaptörün JSON çıktısının `Decodable` modeli. |
 | `PlaybackClock` | Core | Geçen süreyi hesaplar: çalıyorsa `elapsed + (şimdi − timestamp) × playbackRate`. |
-| `RetryPolicy` | Core | Yeniden deneme süreleri: 1, 2, 5, 10, 30 sn (30'da sabitlenir). |
+| `AdapterSupervisor` | Core | Yeniden deneme süreleri (1, 2, 5, 10, 30 sn; 30'da sabitlenir) ve kısıtlı moda geçiş kararı. |
 | `MediaKeySender` | App | Kısıtlı mod için medya tuşu (oynat/duraklat, ileri, geri) olayı gönderir. Erişilebilirlik izni ister. |
 | `VolumeService` | App | CoreAudio ile varsayılan çıkış cihazının ses seviyesini okur/ayarlar; cihaz ve ses değişikliklerini dinler. |
-| `NotchViewModel` | App | Servisleri ve durum makinesini birleştirip görünümlere tek bir durum verir. |
-| Görünümler | App | `NotchShape`, `CollapsedView`, `ExpandedView`, `EmptyView`, `ArtworkView`, `WaveformView`. |
+| `NotchViewModel` | App | Servisleri ve durum makinesini birleştirip görünümlere tek bir durum verir. Servisleri opsiyonel alır (`NowPlayingService?`, `VolumeControlling?`, `MediaKeySending?`). |
+| Görünümler | App | `NotchShape`, `NotchRootView`, `CollapsedView`, `ExpandedView`, `NothingPlayingView` (`EmptyView` adı SwiftUI'de var), `ArtworkView`, `WaveformView`, `ProgressRow`, `ControlsRow`, `VolumeRow`. |
 | `StatusItemController` | App | Menü çubuğu ikonu ve menüsü: "Açılışta başlat" (`SMAppService.mainApp`), "Çık". |
 
 ### Bilgi akışı
@@ -99,8 +100,8 @@ iletir; view model ilgili servise gönderir.
 |---|---|---|
 | **Boşta** | Müzik yok (veya 5 dk'dan uzun duraklatılmış), fare sıcak bölgede değil | Panel notch'la aynı boyut ve siyah — görünmez |
 | **Mini** | Müzik var (çalıyor veya 5 dk'dan kısa süredir duraklatılmış), fare yok | Yükseklik notch yüksekliği; her iki yana `notch yüksekliği + 12pt` kadar genişler. Solda kare kapak (kenar = notch yüksekliği − 8pt, köşe yarıçapı 6pt). Sağda 5 çubuklu dalga: çalarken oynar, duraklatılınca düz |
-| **Açık** | Fare sıcak bölgede ≥ 0.1 sn ve müzik bilgisi var | ~400 × 170pt (notch yüksekliği dahil). Bkz. §5.2 |
-| **Açık-boş** | Fare sıcak bölgede ≥ 0.1 sn ve müzik bilgisi yok | ~300 × 80pt; müzik notası ikonu + "Şu an bir şey çalmıyor" |
+| **Açık** | Fare sıcak bölgede ≥ 0.1 sn ve müzik bilgisi var | 400 × 200pt (notch yüksekliği dahil; 170pt beş satıra yetmedi). Bkz. §5.2 |
+| **Açık-boş** | Fare sıcak bölgede ≥ 0.1 sn ve müzik bilgisi yok | 300 × 80pt; müzik notası ikonu + "Şu an bir şey çalmıyor" |
 
 Kısıtlı modda (§7) şarkı bilgisi olmadığı için Mini hal gösterilmez (fare yokken Boşta).
 Hover'da **Açık** hal, şarkı bilgisi yerine "Şarkı bilgisi alınamıyor" yazısı ve
@@ -157,7 +158,7 @@ Müzik 5 dakika boyunca duraklatılmış kalırsa Mini → Boşta. Hover edilinc
   sürekli çalıştırır; stdout'tan gelen JSON satırlarını `NowPlayingPayload` olarak çözer.
 - Komutlar ayrı, kısa ömürlü perl süreçleriyle gönderilir (`send <komut>`, `seek <süre>`).
   Kesin komut adları ve parametreler Aşama 0'da (§10) adaptörün belgelerinden doğrulanır.
-- Kapak verisi JSON içinde base64 gelir; yalnızca değiştiğinde çözülür ve önbelleğe alınır.
+- Kapak verisi JSON içinde base64 gelir. Görüntüye (`NSImage`) yalnızca kapak değiştiğinde çevrilir.
 - İlerleme, adaptöre sorulmadan `PlaybackClock` ile saniyede bir yerel olarak güncellenir.
 - Komutlar macOS'un aktif saydığı çalara gider (adaptörün sınırı).
 
@@ -165,7 +166,7 @@ Müzik 5 dakika boyunca duraklatılmış kalırsa Mini → Boşta. Hover edilinc
 
 | Durum | Davranış |
 |---|---|
-| Adaptör süreci kapandı / çöktü | `RetryPolicy` sürelerine göre yeniden başlatılır. Bu sırada son bilinen şarkı ekranda kalır. |
+| Adaptör süreci kapandı / çöktü | `AdapterSupervisor` sürelerine göre yeniden başlatılır. Bu sırada son bilinen şarkı ekranda kalır. |
 | Adaptör üst üste 3 kez, başladıktan sonraki 5 sn içinde kapandı | **Kısıtlı mod.** Panelde "Şarkı bilgisi alınamıyor"; butonlar `MediaKeySender` ile çalışır. Arka planda her 60 sn'de bir adaptör yeniden denenir; çalışırsa normal moda dönülür. |
 | Kısıtlı modda ilk buton basışı | Erişilebilirlik izni yoksa macOS izin penceresi istenir. İzin normal modda hiç istenmez. |
 | JSON satırı çözülemedi | Satır atlanır ve loglanır; süreç çalışmaya devam eder. |
@@ -195,7 +196,8 @@ notch-box/
 ├── Vendor/mediaremote-adapter/      (git submodule)
 ├── scripts/
 │   ├── build-adapter.sh
-│   └── bundle.sh
+│   ├── bundle.sh
+│   └── dist.sh
 ├── docs/
 │   ├── manual-testing.md
 │   └── superpowers/specs/
@@ -216,7 +218,7 @@ notch-box/
 | Komut | İş |
 |---|---|
 | `make build` | `swift build` |
-| `make test` | `swift test` |
+| `make test` | `swift test` (+ CLT'de Testing eklenti yolu; `FILTER=<Suite>` ile tek suite) |
 | `make app` | Release derleme + adaptör + `build/NotchBox.app` |
 | `make run` | `make app` ardından uygulamayı açar (çeviriler yalnızca `.app` içinden yüklendiği için ham ikili çalıştırılmaz) |
 | `make dist` | `dist/NotchBox-<sürüm>.zip` |
@@ -233,7 +235,7 @@ notch-box/
   Saat taklit edilir; testler gerçekten beklemez.
 - `NowPlayingPayload`: örnek adaptör JSON'larının çözülmesi (tam, eksik alanlı, bozuk).
 - `PlaybackClock`: çalarken / duraklatılmışken / farklı hızlarda geçen süre.
-- `RetryPolicy`: bekleme sırası ve 3 hızlı çöküşte kısıtlı moda geçiş.
+- `AdapterSupervisor`: bekleme sırası ve 3 hızlı çöküşte kısıtlı moda geçiş.
 
 ### Elle (`docs/manual-testing.md`, README'den bağlantılı)
 
@@ -255,6 +257,9 @@ Uygulama kodu yazılmadan önce şu sorular küçük bir deneme ile yanıtlanır
 4. Global `mouseMoved` izleyicisi izin istemeden çalışıyor mu?
 5. Panel notch'un üstünde, menü çubuğunun üstünde görünüyor ve `ignoresMouseEvents` ile
    menü çubuğu tıklamalarını geçiriyor mu?
+
+Soru 1–3 planın Task 0'ında (adaptör denemesi) yanıtlanır. Soru 4–5 çalışan bir panel gerektirdiği için
+Task 8'de, panel yazılır yazılmaz kontrol edilir; başarısız olursa planda yedek çözümler var.
 
 **2 başarısız olursa** kodlamaya geçilmez; kullanıcıyla birlikte plan yeniden ele alınır
 (seçenekler: yalnızca Spotify/Apple Music için AppleScript, ya da baştan kısıtlı mod).
