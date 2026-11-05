@@ -64,4 +64,18 @@ struct AdapterSupervisorTests {
         #expect(!supervisor.isDegraded)
         #expect(supervisor.processExited(at: at(200)) == 1)
     }
+
+    @Test func quickExitsKeepCountingAfterOutput() {
+        var supervisor = AdapterSupervisor()
+        let t0 = Date(timeIntervalSince1970: 1_000)
+        var last: TimeInterval = 0
+        for i in 0..<3 {
+            let start = t0.addingTimeInterval(Double(i) * 10)
+            supervisor.processStarted(at: start)
+            supervisor.receivedOutput()
+            last = supervisor.processExited(at: start.addingTimeInterval(1))
+        }
+        #expect(supervisor.isDegraded)
+        #expect(last == 60)
+    }
 }
