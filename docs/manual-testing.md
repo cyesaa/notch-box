@@ -1,0 +1,48 @@
+# Manual testing checklist
+
+Run `make run` first. Tick every box before a release.
+
+## Notch and hover
+
+- [ ] With nothing playing, the notch looks unchanged.
+- [ ] Hovering the notch opens a small "Nothing playing" panel after a short delay.
+- [ ] Sweeping the cursor quickly across the top of the screen does not open the panel.
+- [ ] Moving the cursor away closes the panel after about 0.3 s; coming back within that time keeps it open.
+- [ ] Menu bar items right next to the notch can still be clicked while the panel is closed.
+- [ ] Clicking a button in the panel while typing in TextEdit leaves the text cursor in TextEdit.
+- [ ] The panel stays on screen when switching Spaces and over a full-screen app.
+- [ ] No permission prompt appears during normal use.
+
+## Playback (repeat for each source)
+
+Sources: Spotify, Apple Music, YouTube in Safari, YouTube in Chrome.
+
+- [ ] While playing, mini artwork shows left of the notch and the waveform moves right of it.
+- [ ] Pausing flattens the waveform.
+- [ ] Hovering shows artwork, title, artist and the source app icon.
+- [ ] Play/pause, next and previous work.
+- [ ] Dragging the progress bar seeks; the bar does not jump back after release.
+- [ ] Clicking the source app icon brings that app to the front.
+- [ ] A very long title ends with "…".
+
+## Timeouts and system events
+
+- [ ] After pausing for 5 minutes the mini artwork disappears; hovering still opens the player.
+- [ ] Changing volume with the keyboard moves the volume slider.
+- [ ] Dragging the volume slider changes the system volume.
+- [ ] On an output without volume control (e.g. some HDMI displays) the volume slider is dimmed.
+- [ ] Plugging or unplugging an external display keeps the panel on the built-in screen.
+- [ ] With the lid closed on an external display, nothing appears; reopening the lid brings the panel back.
+- [ ] After sleep and wake, track info updates again.
+
+## Degraded mode
+
+- [ ] `defaults write com.notchbox.NotchBox AdapterScriptOverride /nonexistent.pl`, then `make run`.
+- [ ] Within about 10 s, hovering shows "Can't read track info" with controls and no mini artwork.
+- [ ] The first control press asks for Accessibility permission; after granting it (System Settings → Privacy & Security → Accessibility), the buttons control playback.
+- [ ] `defaults delete com.notchbox.NotchBox AdapterScriptOverride`, then `make run`: normal mode is back.
+
+## Languages
+
+- [ ] `open build/NotchBox.app --args -AppleLanguages '(tr)'` shows Turkish strings.
+- [ ] `open build/NotchBox.app --args -AppleLanguages '(en)'` shows English strings.
