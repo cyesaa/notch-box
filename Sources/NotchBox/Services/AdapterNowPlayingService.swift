@@ -3,6 +3,7 @@ import NotchBoxCore
 import os
 
 /// Runs `mediaremote-adapter.pl … stream` for the app's lifetime and restarts it when it exits.
+/// Runs `… test` at launch, after wake and every 30 minutes; while it fails the service reports `.unavailable`.
 @MainActor
 final class AdapterNowPlayingService: NowPlayingService {
     private(set) var state: NowPlayingState = .nothing
@@ -15,6 +16,9 @@ final class AdapterNowPlayingService: NowPlayingService {
     private var restartWork: DispatchWorkItem?
     private var nothingFilter = NothingPlayingFilter()
     private var filterTick: DispatchWorkItem?
+    private var health = AdapterHealthMonitor()
+    private var healthProcess: Process?
+    private var healthTick: DispatchWorkItem?
     private var lineAssembler = AdapterLineAssembler()
     private var isStopped = true
     private let now: () -> Date
@@ -28,6 +32,7 @@ final class AdapterNowPlayingService: NowPlayingService {
         guard isStopped else { return }
         isStopped = false
         launch()
+        perform(health.requestCheck(at: now()))
     }
 
     func stop() {
@@ -35,17 +40,23 @@ final class AdapterNowPlayingService: NowPlayingService {
         restartWork?.cancel()
         restartWork = nil
         nothingFilter.cancelPending()
-        scheduleFilterTick()
+        health.cancel()
+        scheduleTicks()
         process?.terminate()
         process = nil
+        healthProcess?.terminate()
+        healthProcess = nil
     }
 
-    /// Called after wake: launch now if the process is not running (skips any pending delay).
-    func ensureRunning() {
-        guard !isStopped, process == nil else { return }
-        restartWork?.cancel()
-        restartWork = nil
-        launch()
+    /// Called after wake: launch the stream now if it is not running (skips any pending delay) and check health.
+    func systemDidWake() {
+        guard !isStopped else { return }
+        if process == nil {
+            restartWork?.cancel()
+            restartWork = nil
+            launch()
+        }
+        perform(health.requestCheck(at: now()))
     }
 
     func send(_ command: MediaCommand) {
@@ -138,6 +149,7 @@ final class AdapterNowPlayingService: NowPlayingService {
             apply()
         case .info(let info):
             supervisor.receivedOutput()
+            health.receivedTrackInfo()
             nothingFilter.received(info)
             apply()
         }
@@ -168,29 +180,92 @@ final class AdapterNowPlayingService: NowPlayingService {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
     }
 
-    /// Publishes the filter's state and arms the timer for its next deadline.
+    private func perform(_ action: AdapterHealthMonitor.Action?) {
+        switch action {
+        case .startCheck:
+            runHealthCheck()
+        case .stopCheck:
+            logger.error("Adapter test did not finish within \(AdapterHealthMonitor.checkTimeout) s; showing degraded mode")
+            healthProcess?.terminate()
+            healthProcess = nil
+        case nil:
+            break
+        }
+        apply()
+    }
+
+    private func runHealthCheck() {
+        let check = Process()
+        check.executableURL = URL(fileURLWithPath: AdapterCommandLine.perlPath)
+        check.arguments = location.healthCheckArguments
+        check.standardOutput = FileHandle.nullDevice
+        let stderr = Pipe()
+        check.standardError = stderr
+        Self.log(stderr, as: "adapter test stderr", to: logger)
+        check.terminationHandler = { [weak self] finished in
+            stderr.fileHandleForReading.readabilityHandler = nil
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated { self?.healthCheckExited(finished) }
+            }
+        }
+        do {
+            try check.run()
+            healthProcess = check
+        } catch {
+            logger.error("Adapter test failed to launch: \(error.localizedDescription, privacy: .public)")
+            stderr.fileHandleForReading.readabilityHandler = nil
+            health.checkFinished(passed: false, at: now())
+        }
+    }
+
+    private func healthCheckExited(_ finished: Process) {
+        guard finished === healthProcess else { return }
+        healthProcess = nil
+        let passed = finished.terminationReason == .exit && finished.terminationStatus == 0
+        if passed {
+            logger.info("Adapter test passed")
+        } else {
+            logger.error("Adapter test exited with status \(finished.terminationStatus); showing degraded mode")
+        }
+        health.checkFinished(passed: passed, at: now())
+        apply()
+    }
+
+    /// Publishes the state and arms the timers for the next deadlines.
     private func apply() {
-        let newState = nothingFilter.state
+        let newState = health.state(from: nothingFilter.state)
         if newState != state {
             state = newState
             onChange?(newState)
         }
-        scheduleFilterTick()
+        scheduleTicks()
     }
 
-    private func scheduleFilterTick() {
-        filterTick?.cancel()
-        filterTick = nil
-        guard let deadline = nothingFilter.nextDeadline else { return }
+    private func scheduleTicks() {
+        filterTick = schedule(replacing: filterTick, at: nothingFilter.nextDeadline) { service in
+            service.nothingFilter.tick(at: service.now())
+            service.apply()
+        }
+        healthTick = schedule(replacing: healthTick, at: health.nextDeadline) { service in
+            service.perform(service.health.tick(at: service.now()))
+        }
+    }
+
+    /// Cancels `old` and returns a main queue work item that runs `action` at `deadline` (nil: none).
+    private func schedule(
+        replacing old: DispatchWorkItem?,
+        at deadline: Date?,
+        action: @escaping @MainActor (AdapterNowPlayingService) -> Void
+    ) -> DispatchWorkItem? {
+        old?.cancel()
+        guard let deadline else { return nil }
         let work = DispatchWorkItem { [weak self] in
             MainActor.assumeIsolated {
                 guard let self else { return }
-                self.filterTick = nil
-                self.nothingFilter.tick(at: self.now())
-                self.apply()
+                action(self)
             }
         }
-        filterTick = work
         DispatchQueue.main.asyncAfter(deadline: .now() + max(0, deadline.timeIntervalSince(now())), execute: work)
+        return work
     }
 }

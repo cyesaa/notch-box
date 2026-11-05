@@ -10,6 +10,12 @@ public enum AdapterCommandLine {
         [scriptPath, frameworkPath]
     }
 
+    /// `test` exits 0 when the adapter can read MediaRemote. When nothing is playing it launches the
+    /// test client, which briefly publishes a fake now playing entry. All paths must be absolute.
+    public static func healthCheckArguments(scriptPath: String, frameworkPath: String, testClientPath: String) -> [String] {
+        [scriptPath, frameworkPath, testClientPath, "test"]
+    }
+
     public static func arguments(for command: MediaCommand) -> [String] {
         switch command {
         case .togglePlayPause:

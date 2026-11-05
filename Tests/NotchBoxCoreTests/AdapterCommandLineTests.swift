@@ -20,6 +20,13 @@ struct AdapterCommandLineTests {
         #expect(AdapterCommandLine.perlPath == "/usr/bin/perl")
     }
 
+    @Test func healthCheckPassesTheTestClientBeforeTheTestCommand() {
+        let arguments = AdapterCommandLine.healthCheckArguments(
+            scriptPath: "/a.pl", frameworkPath: "/B.framework", testClientPath: "/C"
+        )
+        #expect(arguments == ["/a.pl", "/B.framework", "/C", "test"])
+    }
+
     @Test func seekSanitizesNonFiniteAndHugeValues() {
         #expect(AdapterCommandLine.arguments(for: .seek(to: .infinity)) == ["seek", "0"])
         #expect(AdapterCommandLine.arguments(for: .seek(to: .nan)) == ["seek", "0"])
