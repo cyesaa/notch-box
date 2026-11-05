@@ -17,6 +17,7 @@ cp "$BIN_DIR/NotchBox" "$APP/Contents/MacOS/NotchBox"
 # Helper executables live next to the main one, where Bundle.path(forAuxiliaryExecutable:) finds them.
 cp "$ROOT/build/adapter/MediaRemoteAdapterTestClient" "$APP/Contents/MacOS/MediaRemoteAdapterTestClient"
 cp "$ROOT/Resources/Info.plist" "$APP/Contents/Info.plist"
+cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 # Translations go straight into Contents/Resources (not a SwiftPM resource bundle) so that
 # Bundle.main finds them and the bundle stays signable.
 ditto "$ROOT/Resources/en.lproj" "$APP/Contents/Resources/en.lproj"
