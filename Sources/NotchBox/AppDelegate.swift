@@ -11,7 +11,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItemController = StatusItemController()
 
         let nowPlayingService = AdapterNowPlayingService(location: .resolve())
-        let model = NotchViewModel(nowPlayingService: nowPlayingService, volumeControl: VolumeService())
+        let model = NotchViewModel(
+            nowPlayingService: nowPlayingService,
+            volumeControl: VolumeService(),
+            mediaKeys: MediaKeySender()
+        )
         let windowController = NotchWindowController(model: model)
         windowController.start()
         model.start()
