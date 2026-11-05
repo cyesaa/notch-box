@@ -141,7 +141,8 @@ yalnızca önceki / oynat-duraklat / sonraki butonlarıyla gösterilir.
 - Boyut geçişleri: SwiftUI spring (`response: 0.35`, `dampingFraction: 0.8`).
 - Köşe yarıçapı boyutla birlikte büyür (Boşta/Mini: alt köşeler ~8pt, Açık: ~20pt).
 - İçerik, şekil büyümeye başladıktan 0.08 sn sonra opaklıkla belirir; kapanırken önce içerik kaybolur.
-- Şarkı değişiminde kapak çapraz geçişle (crossfade) değişir.
+- Şarkı değişiminde kapak çapraz geçişle (crossfade) değişir. Yeni şarkının ilk satırları kapaksız gelebildiği için eski kapak
+  en fazla 1 sn korunur; yeni kapak bu sürede gelirse doğrudan ona geçilir, gelmezse yer tutucu gösterilir.
 
 ### 5.5 Duraklatma zaman aşımı
 
@@ -174,6 +175,7 @@ Müzik 5 dakika boyunca duraklatılmış kalırsa Mini → Boşta. Hover edilinc
 | Kapak yok / çözülemedi | Gradyan zemin üzerinde müzik notası. |
 | Ses cihazı ses kontrolünü desteklemiyor | Kaydırıcı soluk ve devre dışı. |
 | Mac uykudan uyandı | Adaptör süreci kontrol edilir; çalışmıyorsa yeniden başlatılır. |
+| Uygulama SIGTERM ile kapatıldı (ör. `pkill`) | Sinyal yakalanır ve normal kapanış yolu çalışır; adaptör süreci de sonlandırılır. |
 | Notch'lu ekran yok (ör. kapak kapalı, harici monitör) | Panel gizlenir; uygulama bekler, menü çubuğu ikonu çalışır. Ekran geri gelince panel geri gelir. |
 
 Loglar `os.Logger` ile, alt sistem `com.notchbox.NotchBox`.
