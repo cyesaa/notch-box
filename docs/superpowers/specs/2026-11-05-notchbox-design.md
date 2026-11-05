@@ -170,6 +170,7 @@ Müzik 5 dakika boyunca duraklatılmış kalırsa Mini → Boşta. Hover edilinc
 | Adaptör üst üste 3 kez, başladıktan sonraki 5 sn içinde kapandı | **Kısıtlı mod.** Panelde "Şarkı bilgisi alınamıyor"; butonlar `MediaKeySender` ile çalışır. Arka planda her 60 sn'de bir adaptör yeniden denenir; çalışırsa normal moda dönülür. |
 | Kısıtlı modda ilk buton basışı | Erişilebilirlik izni yoksa macOS izin penceresi istenir. İzin normal modda hiç istenmez. |
 | JSON satırı çözülemedi | Satır atlanır ve loglanır; süreç çalışmaya devam eder. |
+| Şarkı geçişinde adaptör kısa bir an "hiçbir şey çalmıyor" bildirdi | Bu durum 1.5 sn bekletilir; arada şarkı bilgisi gelirse uygulanmaz. Böylece mini görünüm titremez (bkz. `docs/spike-results.md`). |
 | Kapak yok / çözülemedi | Gradyan zemin üzerinde müzik notası. |
 | Ses cihazı ses kontrolünü desteklemiyor | Kaydırıcı soluk ve devre dışı. |
 | Mac uykudan uyandı | Adaptör süreci kontrol edilir; çalışmıyorsa yeniden başlatılır. |
