@@ -6,6 +6,9 @@ import Observation
 @MainActor
 @Observable
 final class NotchViewModel {
+    /// The adapter sends the new track's metadata before its artwork, so the old cover is kept this long to avoid a placeholder blink.
+    static let artworkHoldDuration: TimeInterval = 1.0
+
     private(set) var displayState: NotchDisplayState = .idle
     private(set) var notchSize = CGSize(width: 185, height: 32)
     private(set) var nowPlaying: NowPlayingState = .nothing
@@ -20,6 +23,7 @@ final class NotchViewModel {
     @ObservationIgnored var onDisplayStateChange: ((NotchDisplayState) -> Void)?
     @ObservationIgnored private var machine = NotchStateMachine()
     @ObservationIgnored private var deadlineTimer: Timer?
+    @ObservationIgnored private var artworkClearWork: DispatchWorkItem?
     @ObservationIgnored private let nowPlayingService: NowPlayingService?
     @ObservationIgnored private let volumeControl: VolumeControlling?
     @ObservationIgnored private let mediaKeys: MediaKeySending?
@@ -56,6 +60,7 @@ final class NotchViewModel {
 
     func stop() {
         deadlineTimer?.invalidate()
+        cancelArtworkClear()
         nowPlayingService?.stop()
     }
 
@@ -114,15 +119,46 @@ final class NotchViewModel {
         let old = info
         nowPlaying = state
         let current = info
-        if current?.artwork != old?.artwork {
-            artworkImage = current?.artwork.flatMap { NSImage(data: $0) }
-            artworkVersion += 1
-        }
+        updateArtwork(old: old, current: current)
         if current?.sourceBundleIdentifier != old?.sourceBundleIdentifier {
             sourceAppIcon = current.flatMap { AppIconProvider.icon(for: $0.sourceBundleIdentifier) }
         }
         machine.setMedia(state.machineMedia, at: now())
         apply()
+    }
+
+    private func updateArtwork(old: NowPlayingInfo?, current: NowPlayingInfo?) {
+        guard let current else {
+            cancelArtworkClear()
+            if artworkImage != nil {
+                artworkImage = nil
+                artworkVersion += 1
+            }
+            return
+        }
+        if let data = current.artwork {
+            if data != old?.artwork {
+                cancelArtworkClear()
+                artworkImage = NSImage(data: data)
+                artworkVersion += 1
+            }
+        } else if artworkImage != nil, artworkClearWork == nil {
+            let work = DispatchWorkItem { [weak self] in
+                MainActor.assumeIsolated {
+                    guard let self else { return }
+                    self.artworkClearWork = nil
+                    self.artworkImage = nil
+                    self.artworkVersion += 1
+                }
+            }
+            artworkClearWork = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + Self.artworkHoldDuration, execute: work)
+        }
+    }
+
+    private func cancelArtworkClear() {
+        artworkClearWork?.cancel()
+        artworkClearWork = nil
     }
 
     private func volumeChanged() {
