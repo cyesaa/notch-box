@@ -21,6 +21,7 @@ ditto "$ROOT/Resources/en.lproj" "$APP/Contents/Resources/en.lproj"
 ditto "$ROOT/Resources/tr.lproj" "$APP/Contents/Resources/tr.lproj"
 cp "$ROOT/Vendor/mediaremote-adapter/bin/mediaremote-adapter.pl" "$APP/Contents/Resources/mediaremote-adapter.pl"
 ditto "$ROOT/build/adapter/MediaRemoteAdapter.framework" "$APP/Contents/Frameworks/MediaRemoteAdapter.framework"
+cp "$ROOT/LICENSE" "$ROOT/THIRD_PARTY_NOTICES.md" "$APP/Contents/Resources/"
 
 xattr -cr "$APP"
 codesign --force --deep --sign - "$APP"

@@ -269,9 +269,10 @@ Task 8'de, panel yazılır yazılmaz kontrol edilir; başarısız olursa planda 
 
 ## 11. GitHub
 
-- README: İngilizce, altında Türkçe bölüm. İçerik: ne yapar, ekran görüntüsü, kurulum,
+- README: İngilizce, altında Türkçe bölüm. İçerik: ne yapar, kurulum,
   "tanınmayan geliştirici" uyarısının nasıl geçileceği, gizlilik notu, bilinen sınırlar,
   geliştirme komutları, elle test listesine bağlantı.
+- Ekran görüntüsü kullanıcı kararıyla çıkarıldı (2026-11-06).
 - `.gitignore`: `.build/`, `build/`, `dist/`, `.swiftpm/`, `.DS_Store`.
 - Uzak repo henüz yok. `gh` ve Homebrew kurulu değil. Repo açılmadan önce kullanıcıya
   public/private sorulur; kullanıcı `gh auth login` ile kendi girişini yapar ya da boş repo linkini verir.
