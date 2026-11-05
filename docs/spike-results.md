@@ -56,6 +56,20 @@ JSON alan adları ve tipleri planla aynı. `playing` boolean geliyor; `album` bo
 **Devam.** Adaptör macOS 27.2'de üç kaynakta da bilgi okuyor ve bütün komutları iletiyor. Parser'da değişiklik gerekmiyor.
 Tek plan değişikliği, 1. gözlem için Task 9'a eklenen 1.5 sn bekleme.
 
+## Sağlık kontrolü (`test`) denemesi
+
+- **Tarih:** 2026-11-06, macOS 27.2, adaptör v0.7.7.
+- `MediaRemoteAdapterTestClient`, `scripts/build-adapter.sh` içinde `clang` ile derlendi (CMake gerekmedi). Upstream `main.m`
+  içindeki `static const` boyutlu dizi için çıkan `-Wgnu-folding-constant` uyarısı kapatıldı.
+- Chrome'da duraklatılmış bir YouTube videosu varken `… <test istemcisi> test` iki kez 0 ile çıktı (~60 ms). İlk `get`
+  bilgi bulduğu için test istemcisi hiç başlatılmadı.
+- Aynı anda çalışan `stream` etkilenmedi: yalnızca açılış satırı ve mevcut video satırı geldi, stderr boş kaldı.
+- Script yoksa perl 2 ile, framework yoksa script 1 ile çıkıyor; ikisi de kısıtlı moda geçiriyor.
+- Uygulamada: normal açılışta log'da "Adapter test passed" görüldü. `-SimulateAdapterFailure YES` ile test 2 ile çıktı ve
+  kısıtlı mod, 3 hızlı çöküş beklenmeden hemen geldi.
+- **Denenmedi:** hiçbir şey çalmıyorken testin sahte kayıtla çalıştığı yol (o sırada bu Mac'te medya vardı).
+  `docs/manual-testing.md` içindeki "Health check" adımları bunu kapsar.
+
 ## Task 8 kontrolü (Aşama 0 soru 4–5)
 
 Kullanıcıyla 2026-11-06'da yapıldı. Ekran ölçeklemesi 1800×1169 pt, notch 220×38 pt.

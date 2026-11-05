@@ -35,7 +35,11 @@ Since macOS 15.4, apps cannot read "Now Playing" info directly. NotchBox bundles
 system's Apple-signed `/usr/bin/perl`. This is not an official Apple API, and a future macOS update may break it.
 If the adapter fails to start or keeps crashing, NotchBox switches to a limited mode: it can no longer show
 the track, but the buttons keep working through media keys (this needs Accessibility permission, asked only then).
-If a macOS update instead silently stops providing the data, NotchBox may just show "Nothing playing".
+A macOS update could also block the data silently while the adapter keeps running. To catch that, NotchBox runs
+the adapter's own test at launch, after waking from sleep and every 30 minutes, and switches to the same limited mode
+if the test fails. Track info from a player, or a later passing test, switches it back.
+When nothing is playing, the test briefly publishes a placeholder track ("Is It Broken Yet?") so that it has something
+to read. It may flash in Control Center or other "Now Playing" widgets; NotchBox does not show it.
 
 ## Known limitations
 
@@ -106,7 +110,11 @@ macOS 15.4'ten beri uygulamalar "Şu An Çalıyor" bilgisini doğrudan okuyamıy
 `/usr/bin/perl` üzerinden okuyan [mediaremote-adapter](https://github.com/ungive/mediaremote-adapter)'ı içinde taşır.
 Bu resmi bir Apple arayüzü değildir; ileride bir macOS güncellemesi bozabilir. Adaptör başlamazsa ya da sürekli çökerse NotchBox kısıtlı moda geçer:
 şarkıyı gösteremez ama butonlar medya tuşlarıyla çalışmaya devam eder (bunun için yalnızca o zaman Erişilebilirlik izni ister).
-Bir macOS güncellemesi veriyi sessizce vermeyi keserse NotchBox yalnızca "Şu an bir şey çalmıyor" gösterebilir.
+Bir macOS güncellemesi, adaptör çalışmaya devam ederken veriyi sessizce de engelleyebilir. Bunu yakalamak için NotchBox açılışta,
+uykudan uyanınca ve 30 dakikada bir adaptörün kendi testini çalıştırır; test başarısız olursa aynı kısıtlı moda geçer.
+Bir çalardan şarkı bilgisi gelince ya da sonraki test geçince normal moda döner.
+Hiçbir şey çalmıyorken test, okuyacak bir şey olsun diye kısa bir süre "Is It Broken Yet?" adlı yer tutucu bir parça yayınlar.
+Bu parça Denetim Merkezi'nde ya da başka "Şu An Çalıyor" araçlarında bir anlığına görünebilir; NotchBox onu göstermez.
 
 ### Bilinen sınırlar
 
