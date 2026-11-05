@@ -100,6 +100,58 @@ struct AdapterStreamParserTests {
         #expect(parsed?.artwork == nil)
     }
 
+    // Boundaries of the untrusted number bounds: the limit itself is accepted, just past it is not.
+    // Microsecond values below 2^53 are exact doubles, so "limit + 1 µs" really is past the limit.
+
+    @Test func durationAtMaxSecondsIsKept() {
+        #expect(info(payloadLine(#""durationMicros":10000000000000"#))?.clock.duration == AdapterStreamParser.maxSeconds)
+    }
+
+    @Test func durationJustOverMaxSecondsBecomesNil() {
+        #expect(info(payloadLine(#""durationMicros":10000000000001"#))?.clock.duration == nil)
+    }
+
+    @Test func zeroOrNegativeDurationBecomesNil() {
+        #expect(info(payloadLine(#""durationMicros":0"#))?.clock.duration == nil)
+        #expect(info(payloadLine(#""durationMicros":-1"#))?.clock.duration == nil)
+    }
+
+    @Test func smallestPositiveDurationIsKept() {
+        #expect(info(payloadLine(#""durationMicros":1"#))?.clock.duration == 0.000001)
+    }
+
+    @Test func elapsedAtMaxSecondsIsKept() {
+        #expect(info(payloadLine(#""elapsedTimeMicros":10000000000000"#))?.clock.elapsed == AdapterStreamParser.maxSeconds)
+    }
+
+    @Test func negativeElapsedIsClampedToZero() {
+        #expect(info(payloadLine(#""elapsedTimeMicros":-1"#))?.clock.elapsed == 0)
+    }
+
+    @Test func rateAtMaxRateIsKeptInBothDirections() {
+        #expect(info(payloadLine(#""playbackRate":16"#))?.clock.rate == AdapterStreamParser.maxRate)
+        #expect(info(payloadLine(#""playbackRate":-16"#))?.clock.rate == -AdapterStreamParser.maxRate)
+    }
+
+    @Test func rateJustOverMaxRateFallsBackToOne() {
+        #expect(info(payloadLine(#""playbackRate":16.000001"#))?.clock.rate == 1)
+        #expect(info(payloadLine(#""playbackRate":-16.000001"#))?.clock.rate == 1)
+    }
+
+    @Test func timestampAtYear2100IsKept() {
+        let timestamp = info(payloadLine(#""timestampEpochMicros":4102444800000000"#))?.clock.timestamp
+        #expect(timestamp == Date(timeIntervalSince1970: AdapterStreamParser.maxEpochSeconds))
+    }
+
+    @Test func timestampJustAfterYear2100FallsBackToReceivedAt() {
+        #expect(info(payloadLine(#""timestampEpochMicros":4102444800000001"#))?.clock.timestamp == received)
+    }
+
+    @Test func timestampAtTheEpochIsKeptButBeforeItFallsBack() {
+        #expect(info(payloadLine(#""timestampEpochMicros":0"#))?.clock.timestamp == Date(timeIntervalSince1970: 0))
+        #expect(info(payloadLine(#""timestampEpochMicros":-1"#))?.clock.timestamp == received)
+    }
+
     @Test func numericTitleMeansNothingPlaying() {
         let line = #"{"type":"data","diff":false,"payload":{"bundleIdentifier":"com.apple.Music","title":42}}"#
         #expect(parse(line) == .nothingPlaying)

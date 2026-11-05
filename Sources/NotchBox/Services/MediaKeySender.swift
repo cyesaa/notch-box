@@ -16,7 +16,8 @@ final class MediaKeySender: MediaKeySending {
     }
 
     private func isTrusted(prompt: Bool) -> Bool {
-        // Literal key: referencing the C global kAXTrustedCheckOptionPrompt triggers a Swift 6 global-variable concurrency diagnostic.
+        // The value of kAXTrustedCheckOptionPrompt, written out: the SDK declares that constant as a non-const
+        // C global, so Swift imports it as a `var`, and reading it is an error in the Swift 6 language mode.
         let options = ["AXTrustedCheckOptionPrompt": prompt] as CFDictionary
         return AXIsProcessTrustedWithOptions(options)
     }

@@ -67,15 +67,15 @@ struct AdapterSupervisorTests {
 
     @Test func quickExitsKeepCountingAfterOutput() {
         var supervisor = AdapterSupervisor()
-        let t0 = Date(timeIntervalSince1970: 1_000)
-        var last: TimeInterval = 0
+        var delays: [TimeInterval] = []
         for i in 0..<3 {
-            let start = t0.addingTimeInterval(Double(i) * 10)
+            let start = at(Double(i) * 10)
             supervisor.processStarted(at: start)
             supervisor.receivedOutput()
-            last = supervisor.processExited(at: start.addingTimeInterval(1))
+            delays.append(supervisor.processExited(at: start.addingTimeInterval(1)))
         }
+        // Output resets the backoff, so the first two restarts wait 1 s; the third quick exit degrades.
+        #expect(delays == [1, 1, 60])
         #expect(supervisor.isDegraded)
-        #expect(last == 60)
     }
 }
