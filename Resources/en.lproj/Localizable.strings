@@ -15,3 +15,11 @@
 "no_youtube_video" = "No YouTube video is open in the browser";
 "browser_access_needed" = "Allow NotchBox under Privacy & Security → Automation";
 "video_not_embeddable" = "This video can only be watched on YouTube";
+"clipboard_title" = "Clipboard";
+"clipboard_empty" = "Text and images you copy show up here";
+"clipboard_denied" = "Clipboard access is off. Turn it on in System Settings → Privacy & Security";
+"clipboard_clear" = "Clear the clipboard history";
+"clipboard_copy" = "Copy again";
+"clipboard_remove" = "Remove";
+"clipboard_image" = "Image";
+"clipboard_copied" = "Copied";

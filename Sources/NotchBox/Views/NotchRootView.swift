@@ -9,6 +9,8 @@ struct NotchRootView: View {
         let size = model.contentSize
         let flare = NotchLayout.topCornerRadius(for: state)
         let bottomRadius = NotchLayout.bottomCornerRadius(for: state)
+        // The open player grows to the left for the clipboard, keeping the player under the notch.
+        let offset = NotchLayout.horizontalOffset(for: state)
         ZStack(alignment: .top) {
             // The silhouette is wider than the content by the flared top corners on each side.
             NotchShape(topRadius: flare, bottomRadius: bottomRadius)
@@ -16,9 +18,11 @@ struct NotchRootView: View {
                 .frame(width: size.width + 2 * flare, height: size.height)
                 .shadow(color: Color.black.opacity(state == .idle ? 0 : 0.45), radius: state.isOpen ? 16 : 8, y: state.isOpen ? 8 : 3)
                 .opacity(model.isSeeThrough ? 0.12 : 1)
+                .offset(x: offset)
             content
                 .frame(width: size.width, height: size.height, alignment: .top)
                 .clipShape(NotchShape(topRadius: 0, bottomRadius: bottomRadius))
+                .offset(x: offset)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: model.displayState)
@@ -35,12 +39,20 @@ struct NotchRootView: View {
             CollapsedView(model: model)
                 .transition(.notchContent)
         case .expanded:
-            ExpandedView(model: model)
-                .transition(.notchContent)
+            HStack(spacing: 0) {
+                ClipboardView(model: model)
+                    .frame(width: NotchLayout.clipboardWidth)
+                ExpandedView(model: model)
+            }
+            .transition(.notchContent)
         case .expandedEmpty:
-            NothingPlayingView()
-                .padding(.top, model.notchSize.height)
-                .transition(.notchContent)
+            HStack(spacing: 0) {
+                ClipboardView(model: model)
+                    .frame(width: NotchLayout.clipboardWidth)
+                NothingPlayingView()
+                    .padding(.top, model.notchSize.height)
+            }
+            .transition(.notchContent)
         case .video:
             VideoView(model: model)
                 .transition(.notchContent)

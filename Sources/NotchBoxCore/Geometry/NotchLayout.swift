@@ -7,7 +7,9 @@ public enum NotchLayout {
     /// The expanded player below the notch: header, progress and controls. The band beside the notch
     /// holds the small icons, so nothing is wasted above the header.
     public static let expandedBodyHeight: CGFloat = 154
-    public static let emptySize = CGSize(width: 300, height: 80)
+    public static let emptyWidth: CGFloat = 300
+    /// The clipboard column left of the open player.
+    public static let clipboardWidth: CGFloat = 220
     public static let expandedArtworkSide: CGFloat = 64
     public static let expandedArtworkRadius: CGFloat = 10
     public static let miniArtworkRadius: CGFloat = 6
@@ -32,11 +34,14 @@ public enum NotchLayout {
         case .mini:
             return CGSize(width: notch.width + 2 * miniSideWidth(notch: notch), height: notch.height)
         case .expanded:
-            return CGSize(width: max(expandedWidth, notch.width + 80), height: notch.height + expandedBodyHeight)
+            return CGSize(
+                width: leadingExtension(for: state) + max(expandedWidth, notch.width + 80),
+                height: notch.height + expandedBodyHeight
+            )
         case .expandedEmpty:
             return CGSize(
-                width: max(emptySize.width, notch.width + 80),
-                height: max(emptySize.height, notch.height + 40)
+                width: leadingExtension(for: state) + max(emptyWidth, notch.width + 80),
+                height: notch.height + expandedBodyHeight
             )
         case .volume:
             return CGSize(width: notch.width + 2 * miniSideWidth(notch: notch), height: notch.height + volumeRowHeight)
@@ -78,13 +83,26 @@ public enum NotchLayout {
         return CGSize(width: width, height: (width * 9 / 16).rounded())
     }
 
-    /// The smallest size that fits every state; the panel window uses this.
-    public static func maxSize(notch: CGSize) -> CGSize {
-        let sizes = NotchDisplayState.allCases.map { size(for: $0, notch: notch) }
-        return CGSize(
-            width: sizes.map(\.width).max() ?? notch.width,
-            height: sizes.map(\.height).max() ?? notch.height
-        )
+    /// Extra width added on the left of a state: the clipboard column of the open player.
+    public static func leadingExtension(for state: NotchDisplayState) -> CGFloat {
+        switch state {
+        case .expanded, .expandedEmpty: return clipboardWidth
+        default: return 0
+        }
+    }
+
+    /// How far the content's centre sits from the notch's centre. Growing only to the left keeps the
+    /// player itself centred under the notch.
+    public static func horizontalOffset(for state: NotchDisplayState) -> CGFloat {
+        -leadingExtension(for: state) / 2
+    }
+
+    /// The farthest any state reaches sideways from the notch's centre (width) and down (height).
+    public static func contentReach(notch: CGSize) -> CGSize {
+        let states = NotchDisplayState.allCases
+        let reach = states.map { size(for: $0, notch: notch).width / 2 + abs(horizontalOffset(for: $0)) }
+        let heights = states.map { size(for: $0, notch: notch).height }
+        return CGSize(width: reach.max() ?? notch.width / 2, height: heights.max() ?? notch.height)
     }
 
     public static func bottomCornerRadius(for state: NotchDisplayState) -> CGFloat {
@@ -105,10 +123,11 @@ public enum NotchLayout {
     /// Transparent room around the shape for its drop shadow.
     public static let shadowMargin: CGFloat = 24
 
-    /// The panel window: every state plus the flared corners on both sides and the shadow below.
+    /// The panel window, centred on the notch: every state plus the flared corners on both sides and
+    /// the shadow below.
     public static func windowSize(notch: CGSize) -> CGSize {
         let flare = NotchDisplayState.allCases.map(topCornerRadius(for:)).max() ?? 0
-        let content = maxSize(notch: notch)
-        return CGSize(width: content.width + 2 * (flare + shadowMargin), height: content.height + shadowMargin)
+        let reach = contentReach(notch: notch)
+        return CGSize(width: 2 * (reach.width + flare + shadowMargin), height: reach.height + shadowMargin)
     }
 }
