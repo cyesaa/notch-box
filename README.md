@@ -6,6 +6,8 @@ Control whatever is playing on your Mac from the MacBook notch.
 - Hover the notch and it grows into a player: artwork, title, artist and album, a draggable progress bar,
   previous / play-pause / next, a volume bar and the icon of the app that is playing.
 - The player takes its colour from the cover: a soft glow around the artwork, the progress bar and the waveform.
+- Watching a YouTube video in Safari, Chrome, Brave, Edge, Vivaldi or Arc? Press the picture-in-picture button in the
+  player and the video moves into the notch, from the same moment, so you can put the browser away and keep watching.
 - Tested with Apple Music and YouTube in Safari and Chrome. Other apps that report "Now Playing" to macOS
   (such as Spotify) should work but are untested.
 - English and Turkish, picked from your system language.
@@ -27,7 +29,13 @@ Control whatever is playing on your Mac from the MacBook notch.
 
 ## Privacy
 
-NotchBox never connects to the network. Track info stays on your Mac.
+NotchBox does not connect to the network, except to YouTube while you watch a video in the notch. Track info
+stays on your Mac.
+
+**Watching in the notch** reads the open tabs of your browser (macOS asks once for **Automation** permission) to
+find the YouTube video, then plays it with YouTube's own embedded player. Some videos can only be watched on
+YouTube; NotchBox then says so. The notch player is a second copy of the video, so it starts where the browser was
+and the browser is moved to where you stopped when you close it.
 
 To move the waveform with the music, NotchBox asks for **System Audio Recording** permission the first time
 music plays (macOS 14.2 or later). It only measures how loud each frequency range is, many times a second;
@@ -92,6 +100,8 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
 - Müzik çalarken notch'un solunda küçük bir kapak, sağında oynayan bir ses dalgası görünür.
 - Fareyi notch'a getirince notch büyür: kapak, şarkı adı, sanatçı ve albüm, sürüklenebilir ilerleme çubuğu,
   önceki / oynat-duraklat / sonraki, ses çubuğu ve müziğin çaldığı uygulamanın ikonu.
+- Safari, Chrome, Brave, Edge, Vivaldi ya da Arc'ta YouTube videosu mu izliyorsun? Oynatıcıdaki "resim içinde resim"
+  düğmesine bas; video kaldığı yerden notch'a taşınır, tarayıcıyı arkaya alıp izlemeye devam edebilirsin.
 - Oynatıcı rengini kapaktan alır: kapağın etrafında yumuşak bir ışıma, ilerleme çubuğu ve ses dalgası.
 - Apple Music ve Safari/Chrome'da YouTube ile test edildi. macOS'a "Şu An Çalıyor" bilgisi veren diğer uygulamalar
   (Spotify gibi) çalışmalı ama test edilmedi.
@@ -114,7 +124,12 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
 
 ### Gizlilik
 
-NotchBox internete hiç bağlanmaz. Şarkı bilgileri Mac'inde kalır.
+NotchBox, notch'ta video izlerken YouTube'a bağlanmak dışında internete bağlanmaz. Şarkı bilgileri Mac'inde kalır.
+
+**Notch'ta izleme**, YouTube videosunu bulmak için tarayıcındaki açık sekmeleri okur (macOS bir kez **Otomasyon**
+izni ister) ve videoyu YouTube'un kendi gömülü oynatıcısıyla oynatır. Bazı videolar yalnızca YouTube'da
+izlenebilir; NotchBox bunu söyler. Notch'taki oynatıcı videonun ikinci bir kopyasıdır: tarayıcının kaldığı yerden
+başlar, kapatınca tarayıcı senin durduğun yere alınır.
 
 Ses dalgasının müziğe göre oynaması için NotchBox, ilk kez müzik çaldığında **Sistem Sesi Kaydı** izni ister
 (macOS 14.2 ve sonrası). Yalnızca her frekans aralığının ne kadar yüksek çaldığını saniyede birçok kez ölçer;

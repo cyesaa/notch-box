@@ -56,6 +56,23 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 - [ ] With the lid closed on an external display, nothing appears; reopening the lid brings the panel back.
 - [ ] After sleep and wake, track info updates again.
 
+## Watching in the notch
+
+- [ ] Play a YouTube video in Chrome and hover the notch: a picture-in-picture button sits next to the Chrome icon.
+  It is not there for Apple Music.
+- [ ] Press it: macOS asks once whether NotchBox may control Google Chrome. After allowing it, Chrome pauses and the
+  notch opens a video panel that plays the same video from about the same moment, with sound.
+- [ ] Put Chrome behind other windows: the video keeps playing in the notch, and the panel stays open when the
+  cursor leaves it.
+- [ ] YouTube's own controls in the panel (pause, seek, sound) react to the first click.
+- [ ] The close button closes the panel; Chrome stays paused at the position where the notch player stopped.
+- [ ] "Continue in the browser" closes the panel, brings Chrome to the front and plays on from that position.
+- [ ] With two YouTube tabs open, the panel shows the one whose title matches what was playing.
+- [ ] With the Automation permission denied (System Settings → Privacy & Security → Automation), the player shows
+  "Allow NotchBox under Privacy & Security → Automation" for a few seconds.
+- [ ] A video whose owner disabled embedding closes the panel and shows "This video can only be watched on YouTube".
+- [ ] Repeat with Safari.
+
 ## Health check
 
 Watch the log in a second terminal. zsh has its own `log` command, so use the full path:

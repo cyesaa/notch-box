@@ -32,7 +32,8 @@ struct NotchLayoutTests {
     }
 
     @Test func maxSizeCoversAllStates() {
-        #expect(NotchLayout.maxSize(notch: notch) == CGSize(width: 400, height: 200))
+        // The video panel is the largest state.
+        #expect(NotchLayout.maxSize(notch: notch) == NotchLayout.size(for: .video, notch: notch))
     }
 
     @Test func topCornersFlareIntoTheScreenEdgeOnlyWhenVisible() {
@@ -45,7 +46,7 @@ struct NotchLayoutTests {
     @Test func windowLeavesRoomForTheFlaredCornersAndTheShadow() {
         let margin = NotchLayout.shadowMargin
         #expect(margin == 24)
-        #expect(NotchLayout.windowSize(notch: notch) == CGSize(width: 400 + 2 * (12 + margin), height: 200 + margin))
+        #expect(NotchLayout.windowSize(notch: notch) == CGSize(width: 464 + 2 * (12 + margin), height: 337 + margin))
     }
 
     @Test func cornerRadiusGrowsWhenOpen() {
