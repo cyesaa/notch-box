@@ -22,20 +22,21 @@ public struct NotchGeometry: Equatable, Sendable {
 
     public var notchSize: CGSize { notchRect.size }
 
-    /// A frame of `size`, horizontally centered on the notch and pinned to the top of the screen.
-    public func panelFrame(for size: CGSize) -> CGRect {
+    /// A frame of `size`, horizontally centered on the notch (moved by `offsetX`) and pinned to the top
+    /// of the screen.
+    public func panelFrame(for size: CGSize, offsetX: CGFloat = 0) -> CGRect {
         CGRect(
-            x: notchRect.midX - size.width / 2,
+            x: notchRect.midX + offsetX - size.width / 2,
             y: screenFrame.maxY - size.height,
             width: size.width,
             height: size.height
         )
     }
 
-    /// `rect` (origin top-left, inside content of `contentSize` shown at `panelFrame(for: contentSize)`)
-    /// in global AppKit coordinates.
-    public func screenRect(for rect: CGRect, inContentOf contentSize: CGSize) -> CGRect {
-        let frame = panelFrame(for: contentSize)
+    /// `rect` (origin top-left, inside content of `contentSize` shown at
+    /// `panelFrame(for: contentSize, offsetX: offsetX)`) in global AppKit coordinates.
+    public func screenRect(for rect: CGRect, inContentOf contentSize: CGSize, offsetX: CGFloat = 0) -> CGRect {
+        let frame = panelFrame(for: contentSize, offsetX: offsetX)
         return CGRect(x: frame.minX + rect.minX, y: frame.maxY - rect.maxY, width: rect.width, height: rect.height)
     }
 

@@ -21,10 +21,20 @@ enum SnapshotRenderer {
         var overButton = false
         /// Where the hovering cursor came in.
         var entry: PanelEntry = .fromSide
+        /// Nothing copied yet.
+        var emptyClipboard = false
     }
 
     static func render(to directory: URL) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        sampleClipboard = [
+            .text("brew install --cask notchbox"),
+            makeCover(colors: [NSColor(srgbRed: 0.3, green: 0.8, blue: 0.5, alpha: 1), NSColor(srgbRed: 0.1, green: 0.3, blue: 0.7, alpha: 1)], width: 1280, height: 720)
+                .map { .image($0, type: "public.png") },
+            .text("Toplantı yarın 10:30'da, Zoom bağlantısı takvimde.\nGündem: sürüm 0.3 planı"),
+            .text("https://github.com/cyesaa/notch-box/releases/latest"),
+            .text("sunucu-adresi.local"),
+        ].compactMap { $0 }
         let warm = makeCover(colors: [NSColor(srgbRed: 1, green: 0.62, blue: 0.3, alpha: 1), NSColor(srgbRed: 0.85, green: 0.2, blue: 0.45, alpha: 1)])
         let video = makeCover(
             colors: [NSColor(srgbRed: 0.55, green: 0.7, blue: 0.8, alpha: 1), NSColor(srgbRed: 0.8, green: 0.6, blue: 0.4, alpha: 1)],
@@ -42,6 +52,7 @@ enum SnapshotRenderer {
             Scene(name: "3-expanded-paused-long-title", state: .info(track("A Very Long Song Title That Does Not Fit On One Line", "Ocean Avenue Collective", nil, playing: false, artwork: cool)), hovering: true),
             Scene(name: "4-expanded-no-artwork", state: .info(track("Live Radio", nil, nil, playing: true, artwork: nil, duration: nil, app: "com.apple.Safari")), hovering: true),
             Scene(name: "5-nothing-playing", state: .nothing, hovering: true),
+            Scene(name: "5b-nothing-playing-empty-clipboard", state: .nothing, hovering: true, emptyClipboard: true),
             Scene(name: "6-unavailable", state: .unavailable, hovering: true),
             Scene(
                 name: "7-video",
@@ -69,6 +80,9 @@ enum SnapshotRenderer {
         print("Wrote \(scenes.count) snapshots to \(directory.path)")
     }
 
+    /// Newest first.
+    private static var sampleClipboard: [ClipboardContent] = []
+
     private static func render(_ scene: Scene, to url: URL) throws {
         let clock = SnapshotClock()
         let notch = CGSize(width: 200, height: 32)
@@ -77,6 +91,7 @@ enum SnapshotRenderer {
             nowPlayingService: SnapshotNowPlayingService(state: scene.state),
             volumeControl: volume,
             tabReader: SnapshotTabReader(),
+            clipboardWatcher: SnapshotClipboard(items: scene.emptyClipboard ? [] : sampleClipboard),
             makePlayer: { _, _ in nil },
             now: { clock.now }
         )
@@ -110,6 +125,7 @@ enum SnapshotRenderer {
         }
         .frame(width: canvas.width, height: canvas.height)
         .environment(\.colorScheme, .dark)
+        .environment(\.isRenderingSnapshot, true)
         .transaction { $0.disablesAnimations = true }
 
         let renderer = ImageRenderer(content: content)
@@ -201,4 +217,20 @@ private final class SnapshotVolume: VolumeControlling {
     var onChange: (() -> Void)?
     func start() {}
     func setVolume(_ value: Float) {}
+}
+
+@MainActor
+private final class SnapshotClipboard: ClipboardWatching {
+    /// Newest first.
+    let items: [ClipboardContent]
+    var onCopy: ((ClipboardContent) -> Void)?
+    let isDenied = false
+
+    init(items: [ClipboardContent]) {
+        self.items = items
+    }
+
+    func start() { items.reversed().forEach { onCopy?($0) } }
+    func stop() {}
+    func copy(_ content: ClipboardContent) {}
 }
