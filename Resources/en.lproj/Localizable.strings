@@ -25,3 +25,14 @@
 "clipboard_copied" = "Copied";
 "clipboard_view" = "View";
 "clipboard_close_preview" = "Close the image";
+"calendar_title" = "Calendar";
+"calendar_allow" = "Show my calendar";
+"calendar_allow_hint" = "Allow access to see today's events here";
+"calendar_denied" = "Calendar access is off. Turn it on in System Settings → Privacy & Security → Calendars";
+"calendar_nothing_left" = "Nothing else today";
+"calendar_tomorrow" = "Tomorrow";
+"calendar_all_day" = "All day";
+"calendar_now_until" = "Now · until %@";
+"calendar_in_minutes" = "in %d min";
+"calendar_join" = "Join";
+"calendar_open" = "Open in Calendar";

@@ -25,3 +25,14 @@
 "clipboard_copied" = "Kopyalandı";
 "clipboard_view" = "Görüntüle";
 "clipboard_close_preview" = "Görseli kapat";
+"calendar_title" = "Takvim";
+"calendar_allow" = "Takvimi göster";
+"calendar_allow_hint" = "Bugünün etkinliklerini burada görmek için izin ver";
+"calendar_denied" = "Takvim erişimi kapalı. Sistem Ayarları → Gizlilik ve Güvenlik → Takvimler'den açabilirsin";
+"calendar_nothing_left" = "Bugün başka etkinlik yok";
+"calendar_tomorrow" = "Yarın";
+"calendar_all_day" = "Tüm gün";
+"calendar_now_until" = "Şimdi · bitiş %@";
+"calendar_in_minutes" = "%d dk sonra";
+"calendar_join" = "Katıl";
+"calendar_open" = "Takvim'de aç";

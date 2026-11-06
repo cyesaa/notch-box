@@ -17,7 +17,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             mediaKeys: MediaKeySender(),
             audioMeter: AudioLevelMeter(),
             tabReader: BrowserTabReader(),
-            clipboardWatcher: ClipboardMonitor()
+            clipboardWatcher: ClipboardMonitor(),
+            calendarProvider: CalendarService()
         )
         let windowController = NotchWindowController(model: model)
         windowController.start()
