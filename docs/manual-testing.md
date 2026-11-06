@@ -78,14 +78,17 @@ Needs the repository to be public and a published release.
 
 ## Watching in the notch
 
-- [ ] Play a YouTube video in Chrome and hover the notch: a picture-in-picture button sits next to the Chrome icon.
-  It is not there for Apple Music.
+- [ ] Play a YouTube video in Chrome and hover the notch: the Chrome icon sits left of the camera, the waveform
+  right of it, and a picture-in-picture button sits at the right end of the controls. It is not there for Apple Music.
 - [ ] Press it: macOS asks once whether NotchBox may control Google Chrome. After allowing it, Chrome pauses and the
   notch opens a video panel that plays the same video from about the same moment, with sound.
 - [ ] Put Chrome behind other windows: the video keeps playing in the notch, and the panel stays open when the
   cursor leaves it.
-- [ ] With the cursor over the video panel, the panel and video fade to almost invisible, the windows and menu bar
-  items behind it show through and can be clicked; only the X stays fully visible.
+- [ ] The Chrome icon and the X sit beside the camera; the video starts right below the notch.
+- [ ] Moving the cursor onto the video panel from below or from the side fades the panel and video to almost
+  invisible; the windows behind it show through and can be clicked; only the X stays fully visible.
+- [ ] Moving the cursor onto the video panel down from the menu bar keeps it fully visible, and YouTube's own
+  controls (play, seek bar, settings) work. It stays that way until the cursor leaves the panel.
 - [ ] Moving the cursor away brings the video back at full opacity.
 - [ ] The X closes the panel with one click; Chrome stays paused at the position where the notch player stopped.
 - [ ] Without a video, the open player still takes clicks as before (buttons, progress bar, volume).

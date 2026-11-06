@@ -3,16 +3,17 @@ import CoreGraphics
 /// Sizes and radii for each display state. All values in points.
 public enum NotchLayout {
     public static let miniSidePadding: CGFloat = 12
-    public static let expandedSize = CGSize(width: 400, height: 200)
+    public static let expandedWidth: CGFloat = 400
+    /// The expanded player below the notch: header, progress and controls. The band beside the notch
+    /// holds the small icons, so nothing is wasted above the header.
+    public static let expandedBodyHeight: CGFloat = 154
     public static let emptySize = CGSize(width: 300, height: 80)
     public static let expandedArtworkSide: CGFloat = 64
     public static let expandedArtworkRadius: CGFloat = 10
     public static let miniArtworkRadius: CGFloat = 6
     public static let videoWidth: CGFloat = 464
     public static let videoPadding: CGFloat = 16
-    /// Title and buttons above the player.
-    public static let videoBarHeight: CGFloat = 30
-    /// Gap between the notch and the bar, and between the bar and the player.
+    /// Gap between the notch and the player. The source icon and the close button sit beside the notch.
     public static let videoGap: CGFloat = 8
 
     /// Width added on each side of the notch in the mini state.
@@ -31,10 +32,7 @@ public enum NotchLayout {
         case .mini:
             return CGSize(width: notch.width + 2 * miniSideWidth(notch: notch), height: notch.height)
         case .expanded:
-            return CGSize(
-                width: max(expandedSize.width, notch.width + 80),
-                height: max(expandedSize.height, notch.height + 160)
-            )
+            return CGSize(width: max(expandedWidth, notch.width + 80), height: notch.height + expandedBodyHeight)
         case .expandedEmpty:
             return CGSize(
                 width: max(emptySize.width, notch.width + 80),
@@ -46,12 +44,12 @@ public enum NotchLayout {
             let player = videoPlayerSize(notch: notch)
             return CGSize(
                 width: player.width + 2 * videoPadding,
-                height: notch.height + videoGap + videoBarHeight + videoGap + player.height + videoPadding
+                height: notch.height + videoGap + player.height + videoPadding
             )
         }
     }
 
-    public static let videoCloseButtonSide: CGFloat = 28
+    public static let videoCloseButtonSide: CGFloat = 24
     /// The volume row under the notch in the volume state, including its bottom margin.
     public static let volumeRowHeight: CGFloat = 34
 
@@ -62,12 +60,13 @@ public enum NotchLayout {
         return CGRect(x: side + notch.width, y: 0, width: side, height: notch.height)
     }
 
-    /// The video panel's close button, in content coordinates (origin top-left): the right end of the bar.
+    /// The video panel's close button, in content coordinates (origin top-left): right of the notch,
+    /// at the right end of the panel.
     public static func videoCloseButtonFrame(notch: CGSize) -> CGRect {
         let width = size(for: .video, notch: notch).width
         return CGRect(
             x: width - videoPadding - videoCloseButtonSide,
-            y: notch.height + videoGap + (videoBarHeight - videoCloseButtonSide) / 2,
+            y: ((notch.height - videoCloseButtonSide) / 2).rounded(),
             width: videoCloseButtonSide,
             height: videoCloseButtonSide
         )

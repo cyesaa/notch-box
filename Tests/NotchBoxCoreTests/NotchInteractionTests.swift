@@ -6,31 +6,57 @@ struct NotchInteractionTests {
     let notch = CGSize(width: 185, height: 32)
 
     @Test func closedStatesNeverTakeClicks() {
-        #expect(!NotchInteraction.acceptsClicks(in: .idle, cursorOverButton: false))
-        #expect(!NotchInteraction.acceptsClicks(in: .idle, cursorOverButton: true))
+        #expect(!NotchInteraction.acceptsClicks(in: .idle, cursorOverButton: false, entry: nil))
+        #expect(!NotchInteraction.acceptsClicks(in: .idle, cursorOverButton: true, entry: nil))
     }
 
     @Test func openPlayerPanelsTakeClicks() {
-        #expect(NotchInteraction.acceptsClicks(in: .expanded, cursorOverButton: false))
-        #expect(NotchInteraction.acceptsClicks(in: .expandedEmpty, cursorOverButton: false))
+        #expect(NotchInteraction.acceptsClicks(in: .expanded, cursorOverButton: false, entry: nil))
+        #expect(NotchInteraction.acceptsClicks(in: .expandedEmpty, cursorOverButton: false, entry: nil))
     }
 
-    @Test func videoTakesClicksOnlyOverItsCloseButton() {
-        #expect(NotchInteraction.acceptsClicks(in: .video, cursorOverButton: true))
-        #expect(!NotchInteraction.acceptsClicks(in: .video, cursorOverButton: false))
+    @Test func videoEnteredFromTheSideTakesClicksOnlyOverItsCloseButton() {
+        #expect(NotchInteraction.acceptsClicks(in: .video, cursorOverButton: true, entry: .fromSide))
+        #expect(!NotchInteraction.acceptsClicks(in: .video, cursorOverButton: false, entry: .fromSide))
+        #expect(!NotchInteraction.acceptsClicks(in: .video, cursorOverButton: false, entry: nil))
     }
 
-    @Test func onlyAHoveredVideoIsSeeThrough() {
-        #expect(NotchInteraction.isSeeThrough(.video, hovering: true))
-        #expect(!NotchInteraction.isSeeThrough(.video, hovering: false))
-        #expect(!NotchInteraction.isSeeThrough(.expanded, hovering: true))
+    @Test func videoEnteredFromTheTopTakesEveryClick() {
+        #expect(NotchInteraction.acceptsClicks(in: .video, cursorOverButton: false, entry: .fromTop))
+        #expect(NotchInteraction.acceptsClicks(in: .video, cursorOverButton: true, entry: .fromTop))
     }
 
-    @Test func closeButtonSitsAtTheRightEndOfTheVideoBar() {
+    @Test func entryDoesNotChangeOtherStates() {
+        #expect(NotchInteraction.acceptsClicks(in: .expanded, cursorOverButton: false, entry: .fromSide))
+        #expect(!NotchInteraction.acceptsClicks(in: .mini, cursorOverButton: false, entry: .fromTop))
+        #expect(!NotchInteraction.acceptsClicks(in: .idle, cursorOverButton: false, entry: .fromTop))
+    }
+
+    @Test func onlyAVideoHoveredFromTheSideIsSeeThrough() {
+        #expect(NotchInteraction.isSeeThrough(.video, hovering: true, entry: .fromSide))
+        #expect(!NotchInteraction.isSeeThrough(.video, hovering: true, entry: .fromTop))
+        #expect(!NotchInteraction.isSeeThrough(.video, hovering: false, entry: nil))
+        #expect(!NotchInteraction.isSeeThrough(.expanded, hovering: true, entry: .fromSide))
+    }
+
+    @Test func enteringWithinTheNotchBandCountsAsFromTheTop() {
+        // The band beside the notch, plus a little slack for a fast cursor.
+        #expect(NotchInteraction.entry(atDepth: 0, notchHeight: 32) == .fromTop)
+        #expect(NotchInteraction.entry(atDepth: 40, notchHeight: 32) == .fromTop)
+        #expect(NotchInteraction.entry(atDepth: 41, notchHeight: 32) == .fromSide)
+        #expect(NotchInteraction.entry(atDepth: 200, notchHeight: 32) == .fromSide)
+    }
+
+    @Test func closeButtonSitsInTheNotchBandAtTheRightEnd() {
         let frame = NotchLayout.videoCloseButtonFrame(notch: notch)
         let side = NotchLayout.videoCloseButtonSide
-        #expect(side == 28)
-        #expect(frame == CGRect(x: 464 - 16 - side, y: 32 + 8 + (30 - side) / 2, width: side, height: side))
+        #expect(side == 24)
+        #expect(frame == CGRect(x: 464 - 16 - side, y: (32 - side) / 2, width: side, height: side))
+    }
+
+    @Test func videoPlayerStartsJustBelowTheNotch() {
+        // Notch, gap, 16:9 player (432 × 243), bottom padding.
+        #expect(NotchLayout.size(for: .video, notch: notch) == CGSize(width: 464, height: 32 + 8 + 243 + 16))
     }
 
     @Test func contentRectsConvertToScreenCoordinates() throws {
