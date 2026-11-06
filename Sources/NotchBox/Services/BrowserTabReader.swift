@@ -54,7 +54,16 @@ final class BrowserTabReader: BrowserTabReading {
                         completion(.failure(ReadError.scriptFailed(status, message)))
                         return
                     }
-                    completion(.success(BrowserTabs.parse(text)))
+                    let tabs = BrowserTabs.parse(text)
+                    // Where the tabs are (host and first path part only), to diagnose "no YouTube video" reports.
+                    let places = tabs.map { tab -> String in
+                        guard let url = URLComponents(string: tab.url) else { return "?" }
+                        let first = url.path.split(separator: "/").first.map(String.init) ?? ""
+                        return "\(url.host ?? "?")/\(first)"
+                    }
+                    let videos = tabs.filter { YouTubeLink.videoID(from: $0.url) != nil }.count
+                    logger.info("Read \(tabs.count, privacy: .public) tabs (\(videos) YouTube videos, \(text.utf8.count) bytes): \(places.joined(separator: ", "), privacy: .private)")
+                    completion(.success(tabs))
                 }
             }
         }

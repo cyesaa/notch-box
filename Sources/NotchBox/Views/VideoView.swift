@@ -2,10 +2,14 @@ import NotchBoxCore
 import SwiftUI
 import WebKit
 
-/// A browser's YouTube video playing in the notch: a bar with the source, title and buttons, and a
-/// 16:9 player below it. The notch stays open until the video is closed.
+/// A browser's YouTube video playing in the notch: a bar with the source browser's icon and a close button, and a
+/// 16:9 player below it. The notch stays open until the video is closed. Under the cursor everything but
+/// the close button fades away and clicks go to the windows behind (see `NotchInteraction`).
 struct VideoView: View {
     let model: NotchViewModel
+
+    /// How much of the panel shows while it is see-through.
+    static let seeThroughOpacity = 0.15
 
     var body: some View {
         let notch = model.notchSize
@@ -22,33 +26,26 @@ struct VideoView: View {
         .padding(.bottom, NotchLayout.videoPadding)
     }
 
+    private var fade: Double { model.isSeeThrough ? Self.seeThroughOpacity : 1 }
+
     private var bar: some View {
         HStack(spacing: 10) {
             if let session = model.video, let icon = AppIconProvider.icon(for: session.sourceBundleIdentifier) {
                 Image(nsImage: icon)
                     .resizable()
                     .frame(width: 20, height: 20)
+                    .opacity(fade)
                     .accessibilityHidden(true)
             }
-            Text(model.video?.title ?? "")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(NotchTheme.primaryText)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            BarButton(systemName: "arrow.up.forward.app", label: L10n.continueInBrowser) {
-                model.closeVideo(resumeInBrowser: true)
-            }
-            BarButton(systemName: "xmark", label: L10n.closeVideo) {
-                model.closeVideo(resumeInBrowser: false)
-            }
+            Spacer(minLength: 0)
+            CloseButton(label: L10n.closeVideo, action: model.closeVideo)
         }
     }
 
     @ViewBuilder
     private var playerArea: some View {
         if let player = model.videoPlayer {
-            WebViewHost(webView: player.webView)
+            WebViewHost(webView: player.webView, alpha: fade)
         } else {
             ZStack {
                 Color(white: 0.08)
@@ -56,22 +53,25 @@ struct VideoView: View {
                     .font(.system(size: 34, weight: .semibold))
                     .foregroundStyle(NotchTheme.tertiaryText)
             }
+            .opacity(fade)
         }
     }
 }
 
-private struct BarButton: View {
-    let systemName: String
+/// Stays fully visible and is the only thing that takes clicks while the panel is see-through,
+/// so it has its own dark disc. Its frame must match `NotchLayout.videoCloseButtonFrame`.
+private struct CloseButton: View {
     let label: String
     let action: @MainActor () -> Void
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: systemName)
+            Image(systemName: "xmark")
                 .font(.system(size: 12, weight: .bold))
                 .foregroundStyle(NotchTheme.primaryText)
-                .frame(width: 28, height: 28)
-                .background(Circle().fill(NotchTheme.tile))
+                .frame(width: NotchLayout.videoCloseButtonSide, height: NotchLayout.videoCloseButtonSide)
+                .background(Circle().fill(Color(white: 0.16)))
+                .overlay(Circle().strokeBorder(Color.white.opacity(0.18), lineWidth: 1))
                 .contentShape(Circle())
         }
         .buttonStyle(PressableButtonStyle())
@@ -80,10 +80,19 @@ private struct BarButton: View {
     }
 }
 
-/// Shows an existing `WKWebView` (owned by `YouTubePlayer`) in SwiftUI.
+/// Shows an existing `WKWebView` (owned by `YouTubePlayer`) in SwiftUI. The fade is applied to the
+/// AppKit view itself, which SwiftUI's opacity does not reliably reach.
 private struct WebViewHost: NSViewRepresentable {
     let webView: WKWebView
+    let alpha: Double
 
     func makeNSView(context: Context) -> WKWebView { webView }
-    func updateNSView(_ nsView: WKWebView, context: Context) {}
+
+    func updateNSView(_ nsView: WKWebView, context: Context) {
+        guard abs(nsView.alphaValue - alpha) > 0.001 else { return }
+        NSAnimationContext.runAnimationGroup { animation in
+            animation.duration = 0.18
+            nsView.animator().alphaValue = alpha
+        }
+    }
 }

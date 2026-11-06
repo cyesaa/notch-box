@@ -74,9 +74,11 @@ Needs the repository to be public and a published release.
   notch opens a video panel that plays the same video from about the same moment, with sound.
 - [ ] Put Chrome behind other windows: the video keeps playing in the notch, and the panel stays open when the
   cursor leaves it.
-- [ ] YouTube's own controls in the panel (pause, seek, sound) react to the first click.
-- [ ] The close button closes the panel; Chrome stays paused at the position where the notch player stopped.
-- [ ] "Continue in the browser" closes the panel, brings Chrome to the front and plays on from that position.
+- [ ] With the cursor over the video panel, the panel and video fade to almost invisible, the windows and menu bar
+  items behind it show through and can be clicked; only the X stays fully visible.
+- [ ] Moving the cursor away brings the video back at full opacity.
+- [ ] The X closes the panel with one click; Chrome stays paused at the position where the notch player stopped.
+- [ ] Without a video, the open player still takes clicks as before (buttons, progress bar, volume).
 - [ ] With two YouTube tabs open, the panel shows the one whose title matches what was playing.
 - [ ] With the Automation permission denied (System Settings → Privacy & Security → Automation), the player shows
   "Allow NotchBox under Privacy & Security → Automation" for a few seconds.

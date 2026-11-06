@@ -15,6 +15,7 @@ struct NotchRootView: View {
                 .fill(Color.black)
                 .frame(width: size.width + 2 * flare, height: size.height)
                 .shadow(color: Color.black.opacity(state == .idle ? 0 : 0.45), radius: state.isOpen ? 16 : 8, y: state.isOpen ? 8 : 3)
+                .opacity(model.isSeeThrough ? 0.12 : 1)
             content
                 .frame(width: size.width, height: size.height, alignment: .top)
                 .clipShape(NotchShape(topRadius: 0, bottomRadius: bottomRadius))
@@ -22,6 +23,7 @@ struct NotchRootView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: model.displayState)
         .animation(NotchTheme.accentAnimation, value: model.accent)
+        .animation(.easeOut(duration: 0.18), value: model.isSeeThrough)
     }
 
     @ViewBuilder

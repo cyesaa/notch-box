@@ -49,6 +49,19 @@ public enum NotchLayout {
         }
     }
 
+    public static let videoCloseButtonSide: CGFloat = 28
+
+    /// The video panel's close button, in content coordinates (origin top-left): the right end of the bar.
+    public static func videoCloseButtonFrame(notch: CGSize) -> CGRect {
+        let width = size(for: .video, notch: notch).width
+        return CGRect(
+            x: width - videoPadding - videoCloseButtonSide,
+            y: notch.height + videoGap + (videoBarHeight - videoCloseButtonSide) / 2,
+            width: videoCloseButtonSide,
+            height: videoCloseButtonSide
+        )
+    }
+
     /// The 16:9 player in the video state.
     public static func videoPlayerSize(notch: CGSize) -> CGSize {
         let width = max(videoWidth, notch.width + 80) - 2 * videoPadding

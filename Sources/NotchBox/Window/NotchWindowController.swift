@@ -21,6 +21,7 @@ final class NotchWindowController {
     func start() {
         model.onDisplayStateChange = { [weak self] _ in self?.updateInteraction() }
         hoverTracker.onHoverChange = { [weak self] hovering in self?.model.hoverChanged(hovering) }
+        hoverTracker.onCloseButtonHoverChange = { [weak self] _ in self?.updateInteraction() }
         screenWatcher.onChange = { [weak self] geometry in self?.apply(geometry) }
         screenWatcher.start()
         hoverTracker.start()
@@ -41,7 +42,17 @@ final class NotchWindowController {
 
     private func updateInteraction() {
         guard let geometry else { return }
-        panel.ignoresMouseEvents = !model.displayState.isOpen
+        let state = model.displayState
         hoverTracker.hotZone = geometry.panelFrame(for: model.contentSize)
+        // A little slack around the close button makes it easy to hit while everything else clicks through.
+        hoverTracker.closeButtonZone = state == .video
+            ? geometry.screenRect(
+                for: NotchLayout.videoCloseButtonFrame(notch: geometry.notchSize).insetBy(dx: -4, dy: -4),
+                inContentOf: model.contentSize
+            )
+            : .null
+        panel.ignoresMouseEvents = !NotchInteraction.acceptsClicks(
+            in: state, cursorOverCloseButton: hoverTracker.isOverCloseButton
+        )
     }
 }
