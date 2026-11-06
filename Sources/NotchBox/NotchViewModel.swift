@@ -45,6 +45,11 @@ final class NotchViewModel {
     private(set) var recentlyCopiedID: Int?
     /// The clipboard image shown large in place of the player, until closed or the panel closes.
     private(set) var previewedClipboardItem: ClipboardItem?
+    /// What is left of today and tomorrow's events, refreshed while the open player shows them.
+    private(set) var agenda: [AgendaDay] = [AgendaDay(day: .today, events: [])]
+    private(set) var calendarAccess: CalendarAccess = .notDetermined
+    /// The time the agenda was read at, for "in 5 min" and "now".
+    private(set) var agendaTime = Date.distantPast
 
     @ObservationIgnored var onDisplayStateChange: ((NotchDisplayState) -> Void)?
     @ObservationIgnored private var machine = NotchStateMachine()
@@ -63,6 +68,8 @@ final class NotchViewModel {
     @ObservationIgnored private var volumeHUDTimer: Timer?
     @ObservationIgnored private let now: () -> Date
     @ObservationIgnored private let clipboardWatcher: ClipboardWatching?
+    @ObservationIgnored private let calendarProvider: CalendarProviding?
+    @ObservationIgnored private var agendaTimer: Timer?
     @ObservationIgnored private let thumbnails = ClipboardThumbnails()
     @ObservationIgnored private var copiedWork: DispatchWorkItem?
 
@@ -78,11 +85,13 @@ final class NotchViewModel {
         audioMeter: AudioLevelMeter? = nil,
         tabReader: BrowserTabReading? = nil,
         clipboardWatcher: ClipboardWatching? = nil,
+        calendarProvider: CalendarProviding? = nil,
         makePlayer: @escaping @MainActor (String, TimeInterval) -> YouTubePlayer? = { YouTubePlayer(videoID: $0, start: $1) },
         now: @escaping () -> Date = Date.init
     ) {
         self.tabReader = tabReader
         self.clipboardWatcher = clipboardWatcher
+        self.calendarProvider = calendarProvider
         self.makePlayer = makePlayer
         self.nowPlayingService = nowPlayingService
         self.volumeControl = volumeControl
@@ -105,6 +114,9 @@ final class NotchViewModel {
         volumeControl?.onChange = { [weak self] in self?.volumeChanged() }
         clipboardWatcher?.onCopy = { [weak self] content in self?.copied(content) }
         clipboardWatcher?.start()
+        calendarProvider?.onChange = { [weak self] in self?.refreshAgenda() }
+        calendarProvider?.start()
+        refreshAgenda()
         nowPlayingService?.start()
         volumeControl?.start()
         volumeChanged()
@@ -121,6 +133,55 @@ final class NotchViewModel {
         nowPlayingService?.stop()
         clipboardWatcher?.stop()
         copiedWork?.cancel()
+        agendaTimer?.invalidate()
+    }
+
+    // MARK: Calendar
+
+    static let agendaRefreshInterval: TimeInterval = 30
+
+    /// The open player shows the clipboard and calendar columns.
+    var showsSideColumns: Bool { displayState == .expanded || displayState == .expandedEmpty }
+
+    func requestCalendarAccess() {
+        calendarProvider?.requestAccess()
+    }
+
+    func openCalendar() {
+        CalendarService.openCalendarApp()
+    }
+
+    func join(_ event: CalendarEvent) {
+        guard let url = event.meetingURL else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    private func refreshAgenda() {
+        guard let calendarProvider else { return }
+        let time = now()
+        calendarAccess = calendarProvider.access
+        let range = CalendarAgenda.fetchRange(now: time, calendar: .current)
+        let events = calendarProvider.events(from: range.start, to: range.end)
+        let days = CalendarAgenda.days(from: events, now: time, calendar: .current)
+        if days != agenda { agenda = days }
+        agendaTime = time
+    }
+
+    /// Reads the calendar when the open player appears, and keeps "in 5 min" current while it is open.
+    private func updateAgendaTimer() {
+        guard showsSideColumns else {
+            agendaTimer?.invalidate()
+            agendaTimer = nil
+            return
+        }
+        guard agendaTimer == nil else { return }
+        refreshAgenda()
+        let timer = Timer(timeInterval: Self.agendaRefreshInterval, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.refreshAgenda() }
+        }
+        timer.tolerance = 5
+        RunLoop.main.add(timer, forMode: .common)
+        agendaTimer = timer
     }
 
     // MARK: Clipboard
@@ -395,9 +456,10 @@ final class NotchViewModel {
             onDisplayStateChange?(newState)
         }
         // An image preview belongs to this opening of the panel.
-        if !(displayState == .expanded || displayState == .expandedEmpty), previewedClipboardItem != nil {
+        if !showsSideColumns, previewedClipboardItem != nil {
             previewedClipboardItem = nil
         }
+        updateAgendaTimer()
         // Listen to the audio only while a moving waveform is on screen.
         let showsWaveform = displayState == .mini || displayState == .expanded || displayState == .volume
         audioMeter?.setActive(showsWaveform && info?.clock.isPlaying == true)

@@ -25,6 +25,7 @@ enum SnapshotRenderer {
         var emptyClipboard = false
         /// The copied image shown large.
         var previewImage = false
+        var calendarAccess: CalendarAccess = .granted
     }
 
     static func render(to directory: URL) throws {
@@ -54,7 +55,7 @@ enum SnapshotRenderer {
             Scene(name: "3-expanded-paused-long-title", state: .info(track("A Very Long Song Title That Does Not Fit On One Line", "Ocean Avenue Collective", nil, playing: false, artwork: cool)), hovering: true),
             Scene(name: "4-expanded-no-artwork", state: .info(track("Live Radio", nil, nil, playing: true, artwork: nil, duration: nil, app: "com.apple.Safari")), hovering: true),
             Scene(name: "5-nothing-playing", state: .nothing, hovering: true),
-            Scene(name: "5b-nothing-playing-empty-clipboard", state: .nothing, hovering: true, emptyClipboard: true),
+            Scene(name: "5b-nothing-playing-empty-clipboard", state: .nothing, hovering: true, emptyClipboard: true, calendarAccess: .notDetermined),
             Scene(name: "10-clipboard-image-preview", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, previewImage: true),
             Scene(name: "6-unavailable", state: .unavailable, hovering: true),
             Scene(
@@ -95,6 +96,7 @@ enum SnapshotRenderer {
             volumeControl: volume,
             tabReader: SnapshotTabReader(),
             clipboardWatcher: SnapshotClipboard(items: scene.emptyClipboard ? [] : sampleClipboard),
+            calendarProvider: SnapshotCalendar(access: scene.calendarAccess, now: clock.now),
             makePlayer: { _, _ in nil },
             now: { clock.now }
         )
@@ -239,4 +241,35 @@ private final class SnapshotClipboard: ClipboardWatching {
     func start() { items.reversed().forEach { onCopy?($0) } }
     func stop() {}
     func copy(_ content: ClipboardContent) {}
+}
+
+@MainActor
+private final class SnapshotCalendar: CalendarProviding {
+    let access: CalendarAccess
+    var onChange: (() -> Void)?
+    private let sample: [CalendarEvent]
+
+    init(access: CalendarAccess, now: Date) {
+        self.access = access
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: now)
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today) ?? today
+        func at(_ base: Date, minutes: Double) -> Date { base.addingTimeInterval(minutes * 60) }
+        let blue = ArtworkColor(red: 0.2, green: 0.55, blue: 1)
+        let orange = ArtworkColor(red: 1, green: 0.6, blue: 0.2)
+        let green = ArtworkColor(red: 0.3, green: 0.8, blue: 0.45)
+        sample = [
+            CalendarEvent(id: "1", title: "Sprint planlama", start: at(now, minutes: -20), end: at(now, minutes: 25), isAllDay: false, color: blue, meetingURL: URL(string: "https://meet.google.com/abc-defg-hij")),
+            CalendarEvent(id: "2", title: "Tasarım incelemesi", start: at(now, minutes: 40), end: at(now, minutes: 70), isAllDay: false, color: orange, meetingURL: URL(string: "https://zoom.us/j/1")),
+            CalendarEvent(id: "3", title: "Spor salonu", start: at(now, minutes: 300), end: at(now, minutes: 360), isAllDay: false, color: green, meetingURL: nil),
+            CalendarEvent(id: "4", title: "Annemin doğum günü", start: today, end: tomorrow, isAllDay: true, color: orange, meetingURL: nil),
+            CalendarEvent(id: "5", title: "Haftalık 1:1", start: at(tomorrow, minutes: 600), end: at(tomorrow, minutes: 630), isAllDay: false, color: blue, meetingURL: URL(string: "https://teams.microsoft.com/l/meetup-join/x")),
+        ]
+    }
+
+    func start() {}
+    func requestAccess() {}
+    func events(from start: Date, to end: Date) -> [CalendarEvent] {
+        access == .granted ? sample : []
+    }
 }

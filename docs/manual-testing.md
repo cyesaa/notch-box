@@ -118,6 +118,19 @@ Needs the repository to be public and a published release.
 - [ ] Copy a password from a password manager (or a file in Finder): it is not added.
 - [ ] Quit and reopen NotchBox: the list starts over.
 
+## Calendar
+
+- [ ] Hover the notch: a calendar column as wide as the clipboard sits right of the player; the panel is
+  symmetric around the notch and the player stays centred under it.
+- [ ] Before access is given, the column offers "Show my calendar". Pressing it shows macOS's calendar prompt once;
+  after allowing, today's remaining and tomorrow's events appear without reopening the notch.
+- [ ] All-day events come first; a running event is highlighted and says "Now · until <time>"; one starting within
+  15 minutes says "in N min".
+- [ ] An event with a Zoom / Meet / Teams link has a green Join button that opens the call; clicking the event
+  opens Calendar.
+- [ ] Add or move an event in Calendar while the notch is open: the column updates.
+- [ ] Deny access in System Settings → Privacy & Security → Calendars: the column says how to turn it back on.
+
 ## Health check
 
 Watch the log in a second terminal. zsh has its own `log` command, so use the full path:

@@ -131,8 +131,9 @@ struct ClipboardLayoutTests {
     }
 
     @Test func thePlayerStaysCentredUnderTheNotch() {
-        // Content is shifted left by half the extension, so the player part keeps its place.
-        #expect(NotchLayout.horizontalOffset(for: .expanded) == -120)
+        // Content is shifted by half the difference of its side columns, so the player part keeps its place.
+        // The clipboard and the calendar are equally wide, so the open player is centred.
+        #expect(NotchLayout.horizontalOffset(for: .expanded) == 0)
         #expect(NotchLayout.horizontalOffset(for: .video) == 0)
     }
 
