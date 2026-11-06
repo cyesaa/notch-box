@@ -8,6 +8,8 @@ Control whatever is playing on your Mac from the MacBook notch.
 - Hover the notch and it grows into a player: artwork, title, artist and album, a draggable progress bar,
   previous / play-pause / next, a volume bar and the icon of the app that is playing.
 - The player takes its colour from the cover: a small shadow around the artwork, the progress bar and the waveform.
+- Left of the player sits your clipboard: the last 20 texts and images you copied, newest first. Click one to copy
+  it again; right-click it to remove it, or clear the whole list with the bin.
 - Watching a YouTube video in Safari, Chrome, Brave, Edge, Vivaldi or Arc? Press the picture-in-picture button in the
   player and the video moves into the notch, from the same moment, so you can put the browser away and keep watching.
   Pass over the video and it fades away so you can see and click what is behind it; only its close button stays.
@@ -57,6 +59,11 @@ The one-line installer does not need step 3: files downloaded with `curl` are no
 
 NotchBox does not connect to the network, except to YouTube while you watch a video in the notch. Track info
 stays on your Mac.
+
+**The clipboard list** lives in memory only: nothing is written to disk and it is gone when NotchBox quits.
+Items that password managers mark as private (nspasteboard.org markers) and copied files are never kept, and
+images larger than 25 MB are skipped. macOS may ask once whether NotchBox may paste from other apps; say Allow,
+or the list stays empty.
 
 **Watching in the notch** reads the open tabs of your browser (macOS asks once for **Automation** permission) to
 find the YouTube video, then plays it with YouTube's own embedded player. Some videos can only be watched on
@@ -146,6 +153,8 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
   Fareyle videonun üzerine yandan ya da alttan gelince video saydamlaşır; arkasını görüp tıklayabilirsin, yalnızca
   kapatma düğmesi kalır. Menü çubuğundan aşağı inerek gelirsen video saydamlaşmaz ve YouTube'un kendi düğmeleri çalışır.
 - Oynatıcı rengini kapaktan alır: kapağın etrafında ince bir gölge, ilerleme çubuğu ve ses dalgası.
+- Oynatıcının solunda panon durur: kopyaladığın son 20 yazı ve görsel, en yenisi en üstte. Birine tıklayınca
+  tekrar kopyalanır; sağ tıklayıp kaldırabilir ya da çöp kutusuyla listenin tamamını temizleyebilirsin.
 - Apple Music ve Safari/Chrome'da YouTube ile test edildi. macOS'a "Şu An Çalıyor" bilgisi veren diğer uygulamalar
   (Spotify gibi) çalışmalı ama test edilmedi.
 - Arayüz Türkçe ve İngilizce; sistem diline göre seçilir.
@@ -191,6 +200,11 @@ Tek satırlık kurulumda 3. adıma gerek yoktur: `curl` ile indirilen dosyalar k
 ### Gizlilik
 
 NotchBox, notch'ta video izlerken YouTube'a bağlanmak dışında internete bağlanmaz. Şarkı bilgileri Mac'inde kalır.
+
+**Pano listesi** yalnızca bellekte tutulur: diske hiçbir şey yazılmaz, NotchBox kapanınca silinir. Şifre
+yöneticilerinin gizli diye işaretlediği öğeler (nspasteboard.org işaretleri) ve kopyalanan dosyalar hiç tutulmaz,
+25 MB'tan büyük görseller atlanır. macOS bir kez NotchBox'ın diğer uygulamalardan yapıştırmasına izin verip
+vermeyeceğini sorabilir; İzin Ver demezsen liste boş kalır.
 
 **Notch'ta izleme**, YouTube videosunu bulmak için tarayıcındaki açık sekmeleri okur (macOS bir kez **Otomasyon**
 izni ister) ve videoyu YouTube'un kendi gömülü oynatıcısıyla oynatır. Bazı videolar yalnızca YouTube'da

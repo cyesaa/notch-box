@@ -17,14 +17,15 @@ struct NotchLayoutTests {
 
     @Test func expandedSizes() {
         // The player body hangs right below the notch; the band beside the notch holds the small icons.
-        #expect(NotchLayout.size(for: .expanded, notch: notch) == CGSize(width: 400, height: 32 + 154))
-        #expect(NotchLayout.size(for: .expandedEmpty, notch: notch) == CGSize(width: 300, height: 80))
+        // The clipboard column (220) sits left of the player.
+        #expect(NotchLayout.size(for: .expanded, notch: notch) == CGSize(width: 220 + 400, height: 32 + 154))
+        #expect(NotchLayout.size(for: .expandedEmpty, notch: notch) == CGSize(width: 220 + 300, height: 32 + 154))
     }
 
     @Test func wideNotchGrowsExpandedWidth() {
         let wide = CGSize(width: 350, height: 40)
-        #expect(NotchLayout.size(for: .expanded, notch: wide) == CGSize(width: 430, height: 40 + 154))
-        #expect(NotchLayout.size(for: .expandedEmpty, notch: wide) == CGSize(width: 430, height: 80))
+        #expect(NotchLayout.size(for: .expanded, notch: wide) == CGSize(width: 220 + 430, height: 40 + 154))
+        #expect(NotchLayout.size(for: .expandedEmpty, notch: wide) == CGSize(width: 220 + 430, height: 40 + 154))
     }
 
     @Test func tallNotchLeavesRoomForThePlayerBelowIt() {
@@ -33,9 +34,10 @@ struct NotchLayoutTests {
         #expect(NotchLayout.size(for: .expanded, notch: tall).height == expected)
     }
 
-    @Test func maxSizeCoversAllStates() {
-        // The video panel is the largest state.
-        #expect(NotchLayout.maxSize(notch: notch) == NotchLayout.size(for: .video, notch: notch))
+    @Test func windowCoversEveryStateAroundTheNotch() {
+        // The window stays centred on the notch, so it is twice the widest reach from the notch's centre:
+        // the open player reaches 620 / 2 + 110 = 420 to the left. The video panel is the tallest.
+        #expect(NotchLayout.contentReach(notch: notch) == CGSize(width: 420, height: 299))
     }
 
     @Test func topCornersFlareIntoTheScreenEdgeOnlyWhenVisible() {
@@ -48,7 +50,7 @@ struct NotchLayoutTests {
     @Test func windowLeavesRoomForTheFlaredCornersAndTheShadow() {
         let margin = NotchLayout.shadowMargin
         #expect(margin == 24)
-        #expect(NotchLayout.windowSize(notch: notch) == CGSize(width: 464 + 2 * (12 + margin), height: 299 + margin))
+        #expect(NotchLayout.windowSize(notch: notch) == CGSize(width: 2 * 420 + 2 * (12 + margin), height: 299 + margin))
     }
 
     @Test func cornerRadiusGrowsWhenOpen() {

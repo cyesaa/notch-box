@@ -39,6 +39,10 @@ final class NotchViewModel {
     /// A short note shown in the player for a few seconds (no video found, no permission, ...).
     private(set) var videoMessage: String?
     @ObservationIgnored private(set) var videoPlayer: YouTubePlayer?
+    /// The last things the user copied, newest first.
+    private(set) var clipboard = ClipboardHistory()
+    /// The item just put back on the pasteboard, for a moment, to show it worked.
+    private(set) var recentlyCopiedID: Int?
 
     @ObservationIgnored var onDisplayStateChange: ((NotchDisplayState) -> Void)?
     @ObservationIgnored private var machine = NotchStateMachine()
@@ -56,8 +60,12 @@ final class NotchViewModel {
     @ObservationIgnored private var volumeHUD = VolumeHUD()
     @ObservationIgnored private var volumeHUDTimer: Timer?
     @ObservationIgnored private let now: () -> Date
+    @ObservationIgnored private let clipboardWatcher: ClipboardWatching?
+    @ObservationIgnored private let thumbnails = ClipboardThumbnails()
+    @ObservationIgnored private var copiedWork: DispatchWorkItem?
 
     static let messageDuration: TimeInterval = 4
+    static let copiedFeedbackDuration: TimeInterval = 1.2
     /// Wait after closing the player before seeking the browser, so the command reaches the browser again.
     static let handBackDelay: TimeInterval = 0.8
 
@@ -67,10 +75,12 @@ final class NotchViewModel {
         mediaKeys: MediaKeySending? = nil,
         audioMeter: AudioLevelMeter? = nil,
         tabReader: BrowserTabReading? = nil,
+        clipboardWatcher: ClipboardWatching? = nil,
         makePlayer: @escaping @MainActor (String, TimeInterval) -> YouTubePlayer? = { YouTubePlayer(videoID: $0, start: $1) },
         now: @escaping () -> Date = Date.init
     ) {
         self.tabReader = tabReader
+        self.clipboardWatcher = clipboardWatcher
         self.makePlayer = makePlayer
         self.nowPlayingService = nowPlayingService
         self.volumeControl = volumeControl
@@ -91,6 +101,8 @@ final class NotchViewModel {
     func start() {
         nowPlayingService?.onChange = { [weak self] state in self?.nowPlayingChanged(state) }
         volumeControl?.onChange = { [weak self] in self?.volumeChanged() }
+        clipboardWatcher?.onCopy = { [weak self] content in self?.copied(content) }
+        clipboardWatcher?.start()
         nowPlayingService?.start()
         volumeControl?.start()
         volumeChanged()
@@ -105,6 +117,43 @@ final class NotchViewModel {
         videoPlayer?.stop()
         videoPlayer = nil
         nowPlayingService?.stop()
+        clipboardWatcher?.stop()
+        copiedWork?.cancel()
+    }
+
+    // MARK: Clipboard
+
+    /// NotchBox may not read the pasteboard (turned off in System Settings).
+    var isClipboardDenied: Bool { clipboardWatcher?.isDenied ?? false }
+
+    /// Puts an earlier item back on the pasteboard; it moves to the top of the list.
+    func copyAgain(_ item: ClipboardItem) {
+        clipboardWatcher?.copy(item.content)
+        clipboard.record(item.content, at: now())
+        recentlyCopiedID = item.id
+        copiedWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.recentlyCopiedID = nil }
+        copiedWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.copiedFeedbackDuration, execute: work)
+    }
+
+    func removeFromClipboard(_ item: ClipboardItem) {
+        clipboard.remove(id: item.id)
+        thumbnails.keep(clipboard.items)
+    }
+
+    func clearClipboard() {
+        clipboard.clear()
+        thumbnails.keep([])
+    }
+
+    func thumbnail(for item: ClipboardItem) -> ClipboardThumbnails.Thumbnail? {
+        thumbnails.thumbnail(for: item)
+    }
+
+    private func copied(_ content: ClipboardContent) {
+        clipboard.record(content, at: now())
+        thumbnails.keep(clipboard.items)
     }
 
     func setNotchSize(_ size: CGSize) {

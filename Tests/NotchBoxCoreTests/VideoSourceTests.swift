@@ -107,8 +107,4 @@ struct VideoLayoutTests {
         let expected: CGFloat = 50 + 8 + 243 + 16
         #expect(NotchLayout.size(for: .video, notch: tall).height == expected)
     }
-
-    @Test func windowCoversTheVideoPanel() {
-        #expect(NotchLayout.maxSize(notch: notch) == CGSize(width: 464, height: 299))
-    }
 }

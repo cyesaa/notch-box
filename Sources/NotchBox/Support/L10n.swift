@@ -20,6 +20,14 @@ enum L10n {
     static var noYouTubeVideo: String { string("no_youtube_video") }
     static var browserAccessNeeded: String { string("browser_access_needed") }
     static var videoNotEmbeddable: String { string("video_not_embeddable") }
+    static var clipboardTitle: String { string("clipboard_title") }
+    static var clipboardEmpty: String { string("clipboard_empty") }
+    static var clipboardDenied: String { string("clipboard_denied") }
+    static var clipboardClear: String { string("clipboard_clear") }
+    static var clipboardCopy: String { string("clipboard_copy") }
+    static var clipboardRemove: String { string("clipboard_remove") }
+    static var clipboardImage: String { string("clipboard_image") }
+    static var clipboardCopied: String { string("clipboard_copied") }
 
     private static func string(_ key: String) -> String {
         NSLocalizedString(key, bundle: .main, comment: "")

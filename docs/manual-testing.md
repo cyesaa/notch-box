@@ -100,6 +100,22 @@ Needs the repository to be public and a published release.
 - [ ] A video whose owner disabled embedding closes the panel and shows "This video can only be watched on YouTube".
 - [ ] Repeat with Safari.
 
+## Clipboard
+
+- [ ] Hover the notch: the player grows to the left with a "Clipboard" column; the player itself stays centred
+  under the notch, and moving the cursor over the clipboard column keeps the panel open.
+- [ ] With nothing copied yet the column says copied text and images show up there. (Whatever was on the
+  pasteboard when NotchBox started is the first item.) If macOS asks whether NotchBox may paste from other apps,
+  allow it.
+- [ ] Copy some text in any app: it appears at the top on one line. Copy an image (a screenshot with
+  ⌃⇧⌘4, or "Copy Image" in a browser): it appears with a thumbnail and its size in pixels.
+- [ ] Copy the same text again: it moves to the top instead of showing twice.
+- [ ] Copy more than 20 things: the list keeps the newest 20 and scrolls.
+- [ ] Click an older item: it shows "Copied", moves to the top, and ⌘V pastes it in another app (text and image).
+- [ ] Right-click an item → Remove removes it; the bin clears the list.
+- [ ] Copy a password from a password manager (or a file in Finder): it is not added.
+- [ ] Quit and reopen NotchBox: the list starts over.
+
 ## Health check
 
 Watch the log in a second terminal. zsh has its own `log` command, so use the full path:
