@@ -10,3 +10,9 @@
 "position" = "Konum";
 "nothing_playing_hint" = "Herhangi bir uygulamada müzik başlat";
 "media_keys_hint" = "Butonlar medya tuşu olarak çalışır";
+"watch_in_notch" = "Notch'ta izle";
+"continue_in_browser" = "Tarayıcıda devam et";
+"close_video" = "Videoyu kapat";
+"no_youtube_video" = "Tarayıcıda açık bir YouTube videosu yok";
+"browser_access_needed" = "Gizlilik ve Güvenlik → Otomasyon altında NotchBox'a izin ver";
+"video_not_embeddable" = "Bu video yalnızca YouTube'da izlenebilir";

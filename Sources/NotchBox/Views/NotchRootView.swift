@@ -39,6 +39,9 @@ struct NotchRootView: View {
             NothingPlayingView()
                 .padding(.top, model.notchSize.height)
                 .transition(.notchContent)
+        case .video:
+            VideoView(model: model)
+                .transition(.notchContent)
         }
     }
 }
