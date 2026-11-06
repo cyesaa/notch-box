@@ -34,7 +34,7 @@ final class NotchWindowController {
             return
         }
         model.setNotchSize(geometry.notchSize)
-        panel.setFrame(geometry.panelFrame(for: NotchLayout.maxSize(notch: geometry.notchSize)), display: true)
+        panel.setFrame(geometry.panelFrame(for: NotchLayout.windowSize(notch: geometry.notchSize)), display: true)
         panel.orderFrontRegardless()
         updateInteraction()
     }
