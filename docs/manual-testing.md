@@ -20,8 +20,8 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 - [ ] While playing, mini artwork shows left of the notch and the waveform moves right of it.
 - [ ] Pausing flattens the waveform.
 - [ ] Hovering shows artwork, title, artist, album (when the player sends one) and the source app icon.
-- [ ] The glow around the cover, the progress bar and the waveform take the cover's colour; a grey cover gives a
-  neutral light tint, and the strip under the hardware notch stays solid black.
+- [ ] The small shadow around the cover, the progress bar and the waveform take the cover's colour; a grey cover
+  gives a neutral light tint.
 - [ ] Changing to a track with a differently coloured cover fades the tint over about half a second.
 - [ ] Buttons shrink slightly while pressed; dragging the progress bar makes it thicker.
 - [ ] With System Settings → Accessibility → Display → Reduce motion on, the waveform holds still while playing.
@@ -45,6 +45,16 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 - [ ] "Launch at Login" toggles on and off (check System Settings → General → Login Items).
 - [ ] "Quit NotchBox" quits the app; `pgrep -f mediaremote-adapter` then prints nothing.
 - [ ] `pkill -x NotchBox` also quits cleanly; `pgrep -f mediaremote-adapter` then prints nothing.
+
+## Mini notch buttons and volume
+
+- [ ] While playing, pointing at the mini waveform shows a pause button and does not open the panel; clicking it pauses.
+- [ ] While paused (within 5 minutes), a play button sits where the waveform was; clicking it resumes.
+- [ ] Pointing at the cover or the notch still opens the full player.
+- [ ] Changing the volume with the keyboard slides a rounded level bar out under the notch (under the mini row
+  while playing) for about 1.5 s; the bar and number follow each step.
+- [ ] Changing the volume while the full player is open shows no extra bar (the player's own bar moves).
+- [ ] No volume bar appears when NotchBox starts.
 
 ## Timeouts and system events
 

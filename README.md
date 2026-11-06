@@ -2,10 +2,12 @@
 
 Control whatever is playing on your Mac from the MacBook notch.
 
-- While music plays, a mini cover sits left of the notch and a small waveform moves on its right.
+- While music plays, a mini cover sits left of the notch and a small waveform moves on its right. Point at the
+  waveform for a pause button; when paused, a play button takes its place.
+- Change the volume (keys or anywhere else) and a rounded bar with the level slides out under the notch.
 - Hover the notch and it grows into a player: artwork, title, artist and album, a draggable progress bar,
   previous / play-pause / next, a volume bar and the icon of the app that is playing.
-- The player takes its colour from the cover: a soft glow around the artwork, the progress bar and the waveform.
+- The player takes its colour from the cover: a small shadow around the artwork, the progress bar and the waveform.
 - Watching a YouTube video in Safari, Chrome, Brave, Edge, Vivaldi or Arc? Press the picture-in-picture button in the
   player and the video moves into the notch, from the same moment, so you can put the browser away and keep watching.
   Point at the video and it fades away so you can see and click what is behind it; only its close button stays.
@@ -133,13 +135,15 @@ MIT, see [LICENSE](LICENSE). Third-party code: [THIRD_PARTY_NOTICES.md](THIRD_PA
 
 NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağlar.
 
-- Müzik çalarken notch'un solunda küçük bir kapak, sağında oynayan bir ses dalgası görünür.
+- Müzik çalarken notch'un solunda küçük bir kapak, sağında oynayan bir ses dalgası görünür. Fareyle dalganın
+  üzerine gelince duraklat düğmesi çıkar; duraklatınca yerinde oynat düğmesi durur.
+- Sesi değiştirdiğinde (tuşlarla ya da başka bir yerden) notch'un altından seviyeyi gösteren yuvarlak bir çubuk iner.
 - Fareyi notch'a getirince notch büyür: kapak, şarkı adı, sanatçı ve albüm, sürüklenebilir ilerleme çubuğu,
   önceki / oynat-duraklat / sonraki, ses çubuğu ve müziğin çaldığı uygulamanın ikonu.
 - Safari, Chrome, Brave, Edge, Vivaldi ya da Arc'ta YouTube videosu mu izliyorsun? Oynatıcıdaki "resim içinde resim"
   düğmesine bas; video kaldığı yerden notch'a taşınır, tarayıcıyı arkaya alıp izlemeye devam edebilirsin.
   Fareyle videonun üzerine gelince video saydamlaşır; arkasını görüp tıklayabilirsin, yalnızca kapatma düğmesi kalır.
-- Oynatıcı rengini kapaktan alır: kapağın etrafında yumuşak bir ışıma, ilerleme çubuğu ve ses dalgası.
+- Oynatıcı rengini kapaktan alır: kapağın etrafında ince bir gölge, ilerleme çubuğu ve ses dalgası.
 - Apple Music ve Safari/Chrome'da YouTube ile test edildi. macOS'a "Şu An Çalıyor" bilgisi veren diğer uygulamalar
   (Spotify gibi) çalışmalı ama test edilmedi.
 - Arayüz Türkçe ve İngilizce; sistem diline göre seçilir.

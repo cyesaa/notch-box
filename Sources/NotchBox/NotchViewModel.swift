@@ -30,6 +30,8 @@ final class NotchViewModel {
     private(set) var video: VideoSession?
     /// The cursor is over the panel.
     private(set) var isHovering = false
+    /// The cursor is over the clickable control of a click-through state (the mini play/pause area).
+    private(set) var isOverNotchButton = false
     /// Looking for the video in the browser's tabs.
     private(set) var isFindingVideo = false
     /// A short note shown in the player for a few seconds (no video found, no permission, ...).
@@ -49,6 +51,8 @@ final class NotchViewModel {
     @ObservationIgnored private let tabReader: BrowserTabReading?
     @ObservationIgnored private let makePlayer: @MainActor (String, TimeInterval) -> YouTubePlayer?
     @ObservationIgnored private var messageWork: DispatchWorkItem?
+    @ObservationIgnored private var volumeHUD = VolumeHUD()
+    @ObservationIgnored private var volumeHUDTimer: Timer?
     @ObservationIgnored private let now: () -> Date
 
     static let messageDuration: TimeInterval = 4
@@ -93,6 +97,7 @@ final class NotchViewModel {
     func stop() {
         deadlineTimer?.invalidate()
         artworkTimer?.invalidate()
+        volumeHUDTimer?.invalidate()
         artwork.cancelPending()
         audioMeter?.setActive(false)
         videoPlayer?.stop()
@@ -108,6 +113,10 @@ final class NotchViewModel {
 
     /// The video panel fades away under the cursor so the windows behind it can be seen and clicked.
     var isSeeThrough: Bool { NotchInteraction.isSeeThrough(displayState, hovering: isHovering) }
+
+    func notchButtonHoverChanged(_ over: Bool) {
+        if over != isOverNotchButton { isOverNotchButton = over }
+    }
 
     func hoverChanged(_ hovering: Bool) {
         isHovering = hovering
@@ -288,6 +297,8 @@ final class NotchViewModel {
     private func volumeChanged() {
         volume = volumeControl?.volume ?? 0
         isVolumeSettable = volumeControl?.isSettable ?? false
+        volumeHUD.volumeReported(volume, at: now())
+        apply()
     }
 
     private func tick() {
@@ -296,16 +307,37 @@ final class NotchViewModel {
     }
 
     private func apply() {
-        // A video in the notch keeps it open whatever the hover or media state says.
-        let newState = video != nil ? .video : machine.displayState
+        // A video keeps the notch open whatever the hover or media state says; the volume row shows
+        // briefly after a volume change unless the full player (with its own volume bar) is open.
+        let base = machine.displayState
+        let newState: NotchDisplayState
+        if video != nil {
+            newState = .video
+        } else if !base.isOpen, volumeHUD.isVisible(at: now()) {
+            newState = .volume
+        } else {
+            newState = base
+        }
         if newState != displayState {
             displayState = newState
             onDisplayStateChange?(newState)
         }
         // Listen to the audio only while a moving waveform is on screen.
-        let showsWaveform = displayState == .mini || displayState == .expanded
+        let showsWaveform = displayState == .mini || displayState == .expanded || displayState == .volume
         audioMeter?.setActive(showsWaveform && info?.clock.isPlaying == true)
         scheduleNextTick()
+        scheduleVolumeHUDTick()
+    }
+
+    private func scheduleVolumeHUDTick() {
+        volumeHUDTimer?.invalidate()
+        volumeHUDTimer = nil
+        guard let deadline = volumeHUD.nextDeadline else { return }
+        volumeHUDTimer = makeTimer(firingAfter: deadline) { [weak self] in
+            guard let self else { return }
+            self.volumeHUD.tick(at: self.now())
+            self.apply()
+        }
     }
 
     private func scheduleNextTick() {

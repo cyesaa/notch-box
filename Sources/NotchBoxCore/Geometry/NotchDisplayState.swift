@@ -10,8 +10,10 @@ public enum NotchDisplayState: Equatable, Sendable {
     case expandedEmpty
     /// A browser's YouTube video playing in the notch. Stays open until closed, whatever the hover.
     case video
+    /// The system volume just changed: a row with the level under the (mini) notch, for a moment.
+    case volume
 
-    public static let allCases: [NotchDisplayState] = [.idle, .mini, .expanded, .expandedEmpty, .video]
+    public static let allCases: [NotchDisplayState] = [.idle, .mini, .expanded, .expandedEmpty, .video, .volume]
 
     public var isOpen: Bool { self == .expanded || self == .expandedEmpty || self == .video }
 }

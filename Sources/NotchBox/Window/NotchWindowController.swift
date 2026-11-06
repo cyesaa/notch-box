@@ -21,7 +21,7 @@ final class NotchWindowController {
     func start() {
         model.onDisplayStateChange = { [weak self] _ in self?.updateInteraction() }
         hoverTracker.onHoverChange = { [weak self] hovering in self?.model.hoverChanged(hovering) }
-        hoverTracker.onCloseButtonHoverChange = { [weak self] _ in self?.updateInteraction() }
+        hoverTracker.onButtonHoverChange = { [weak self] _ in self?.updateInteraction() }
         screenWatcher.onChange = { [weak self] geometry in self?.apply(geometry) }
         screenWatcher.start()
         hoverTracker.start()
@@ -44,15 +44,18 @@ final class NotchWindowController {
         guard let geometry else { return }
         let state = model.displayState
         hoverTracker.hotZone = geometry.panelFrame(for: model.contentSize)
-        // A little slack around the close button makes it easy to hit while everything else clicks through.
-        hoverTracker.closeButtonZone = state == .video
-            ? geometry.screenRect(
-                for: NotchLayout.videoCloseButtonFrame(notch: geometry.notchSize).insetBy(dx: -4, dy: -4),
-                inContentOf: model.contentSize
-            )
-            : .null
-        panel.ignoresMouseEvents = !NotchInteraction.acceptsClicks(
-            in: state, cursorOverCloseButton: hoverTracker.isOverCloseButton
-        )
+        // The one clickable control of a click-through state. A little slack around the close button makes
+        // it easy to hit while everything else clicks through.
+        let button: CGRect?
+        switch state {
+        case .video: button = NotchLayout.videoCloseButtonFrame(notch: geometry.notchSize).insetBy(dx: -4, dy: -4)
+        case .mini: button = NotchLayout.miniActionFrame(notch: geometry.notchSize)
+        default: button = nil
+        }
+        hoverTracker.buttonSuppressesHover = NotchInteraction.buttonSuppressesHover(in: state)
+        hoverTracker.buttonZone = button.map { geometry.screenRect(for: $0, inContentOf: model.contentSize) } ?? .null
+        let overButton = hoverTracker.isOverButton
+        model.notchButtonHoverChanged(overButton)
+        panel.ignoresMouseEvents = !NotchInteraction.acceptsClicks(in: state, cursorOverButton: overButton)
     }
 }

@@ -15,6 +15,10 @@ enum SnapshotRenderer {
         let state: NowPlayingState
         let hovering: Bool
         var video: VideoSession?
+        /// Simulate a system volume change after start (shows the volume row).
+        var volumeChange = false
+        /// The cursor over the mini notch's play/pause area.
+        var overButton = false
     }
 
     static func render(to directory: URL) throws {
@@ -26,6 +30,10 @@ enum SnapshotRenderer {
         )
         let cool = makeCover(colors: [NSColor(srgbRed: 0.2, green: 0.75, blue: 0.85, alpha: 1), NSColor(srgbRed: 0.15, green: 0.2, blue: 0.6, alpha: 1)])
         let scenes = [
+            Scene(name: "1a-mini-paused", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: false, artwork: warm)), hovering: false),
+            Scene(name: "1b-mini-pointing-at-waveform", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, overButton: true),
+            Scene(name: "9a-volume-while-playing", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, volumeChange: true),
+            Scene(name: "9b-volume-nothing-playing", state: .nothing, hovering: false, volumeChange: true),
             Scene(name: "1-mini-video-thumbnail", state: .info(track("Sena Şener - Alışılır Mı Aşka (Visualizer)", "Sena Şener", nil, playing: true, artwork: video, app: "com.google.Chrome")), hovering: false),
             Scene(name: "2-expanded-video-thumbnail", state: .info(track("Sena Şener - Alışılır Mı Aşka (Visualizer)", "Sena Şener", nil, playing: true, artwork: video, app: "com.google.Chrome")), hovering: true),
             Scene(name: "2b-expanded-square-cover", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true),
@@ -55,9 +63,10 @@ enum SnapshotRenderer {
     private static func render(_ scene: Scene, to url: URL) throws {
         let clock = SnapshotClock()
         let notch = CGSize(width: 200, height: 32)
+        let volume = SnapshotVolume()
         let model = NotchViewModel(
             nowPlayingService: SnapshotNowPlayingService(state: scene.state),
-            volumeControl: SnapshotVolume(),
+            volumeControl: volume,
             tabReader: SnapshotTabReader(),
             makePlayer: { _, _ in nil },
             now: { clock.now }
@@ -66,6 +75,13 @@ enum SnapshotRenderer {
         model.start()
         if let video = scene.video {
             model.showVideo(video, start: 0)
+        }
+        if scene.volumeChange {
+            volume.volume = 0.72
+            volume.onChange?()
+        }
+        if scene.overButton {
+            model.notchButtonHoverChanged(true)
         }
         if scene.hovering {
             model.hoverChanged(true)
@@ -171,7 +187,7 @@ private final class SnapshotTabReader: BrowserTabReading {
 
 @MainActor
 private final class SnapshotVolume: VolumeControlling {
-    let volume: Float = 0.6
+    var volume: Float = 0.6
     let isSettable = true
     var onChange: (() -> Void)?
     func start() {}
