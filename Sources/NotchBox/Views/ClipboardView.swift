@@ -2,7 +2,7 @@ import NotchBoxCore
 import SwiftUI
 
 /// The clipboard column left of the open player: the last things the user copied, newest first. Clicking
-/// one puts it back on the pasteboard; right-clicking removes it.
+/// one puts it back on the pasteboard; each row can be removed, and an image can be viewed large.
 struct ClipboardView: View {
     let model: NotchViewModel
     @Environment(\.isRenderingSnapshot) private var isRenderingSnapshot
@@ -77,7 +77,9 @@ struct ClipboardView: View {
                     item: item,
                     thumbnail: model.thumbnail(for: item),
                     isCopied: model.recentlyCopiedID == item.id,
+                    isPreviewed: model.previewedClipboardItem?.id == item.id,
                     onCopy: { model.copyAgain(item) },
+                    onPreview: { model.preview(item) },
                     onRemove: { model.removeFromClipboard(item) }
                 )
             }
@@ -85,41 +87,52 @@ struct ClipboardView: View {
     }
 }
 
+/// One copied item: click it to copy it again; the eye shows an image large, the cross removes the item.
 private struct ClipboardRow: View {
     let item: ClipboardItem
     let thumbnail: ClipboardThumbnails.Thumbnail?
     let isCopied: Bool
+    let isPreviewed: Bool
     let onCopy: () -> Void
+    let onPreview: () -> Void
     let onRemove: () -> Void
 
     static let height: CGFloat = 32
 
     var body: some View {
-        Button(action: onCopy) {
-            HStack(spacing: 8) {
-                leading
-                    .frame(width: 22, height: 22)
-                Text(isCopied ? L10n.clipboardCopied : label)
-                    .font(.system(size: 11.5))
-                    .foregroundStyle(isCopied ? NotchTheme.primaryText : NotchTheme.primaryText.opacity(0.85))
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        HStack(spacing: 2) {
+            Button(action: onCopy) {
+                HStack(spacing: 8) {
+                    leading
+                        .frame(width: 22, height: 22)
+                    Text(isCopied ? L10n.clipboardCopied : label)
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(isCopied ? NotchTheme.primaryText : NotchTheme.primaryText.opacity(0.85))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.leading, 6)
+                .frame(height: Self.height)
+                .contentShape(Rectangle())
             }
-            .padding(.horizontal, 6)
-            .frame(height: Self.height)
-            .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(isCopied ? Color.white.opacity(0.16) : NotchTheme.tile)
-            )
-            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .buttonStyle(PressableButtonStyle())
+            .help(L10n.clipboardCopy)
+            .accessibilityLabel(label)
+            .accessibilityHint(L10n.clipboardCopy)
+            if isImage {
+                RowButton(symbol: isPreviewed ? "eye.fill" : "eye", label: L10n.clipboardView, action: onPreview)
+            }
+            RowButton(symbol: "xmark", label: L10n.clipboardRemove, action: onRemove)
         }
-        .buttonStyle(PressableButtonStyle())
-        .help(L10n.clipboardCopy)
-        .accessibilityLabel(label)
-        .accessibilityHint(L10n.clipboardCopy)
+        .padding(.trailing, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(isCopied || isPreviewed ? Color.white.opacity(0.16) : NotchTheme.tile)
+        )
         .contextMenu {
             Button(L10n.clipboardCopy, action: onCopy)
+            if isImage { Button(L10n.clipboardView, action: onPreview) }
             Button(L10n.clipboardRemove, role: .destructive, action: onRemove)
         }
         .animation(.easeOut(duration: 0.15), value: isCopied)
@@ -157,6 +170,65 @@ private struct ClipboardRow: View {
             guard let size = thumbnail?.pixelSize else { return L10n.clipboardImage }
             return "\(L10n.clipboardImage) · \(Int(size.width)) × \(Int(size.height))"
         }
+    }
+}
+
+/// A small icon button at the end of a clipboard row.
+private struct RowButton: View {
+    let symbol: String
+    let label: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(NotchTheme.secondaryText)
+                .frame(width: 20, height: 22)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(PressableButtonStyle())
+        .help(label)
+        .accessibilityLabel(label)
+    }
+}
+
+/// A clipboard image shown large in place of the player: its size and buttons in the band beside the
+/// notch, the image below.
+struct ClipboardPreviewView: View {
+    let model: NotchViewModel
+    let item: ClipboardItem
+
+    var body: some View {
+        VStack(spacing: 4) {
+            HStack(spacing: 4) {
+                if let size = model.thumbnail(for: item)?.pixelSize {
+                    Text(verbatim: "\(Int(size.width)) × \(Int(size.height))")
+                        .font(NotchTheme.timeFont)
+                        .foregroundStyle(NotchTheme.secondaryText)
+                }
+                Spacer(minLength: 0)
+                RowButton(symbol: "doc.on.doc", label: L10n.clipboardCopy) { model.copyAgain(item) }
+                RowButton(symbol: "xmark", label: L10n.clipboardClosePreview, action: model.closePreview)
+            }
+            .frame(height: model.notchSize.height)
+            if let image = model.previewImage(for: item) {
+                Image(nsImage: image)
+                    .resizable()
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityLabel(L10n.clipboardImage)
+            } else {
+                Image(systemName: "photo")
+                    .font(.system(size: 28, weight: .semibold))
+                    .foregroundStyle(NotchTheme.tertiaryText)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 14)
     }
 }
 

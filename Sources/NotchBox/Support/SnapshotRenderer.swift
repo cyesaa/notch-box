@@ -23,6 +23,8 @@ enum SnapshotRenderer {
         var entry: PanelEntry = .fromSide
         /// Nothing copied yet.
         var emptyClipboard = false
+        /// The copied image shown large.
+        var previewImage = false
     }
 
     static func render(to directory: URL) throws {
@@ -53,6 +55,7 @@ enum SnapshotRenderer {
             Scene(name: "4-expanded-no-artwork", state: .info(track("Live Radio", nil, nil, playing: true, artwork: nil, duration: nil, app: "com.apple.Safari")), hovering: true),
             Scene(name: "5-nothing-playing", state: .nothing, hovering: true),
             Scene(name: "5b-nothing-playing-empty-clipboard", state: .nothing, hovering: true, emptyClipboard: true),
+            Scene(name: "10-clipboard-image-preview", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, previewImage: true),
             Scene(name: "6-unavailable", state: .unavailable, hovering: true),
             Scene(
                 name: "7-video",
@@ -111,6 +114,9 @@ enum SnapshotRenderer {
             model.hoverChanged(true, entry: scene.entry)
             clock.now += 1
             model.hoverChanged(true, entry: scene.entry)
+        }
+        if scene.previewImage, let image = model.clipboard.items.first(where: { if case .image = $0.content { return true } else { return false } }) {
+            model.preview(image)
         }
         let panel = NotchLayout.windowSize(notch: notch)
         let canvas = CGSize(width: panel.width + 120, height: panel.height + 60)

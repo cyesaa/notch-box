@@ -9,7 +9,8 @@ Control whatever is playing on your Mac from the MacBook notch.
   previous / play-pause / next, a volume bar and the icon of the app that is playing.
 - The player takes its colour from the cover: a small shadow around the artwork, the progress bar and the waveform.
 - Left of the player sits your clipboard: the last 20 texts and images you copied, newest first. Click one to copy
-  it again; right-click it to remove it, or clear the whole list with the bin.
+  it again, remove it with its ×, or clear the whole list with the bin. The eye on an image shows it large in
+  place of the player.
 - Watching a YouTube video in Safari, Chrome, Brave, Edge, Vivaldi or Arc? Press the picture-in-picture button in the
   player and the video moves into the notch, from the same moment, so you can put the browser away and keep watching.
   Pass over the video and it fades away so you can see and click what is behind it; only its close button stays.
@@ -154,7 +155,8 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
   kapatma düğmesi kalır. Menü çubuğundan aşağı inerek gelirsen video saydamlaşmaz ve YouTube'un kendi düğmeleri çalışır.
 - Oynatıcı rengini kapaktan alır: kapağın etrafında ince bir gölge, ilerleme çubuğu ve ses dalgası.
 - Oynatıcının solunda panon durur: kopyaladığın son 20 yazı ve görsel, en yenisi en üstte. Birine tıklayınca
-  tekrar kopyalanır; sağ tıklayıp kaldırabilir ya da çöp kutusuyla listenin tamamını temizleyebilirsin.
+  tekrar kopyalanır; yanındaki × ile tek tek silebilir ya da çöp kutusuyla listenin tamamını temizleyebilirsin.
+  Görsellerdeki göz düğmesi görseli oynatıcının yerinde büyük gösterir.
 - Apple Music ve Safari/Chrome'da YouTube ile test edildi. macOS'a "Şu An Çalıyor" bilgisi veren diğer uygulamalar
   (Spotify gibi) çalışmalı ama test edilmedi.
 - Arayüz Türkçe ve İngilizce; sistem diline göre seçilir.

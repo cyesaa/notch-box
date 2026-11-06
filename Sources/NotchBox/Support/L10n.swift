@@ -28,6 +28,8 @@ enum L10n {
     static var clipboardRemove: String { string("clipboard_remove") }
     static var clipboardImage: String { string("clipboard_image") }
     static var clipboardCopied: String { string("clipboard_copied") }
+    static var clipboardView: String { string("clipboard_view") }
+    static var clipboardClosePreview: String { string("clipboard_close_preview") }
 
     private static func string(_ key: String) -> String {
         NSLocalizedString(key, bundle: .main, comment: "")
