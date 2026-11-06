@@ -35,44 +35,32 @@ public struct BrowserTab: Equatable, Sendable {
     }
 }
 
-/// Reading a browser's open tabs with AppleScript (`osascript`), and picking the video to watch.
+/// Reading a browser's open tabs through its scripting dictionary, and picking the video to watch.
 public enum BrowserTabs {
-    /// Browsers whose AppleScript dictionary has windows → tabs with `URL` and a title property.
-    private static let browsers: [String: (application: String, titleProperty: String)] = [
-        "com.apple.Safari": ("Safari", "name"),
-        "com.google.Chrome": ("Google Chrome", "title"),
-        "com.brave.Browser": ("Brave Browser", "title"),
-        "com.microsoft.edgemac": ("Microsoft Edge", "title"),
-        "com.vivaldi.Vivaldi": ("Vivaldi", "title"),
-        "company.thebrowser.Browser": ("Arc", "title"),
+    /// Browsers whose scripting dictionary has windows → tabs with `URL` and a title property.
+    private static let titleKeys: [String: String] = [
+        "com.apple.Safari": "name",
+        "com.google.Chrome": "title",
+        "com.brave.Browser": "title",
+        "com.microsoft.edgemac": "title",
+        "com.vivaldi.Vivaldi": "title",
+        "company.thebrowser.Browser": "title",
     ]
 
     public static func isSupportedBrowser(_ bundleIdentifier: String) -> Bool {
-        browsers[bundleIdentifier] != nil
+        titleKeys[bundleIdentifier] != nil
     }
 
-    /// An AppleScript that returns one "URL<tab>title" line per open tab, or nil for other apps.
-    public static func script(forBundleIdentifier bundleIdentifier: String) -> String? {
-        guard let browser = browsers[bundleIdentifier] else { return nil }
-        // `character id 9` instead of `tab`: in Safari's dictionary `tab` is a class.
-        return """
-        tell application "\(browser.application)"
-            set output to ""
-            repeat with w in windows
-                repeat with t in tabs of w
-                    set output to output & (URL of t) & (character id 9) & (\(browser.titleProperty) of t) & (character id 10)
-                end repeat
-            end repeat
-            return output
-        end tell
-        """
+    /// The tab property that holds the page title, or nil for apps that are not supported browsers.
+    public static func titleKey(forBundleIdentifier bundleIdentifier: String) -> String? {
+        titleKeys[bundleIdentifier]
     }
 
-    public static func parse(_ output: String) -> [BrowserTab] {
-        output.split(whereSeparator: \.isNewline).compactMap { line in
-            let fields = line.split(separator: "\t", maxSplits: 1, omittingEmptySubsequences: false)
-            guard let url = fields.first, !url.isEmpty else { return nil }
-            return BrowserTab(url: String(url), title: fields.count > 1 ? String(fields[1]) : "")
+    /// Pairs a window's tab URLs with its tab titles (fetched as two lists); tabs without a URL are dropped.
+    public static func tabs(urls: [String], titles: [String]) -> [BrowserTab] {
+        urls.enumerated().compactMap { index, url in
+            guard !url.isEmpty else { return nil }
+            return BrowserTab(url: url, title: index < titles.count ? titles[index] : "")
         }
     }
 
