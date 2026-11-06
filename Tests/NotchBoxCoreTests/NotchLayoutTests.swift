@@ -26,6 +26,11 @@ struct NotchLayoutTests {
         #expect(NotchLayout.size(for: .expandedEmpty, notch: wide) == CGSize(width: 430, height: 80))
     }
 
+    @Test func tallNotchLeavesRoomForThePlayerBelowIt() {
+        let tall = CGSize(width: 200, height: 50)
+        #expect(NotchLayout.size(for: .expanded, notch: tall).height == 210)
+    }
+
     @Test func maxSizeCoversAllStates() {
         #expect(NotchLayout.maxSize(notch: notch) == CGSize(width: 400, height: 200))
     }

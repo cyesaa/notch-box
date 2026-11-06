@@ -3,8 +3,9 @@
 Control whatever is playing on your Mac from the MacBook notch.
 
 - While music plays, a mini cover sits left of the notch and a small waveform moves on its right.
-- Hover the notch and it grows into a player: artwork, title, artist, previous / play-pause / next,
-  a draggable progress bar, a volume slider and the icon of the app that is playing.
+- Hover the notch and it grows into a player: artwork, title, artist and album, a draggable progress bar,
+  previous / play-pause / next, a volume bar and the icon of the app that is playing.
+- The player takes its colour from the cover: a soft glow around the artwork, the progress bar and the waveform.
 - Tested with Apple Music and YouTube in Safari and Chrome. Other apps that report "Now Playing" to macOS
   (such as Spotify) should work but are untested.
 - English and Turkish, picked from your system language.
@@ -67,6 +68,10 @@ make dist   # dist/NotchBox-<version>.zip
 - Accessibility permission is tied to the app's signature. Ad-hoc signed builds get a new signature on
   every build, so you may need to grant it again while developing.
 - Before a release, go through [docs/manual-testing.md](docs/manual-testing.md).
+- There are no Xcode previews. To look at every notch state with sample data, run
+  `build/NotchBox.app/Contents/MacOS/NotchBox --render-snapshots /tmp/notch` after `make app`
+  (add `-AppleLanguages '(tr)'` for Turkish); it writes PNGs and exits.
+- `make icon` redraws `Resources/AppIcon.icns` from `scripts/make-icon.swift`.
 
 ## License
 
@@ -79,8 +84,9 @@ MIT, see [LICENSE](LICENSE). Third-party code: [THIRD_PARTY_NOTICES.md](THIRD_PA
 NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağlar.
 
 - Müzik çalarken notch'un solunda küçük bir kapak, sağında oynayan bir ses dalgası görünür.
-- Fareyi notch'a getirince notch büyür: kapak, şarkı adı, sanatçı, önceki / oynat-duraklat / sonraki,
-  sürüklenebilir ilerleme çubuğu, ses seviyesi ve müziğin çaldığı uygulamanın ikonu.
+- Fareyi notch'a getirince notch büyür: kapak, şarkı adı, sanatçı ve albüm, sürüklenebilir ilerleme çubuğu,
+  önceki / oynat-duraklat / sonraki, ses çubuğu ve müziğin çaldığı uygulamanın ikonu.
+- Oynatıcı rengini kapaktan alır: kapağın etrafında yumuşak bir ışıma, ilerleme çubuğu ve ses dalgası.
 - Apple Music ve Safari/Chrome'da YouTube ile test edildi. macOS'a "Şu An Çalıyor" bilgisi veren diğer uygulamalar
   (Spotify gibi) çalışmalı ama test edilmedi.
 - Arayüz Türkçe ve İngilizce; sistem diline göre seçilir.

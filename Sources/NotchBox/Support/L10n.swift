@@ -12,6 +12,9 @@ enum L10n {
     static var previous: String { string("previous") }
     static var volume: String { string("volume") }
     static var openSourceApp: String { string("open_source_app") }
+    static var position: String { string("position") }
+    static var nothingPlayingHint: String { string("nothing_playing_hint") }
+    static var mediaKeysHint: String { string("media_keys_hint") }
 
     private static func string(_ key: String) -> String {
         NSLocalizedString(key, bundle: .main, comment: "")

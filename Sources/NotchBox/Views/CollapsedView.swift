@@ -1,7 +1,7 @@
 import NotchBoxCore
 import SwiftUI
 
-/// Mini state: artwork left of the notch, waveform right of it.
+/// Mini state: artwork left of the notch, a waveform in the cover's colour right of it.
 struct CollapsedView: View {
     let model: NotchViewModel
 
@@ -15,8 +15,8 @@ struct CollapsedView: View {
                 .frame(width: side)
             Color.clear
                 .frame(width: notch.width)
-            WaveformView(isPlaying: model.info?.clock.isPlaying ?? false)
-                .frame(width: artworkSide * 0.9, height: notch.height * 0.42)
+            WaveformView(isPlaying: model.info?.clock.isPlaying ?? false, tint: Color(model.accent))
+                .frame(width: artworkSide * 0.85, height: notch.height * 0.4)
                 .frame(width: side)
         }
         .frame(height: notch.height)

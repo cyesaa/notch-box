@@ -6,16 +6,18 @@ struct NotchRootView: View {
 
     var body: some View {
         let size = model.contentSize
+        let shape = NotchShape(bottomRadius: NotchLayout.bottomCornerRadius(for: model.displayState))
         ZStack(alignment: .top) {
-            NotchShape(bottomRadius: NotchLayout.bottomCornerRadius(for: model.displayState))
+            shape
                 .fill(Color.black)
                 .frame(width: size.width, height: size.height)
             content
                 .frame(width: size.width, height: size.height, alignment: .top)
-                .clipped()
+                .clipShape(shape)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: model.displayState)
+        .animation(NotchTheme.accentAnimation, value: model.accent)
     }
 
     @ViewBuilder

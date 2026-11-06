@@ -7,3 +7,6 @@
 "previous" = "Önceki";
 "volume" = "Ses seviyesi";
 "open_source_app" = "Çalan uygulamayı aç";
+"position" = "Konum";
+"nothing_playing_hint" = "Herhangi bir uygulamada müzik başlat";
+"media_keys_hint" = "Butonlar medya tuşu olarak çalışır";
