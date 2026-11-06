@@ -39,6 +39,12 @@ enum SnapshotRenderer {
                 hovering: false,
                 video: VideoSession(videoID: "AAAAAAAAAAA", title: "Sena Şener - Alışılır Mı Aşka (Visualizer)", sourceBundleIdentifier: "com.google.Chrome")
             ),
+            Scene(
+                name: "8-video-see-through",
+                state: .info(track("Sena Şener - Alışılır Mı Aşka (Visualizer)", "Sena Şener", nil, playing: false, artwork: video, app: "com.google.Chrome")),
+                hovering: true,
+                video: VideoSession(videoID: "AAAAAAAAAAA", title: "Sena Şener - Alışılır Mı Aşka (Visualizer)", sourceBundleIdentifier: "com.google.Chrome")
+            ),
         ]
         for scene in scenes {
             try render(scene, to: directory.appendingPathComponent(scene.name + ".png"))

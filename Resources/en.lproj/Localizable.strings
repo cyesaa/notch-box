@@ -11,7 +11,6 @@
 "nothing_playing_hint" = "Play something in any app";
 "media_keys_hint" = "The buttons send media keys instead";
 "watch_in_notch" = "Watch in the notch";
-"continue_in_browser" = "Continue in the browser";
 "close_video" = "Close video";
 "no_youtube_video" = "No YouTube video is open in the browser";
 "browser_access_needed" = "Allow NotchBox under Privacy & Security → Automation";

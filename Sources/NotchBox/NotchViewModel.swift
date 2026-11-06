@@ -28,6 +28,8 @@ final class NotchViewModel {
     private(set) var scrubPosition: TimeInterval?
     /// Non-nil while a video plays in the notch; the notch then stays open in `.video`.
     private(set) var video: VideoSession?
+    /// The cursor is over the panel.
+    private(set) var isHovering = false
     /// Looking for the video in the browser's tabs.
     private(set) var isFindingVideo = false
     /// A short note shown in the player for a few seconds (no video found, no permission, ...).
@@ -104,7 +106,11 @@ final class NotchViewModel {
         onDisplayStateChange?(displayState)
     }
 
+    /// The video panel fades away under the cursor so the windows behind it can be seen and clicked.
+    var isSeeThrough: Bool { NotchInteraction.isSeeThrough(displayState, hovering: isHovering) }
+
     func hoverChanged(_ hovering: Bool) {
+        isHovering = hovering
         machine.setHovering(hovering, at: now())
         apply()
     }
@@ -150,8 +156,17 @@ final class NotchViewModel {
     /// Finds the playing YouTube video in the browser's tabs, pauses it there and plays it in the notch
     /// from the same moment.
     func watchInNotch() {
-        guard let info, let tabReader, !isFindingVideo, video == nil else { return }
+        guard let info, tabReader != nil, !isFindingVideo, video == nil else { return }
         isFindingVideo = true
+        findVideo(for: info, retriesLeft: 1)
+    }
+
+    /// Wait before reading the tabs again when no YouTube video turned up (a page still loading, or the
+    /// first read right after macOS granted the Automation permission).
+    static let tabRetryDelay: TimeInterval = 0.7
+
+    private func findVideo(for info: NowPlayingInfo, retriesLeft: Int) {
+        guard let tabReader else { return }
         let browser = info.sourceBundleIdentifier
         tabReader.readTabs(of: browser) { [weak self] result in
             guard let self else { return }
@@ -161,7 +176,14 @@ final class NotchViewModel {
                 self.show(message: L10n.browserAccessNeeded)
             case .success(let tabs):
                 guard let videoID = BrowserTabs.pickYouTubeVideo(from: tabs, nowPlayingTitle: info.title) else {
-                    self.show(message: L10n.noYouTubeVideo)
+                    if retriesLeft > 0 {
+                        self.isFindingVideo = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + Self.tabRetryDelay) { [weak self] in
+                            MainActor.assumeIsolated { self?.findVideo(for: info, retriesLeft: retriesLeft - 1) }
+                        }
+                    } else {
+                        self.show(message: L10n.noYouTubeVideo)
+                    }
                     return
                 }
                 let current = self.info ?? info
@@ -179,7 +201,7 @@ final class NotchViewModel {
         videoPlayer?.stop()
         let player = makePlayer(session.videoID, start)
         player?.onError = { [weak self] _ in
-            self?.closeVideo(resumeInBrowser: false)
+            self?.closeVideo()
             self?.show(message: L10n.videoNotEmbeddable)
         }
         videoPlayer = player
@@ -187,10 +209,9 @@ final class NotchViewModel {
         apply()
     }
 
-    /// Closes the video panel and moves the browser to where the notch player stopped.
-    /// With `resumeInBrowser` the browser also plays on and comes to the front.
-    func closeVideo(resumeInBrowser: Bool) {
-        guard let session = video else { return }
+    /// Closes the video panel and moves the browser (paused) to where the notch player stopped.
+    func closeVideo() {
+        guard video != nil else { return }
         let player = videoPlayer
         let finish: @MainActor (TimeInterval?) -> Void = { [weak self] time in
             guard let self else { return }
@@ -198,14 +219,10 @@ final class NotchViewModel {
             self.videoPlayer = nil
             self.video = nil
             self.apply()
-            // Best effort: the seek and play go to whichever player macOS considers active, normally the browser again.
+            // Best effort: the seek goes to whichever player macOS considers active, normally the browser again.
             DispatchQueue.main.asyncAfter(deadline: .now() + Self.handBackDelay) { [weak self] in
                 MainActor.assumeIsolated {
                     if let time { self?.nowPlayingService?.send(.seek(to: time)) }
-                    if resumeInBrowser {
-                        self?.nowPlayingService?.send(.togglePlayPause)
-                        AppIconProvider.open(bundleIdentifier: session.sourceBundleIdentifier)
-                    }
                 }
             }
         }
