@@ -31,6 +31,8 @@
   <string>14.0</string>
   <key>LSUIElement</key>
   <true/>
+  <key>NSAudioCaptureUsageDescription</key>
+  <string>NotchBox reads how loud the music is to move the waveform in the notch. Nothing is recorded or saved.</string>
   <key>NSHighResolutionCapable</key>
   <true/>
 </dict>

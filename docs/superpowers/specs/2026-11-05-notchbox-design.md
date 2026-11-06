@@ -74,6 +74,8 @@ duruyor ve bozulursa kısıtlı moda geçiliyor (bkz. §7).
 | `AdapterLineAssembler` | Core | stdout parçalarını satırlara böler; yeni satır gelmeden 8 MB'ı aşan yarım satırı atar. |
 | `NothingPlayingFilter` | Core | Yayınlanacak `NowPlayingState`'i seçer: "hiçbir şey çalmıyor" 1.5 sn bekletilir (§7). |
 | `AdapterHealthMonitor` | Core | Adaptörün `test` komutunun ne zaman çalışacağını ve son sonucunu tutar (§7). |
+| `AudioSpectrum`, `AudioLevelMeterState` | Core | Ses örneklerinden (FFT, 60 Hz–14 kHz arası logaritmik 5 bant) dalga yükseklikleri; hızlı yükselip yavaş düşer, sessizlikte canlı sayılmaz. |
+| `SystemAudioTap`, `AudioLevelMeter` | App | Core Audio process tap + özel aggregate cihazla sistem sesini mono örneklere çevirir; ölçer bunları saniyede 30 kez bant seviyelerine dönüştürür. |
 | `ArtworkHold` | Core | Gösterilecek kapak: yeni şarkı kapaksız gelince eskisi 1 sn tutulur, aynı bayt tekrar çözülmez (§5.4). `NSImage`'a bağlı kalmamak için görüntü tipi üzerinden geneldir. |
 | `NowPlayingPayload` | Core | Adaptörün JSON çıktısının `Decodable` modeli. |
 | `PlaybackClock` | Core | Geçen süreyi hesaplar: çalıyorsa `elapsed + (şimdi − timestamp) × playbackRate`. |
@@ -184,7 +186,8 @@ Müzik 5 dakika boyunca duraklatılmış kalırsa Mini → Boşta. Hover edilinc
 |---|---|
 | Adaptör süreci kapandı / çöktü | `AdapterSupervisor` sürelerine göre yeniden başlatılır. Bu sırada son bilinen şarkı ekranda kalır. |
 | Adaptör üst üste 3 kez, başladıktan sonraki 5 sn içinde kapandı | **Kısıtlı mod.** Panelde "Şarkı bilgisi alınamıyor"; butonlar `MediaKeySender` ile çalışır. Arka planda her 60 sn'de bir adaptör yeniden denenir; çalışırsa normal moda dönülür. |
-| Kısıtlı modda ilk buton basışı | Erişilebilirlik izni yoksa macOS izin penceresi istenir. İzin normal modda hiç istenmez. |
+| Kısıtlı modda ilk buton basışı | Erişilebilirlik izni yoksa macOS izin penceresi istenir. Erişilebilirlik izni normal modda hiç istenmez. |
+| Ses dalgası için ilk müzik çalışı (macOS 14.2+) | Core Audio process tap'i "Sistem Sesi Kaydı" izni ister. Tap ana iş parçacığı dışında başlatılır (izin penceresi açıkken çağrı bekler). İzin verilmezse tap sessizlik verir; `AudioLevelMeterState` 1.5 sn dijital sessizlikten sonra canlı sayılmaz ve dalga kendi animasyonuna döner. Tap yalnızca müzik çalarken ve mini ya da açık hal görünürken çalışır. |
 | macOS MediaRemote'u sessizce engelledi (`stream` çalışıyor ama hep boş payload veriyor) | **Sağlık kontrolü:** açılışta, uyanınca ve 30 dk'da bir `/usr/bin/perl <script> <framework> <test istemcisi> test` çalıştırılır. Çıkış kodu 0 değilse, süreç başlatılamazsa ya da 30 sn'de bitmezse (durdurulur) kısıtlı moda geçilir. `stream`'den gerçek şarkı bilgisi gelirse ya da sonraki kontrol geçerse normal moda dönülür. Not: hiçbir şey çalmıyorken `test`, test istemcisiyle kısa bir süre sahte bir "Şu An Çalıyor" kaydı ("Is It Broken Yet?") oluşturur; bundle kimliği olmadığı için `stream` bunu göstermez. |
 | JSON satırı çözülemedi | Satır atlanır ve loglanır; süreç çalışmaya devam eder. |
 | Şarkı geçişinde adaptör kısa bir an "hiçbir şey çalmıyor" bildirdi | Bu durum 1.5 sn bekletilir; arada şarkı bilgisi gelirse uygulanmaz. Böylece mini görünüm titremez (bkz. `docs/spike-results.md`). |

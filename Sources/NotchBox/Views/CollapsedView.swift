@@ -15,7 +15,7 @@ struct CollapsedView: View {
                 .frame(width: side)
             Color.clear
                 .frame(width: notch.width)
-            WaveformView(isPlaying: model.info?.clock.isPlaying ?? false, tint: Color(model.accent))
+            WaveformView(isPlaying: model.info?.clock.isPlaying ?? false, tint: Color(model.accent), meter: model.audioMeter)
                 .frame(width: artworkSide * 0.85, height: notch.height * 0.4)
                 .frame(width: side)
         }
