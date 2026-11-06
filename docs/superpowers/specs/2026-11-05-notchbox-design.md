@@ -115,21 +115,30 @@ yalnızca önceki / oynat-duraklat / sonraki butonlarıyla gösterilir.
 
 ```
 ┌────────────── notch ──────────────┐
-│ [kapak]  Şarkı adı          [app] │
+│ [kapak]  Şarkı adı          ▂▅▃▆  │
 │          Sanatçı                  │
-│ 1:12 ━━━━━━━●─────────────  -2:31 │
-│          ⏮      ⏯      ⏭          │
-│ 🔈 ━━━━━━━━━━━●──────────  🔊      │
+│          Albüm                    │
+│ 1:12 ━━━━━━━━━━──────────── -2:31 │
+│ 🔉 ━━━━     ⏮   (⏯)   ⏭     [app] │
 └───────────────────────────────────┘
 ```
 
+- Panel tam siyahtır; renk yalnızca kapaktan gelir. `ArtworkAccent` (Core) kapağın 24 × 24 küçültülmüş
+  piksellerinden en canlı tonu seçer, siyah üstünde okunacak kadar açar ve doygunluğunu sınırlar; kapak yoksa
+  ya da griyse nötr açık bir renk kullanılır. Bu renk kapağın arkasındaki yumuşak ışımayı (donanım notch'unun
+  altındaki şeride taşmaz), ilerleme çubuğunu ve ses dalgasını boyar; kapak değişince 0.6 sn'de geçer.
 - Kapak 64 × 64pt, köşe yarıçapı 10pt.
-- Şarkı adı ve sanatçı tek satır, sığmazsa "…" ile kesilir.
+- Şarkı adı, sanatçı ve albüm tek satır, sığmazsa "…" ile kesilir.
 - `[app]`: kaynak uygulamanın ikonu (`NSWorkspace`). Tıklanınca o uygulama öne gelir.
   Tarayıcıdan çalıyorsa tarayıcının ikonu görünür.
-- İlerleme çubuğu: sürüklerken yerel değer gösterilir, bırakınca `seek` gönderilir.
-  Süre bilinmiyorsa (ör. canlı yayın) çubuk gizlenir.
-- Ses kaydırıcısı: sistem ses seviyesi. Cihaz desteklemiyorsa soluk ve devre dışı.
+- İlerleme çubuğu: ince, sürüklenebilir kapsül (`ScrubBar`); sürüklerken kalınlaşır, yerel değer gösterilir,
+  bırakınca `seek` gönderilir. Süre bilinmiyorsa (ör. canlı yayın) çubuk gizlenir.
+- Oynat/duraklat beyaz bir daire içinde ana eylemdir; düğmeler basılınca hafifçe küçülür.
+- Ses çubuğu: sistem ses seviyesi, hoparlör simgesi seviyeyi gösterir. Cihaz desteklemiyorsa soluk ve devre dışı.
+- Boş hal ve kısıtlı mod ikinci bir satırla ne yapılacağını söyler ("Herhangi bir uygulamada müzik başlat",
+  "Butonlar medya tuşu olarak çalışır").
+- "Hareketi azalt" açıkken ses dalgası çalarken de sabit durur.
+- Xcode önizlemesi olmadığı için `NotchBox --render-snapshots <klasör>` her hali örnek veriyle PNG'ye çizer.
 
 ### 5.3 Hover kuralları
 

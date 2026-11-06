@@ -11,6 +11,8 @@ final class NotchViewModel {
     private(set) var nowPlaying: NowPlayingState = .nothing
     private(set) var artworkImage: NSImage?
     private(set) var artworkVersion = 0
+    /// Tint picked from the cover (`ArtworkAccent`); a neutral light colour without one.
+    private(set) var accent = ArtworkAccent.fallback
     private(set) var sourceAppIcon: NSImage?
     private(set) var volume: Float = 0
     private(set) var isVolumeSettable = false
@@ -136,6 +138,7 @@ final class NotchViewModel {
         if artwork.version != artworkVersion {
             artworkImage = artwork.image
             artworkVersion = artwork.version
+            accent = ArtworkSampler.accent(for: artwork.image)
         }
         artworkTimer?.invalidate()
         artworkTimer = nil

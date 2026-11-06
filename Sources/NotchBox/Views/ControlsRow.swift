@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// Previous / play-pause / next. Play-pause sits in a white disc as the main action.
 struct ControlsRow: View {
     /// nil in degraded mode: the play state is unknown.
     let isPlaying: Bool?
@@ -8,12 +9,22 @@ struct ControlsRow: View {
     let onNext: @MainActor () -> Void
 
     var body: some View {
-        HStack(spacing: 36) {
-            ControlButton(systemName: "backward.fill", size: 15, label: L10n.previous, action: onPrevious)
-            ControlButton(systemName: playPauseSymbol, size: 21, label: L10n.playPause, action: onTogglePlayPause)
-            ControlButton(systemName: "forward.fill", size: 15, label: L10n.next, action: onNext)
+        HStack(spacing: 18) {
+            SkipButton(systemName: "backward.fill", label: L10n.previous, action: onPrevious)
+            Button(action: onTogglePlayPause) {
+                Image(systemName: playPauseSymbol)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.black)
+                    // The play triangle looks off-centre when centred by its bounds.
+                    .offset(x: isPlaying == false ? 1.5 : 0)
+                    .frame(width: 36, height: 36)
+                    .background(Circle().fill(Color.white))
+                    .contentShape(Circle())
+            }
+            .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel(L10n.playPause)
+            SkipButton(systemName: "forward.fill", label: L10n.next, action: onNext)
         }
-        .frame(height: 24)
     }
 
     private var playPauseSymbol: String {
@@ -25,21 +36,20 @@ struct ControlsRow: View {
     }
 }
 
-private struct ControlButton: View {
+private struct SkipButton: View {
     let systemName: String
-    let size: CGFloat
     let label: String
     let action: @MainActor () -> Void
 
     var body: some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .font(.system(size: size, weight: .semibold))
-                .foregroundStyle(Color.white)
-                .frame(width: 32, height: 24)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(NotchTheme.primaryText)
+                .frame(width: 32, height: 32)
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressableButtonStyle())
         .accessibilityLabel(label)
     }
 }
