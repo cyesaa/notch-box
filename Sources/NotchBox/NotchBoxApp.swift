@@ -5,6 +5,16 @@ import AppKit
 enum NotchBoxApp {
     static func main() {
         let app = NSApplication.shared
+        let arguments = CommandLine.arguments
+        if let index = arguments.firstIndex(of: SnapshotRenderer.argument), index + 1 < arguments.count {
+            do {
+                try SnapshotRenderer.render(to: URL(fileURLWithPath: arguments[index + 1]))
+                exit(0)
+            } catch {
+                FileHandle.standardError.write(Data("error: \(error)\n".utf8))
+                exit(1)
+            }
+        }
         let delegate = AppDelegate()
         app.delegate = delegate
         app.setActivationPolicy(.accessory)

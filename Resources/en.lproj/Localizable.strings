@@ -7,3 +7,6 @@
 "previous" = "Previous";
 "volume" = "Volume";
 "open_source_app" = "Open playing app";
+"position" = "Position";
+"nothing_playing_hint" = "Play something in any app";
+"media_keys_hint" = "The buttons send media keys instead";

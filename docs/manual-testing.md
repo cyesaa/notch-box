@@ -19,7 +19,12 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 
 - [ ] While playing, mini artwork shows left of the notch and the waveform moves right of it.
 - [ ] Pausing flattens the waveform.
-- [ ] Hovering shows artwork, title, artist and the source app icon.
+- [ ] Hovering shows artwork, title, artist, album (when the player sends one) and the source app icon.
+- [ ] The glow around the cover, the progress bar and the waveform take the cover's colour; a grey cover gives a
+  neutral light tint, and the strip under the hardware notch stays solid black.
+- [ ] Changing to a track with a differently coloured cover fades the tint over about half a second.
+- [ ] Buttons shrink slightly while pressed; dragging the progress bar makes it thicker.
+- [ ] With System Settings → Accessibility → Display → Reduce motion on, the waveform holds still while playing.
 - [ ] Play/pause, next and previous work.
 - [ ] Dragging the progress bar seeks; the bar does not jump back after release.
 - [ ] Clicking the source app icon brings that app to the front.
@@ -61,7 +66,8 @@ Watch the log in a second terminal. zsh has its own `log` command, so use the fu
 ## Degraded mode
 
 - [ ] `defaults write com.notchbox.NotchBox SimulateAdapterFailure -bool true`, then `make run`.
-- [ ] Within about 10 s, hovering shows "Can't read track info" with controls and no mini artwork.
+- [ ] Within about 10 s, hovering shows "Can't read track info" and "The buttons send media keys instead" with
+  controls and no mini artwork.
 - [ ] The first control press asks for Accessibility permission; after granting it (System Settings → Privacy & Security → Accessibility), the buttons control playback.
 - [ ] `defaults delete com.notchbox.NotchBox SimulateAdapterFailure`, then `make run`: normal mode is back.
 

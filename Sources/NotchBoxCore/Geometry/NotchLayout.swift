@@ -27,7 +27,7 @@ public enum NotchLayout {
         case .expanded:
             return CGSize(
                 width: max(expandedSize.width, notch.width + 80),
-                height: max(expandedSize.height, notch.height + 140)
+                height: max(expandedSize.height, notch.height + 160)
             )
         case .expandedEmpty:
             return CGSize(
