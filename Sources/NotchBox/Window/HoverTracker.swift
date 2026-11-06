@@ -1,7 +1,7 @@
 import AppKit
 import NotchBoxCore
 
-/// Reports whether the cursor is inside `hotZone`, and inside `closeButtonZone` (both in global screen
+/// Reports whether the cursor is inside `hotZone`, and inside `buttonZone` (both in global screen
 /// coordinates). The global monitor keeps reporting while the panel ignores the mouse.
 /// Mouse-moved monitors need no permission.
 @MainActor
@@ -9,14 +9,19 @@ final class HoverTracker {
     var hotZone: CGRect = .null {
         didSet { evaluate() }
     }
-    /// The video panel's close button; `.null` when no video is showing.
-    var closeButtonZone: CGRect = .null {
+    /// The one control that takes clicks in a click-through state (the video's close button, the mini
+    /// notch's play/pause); `.null` when there is none.
+    var buttonZone: CGRect = .null {
+        didSet { evaluate() }
+    }
+    /// The cursor over `buttonZone` does not count as hovering the panel (so it does not open).
+    var buttonSuppressesHover = false {
         didSet { evaluate() }
     }
     var onHoverChange: ((Bool) -> Void)?
-    var onCloseButtonHoverChange: ((Bool) -> Void)?
+    var onButtonHoverChange: ((Bool) -> Void)?
     private(set) var isHovering = false
-    private(set) var isOverCloseButton = false
+    private(set) var isOverButton = false
     private var monitors: [Any] = []
 
     func start() {
@@ -42,12 +47,12 @@ final class HoverTracker {
     }
 
     private func evaluate() {
-        let overCloseButton = NotchGeometry.contains(closeButtonZone, NSEvent.mouseLocation)
-        if overCloseButton != isOverCloseButton {
-            isOverCloseButton = overCloseButton
-            onCloseButtonHoverChange?(overCloseButton)
+        let overButton = NotchGeometry.contains(buttonZone, NSEvent.mouseLocation)
+        if overButton != isOverButton {
+            isOverButton = overButton
+            onButtonHoverChange?(overButton)
         }
-        let inside = NotchGeometry.contains(hotZone, NSEvent.mouseLocation)
+        let inside = NotchGeometry.contains(hotZone, NSEvent.mouseLocation) && !(overButton && buttonSuppressesHover)
         // Keep the panel open while a drag that started inside it (a slider) continues outside.
         let dragging = isHovering && (NSEvent.pressedMouseButtons & 1) != 0
         let hovering = inside || dragging

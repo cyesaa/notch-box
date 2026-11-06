@@ -6,18 +6,18 @@ struct NotchInteractionTests {
     let notch = CGSize(width: 185, height: 32)
 
     @Test func closedStatesNeverTakeClicks() {
-        #expect(!NotchInteraction.acceptsClicks(in: .idle, cursorOverCloseButton: false))
-        #expect(!NotchInteraction.acceptsClicks(in: .mini, cursorOverCloseButton: true))
+        #expect(!NotchInteraction.acceptsClicks(in: .idle, cursorOverButton: false))
+        #expect(!NotchInteraction.acceptsClicks(in: .idle, cursorOverButton: true))
     }
 
     @Test func openPlayerPanelsTakeClicks() {
-        #expect(NotchInteraction.acceptsClicks(in: .expanded, cursorOverCloseButton: false))
-        #expect(NotchInteraction.acceptsClicks(in: .expandedEmpty, cursorOverCloseButton: false))
+        #expect(NotchInteraction.acceptsClicks(in: .expanded, cursorOverButton: false))
+        #expect(NotchInteraction.acceptsClicks(in: .expandedEmpty, cursorOverButton: false))
     }
 
     @Test func videoTakesClicksOnlyOverItsCloseButton() {
-        #expect(NotchInteraction.acceptsClicks(in: .video, cursorOverCloseButton: true))
-        #expect(!NotchInteraction.acceptsClicks(in: .video, cursorOverCloseButton: false))
+        #expect(NotchInteraction.acceptsClicks(in: .video, cursorOverButton: true))
+        #expect(!NotchInteraction.acceptsClicks(in: .video, cursorOverButton: false))
     }
 
     @Test func onlyAHoveredVideoIsSeeThrough() {

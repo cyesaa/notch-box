@@ -40,6 +40,8 @@ public enum NotchLayout {
                 width: max(emptySize.width, notch.width + 80),
                 height: max(emptySize.height, notch.height + 40)
             )
+        case .volume:
+            return CGSize(width: notch.width + 2 * miniSideWidth(notch: notch), height: notch.height + volumeRowHeight)
         case .video:
             let player = videoPlayerSize(notch: notch)
             return CGSize(
@@ -50,6 +52,15 @@ public enum NotchLayout {
     }
 
     public static let videoCloseButtonSide: CGFloat = 28
+    /// The volume row under the notch in the volume state, including its bottom margin.
+    public static let volumeRowHeight: CGFloat = 34
+
+    /// The mini state's right wing (the waveform), in content coordinates: hovering it shows a
+    /// play/pause button instead of opening the panel.
+    public static func miniActionFrame(notch: CGSize) -> CGRect {
+        let side = miniSideWidth(notch: notch)
+        return CGRect(x: side + notch.width, y: 0, width: side, height: notch.height)
+    }
 
     /// The video panel's close button, in content coordinates (origin top-left): the right end of the bar.
     public static func videoCloseButtonFrame(notch: CGSize) -> CGRect {
@@ -78,7 +89,8 @@ public enum NotchLayout {
     }
 
     public static func bottomCornerRadius(for state: NotchDisplayState) -> CGFloat {
-        state.isOpen ? 20 : 8
+        if state == .volume { return 14 }
+        return state.isOpen ? 20 : 8
     }
 
     /// Concave corners where the shape meets the top edge of the screen, drawn outside `size(for:)`
@@ -86,7 +98,7 @@ public enum NotchLayout {
     public static func topCornerRadius(for state: NotchDisplayState) -> CGFloat {
         switch state {
         case .idle: return 0
-        case .mini: return 6
+        case .mini, .volume: return 6
         case .expanded, .expandedEmpty, .video: return 12
         }
     }

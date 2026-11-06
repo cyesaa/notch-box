@@ -112,6 +112,14 @@ iletir; view model ilgili servise gönderir.
 | **Açık-boş** | Fare sıcak bölgede ≥ 0.1 sn ve müzik bilgisi yok | 300 × 80pt; müzik notası ikonu + "Şu an bir şey çalmıyor" |
 
 Kısıtlı modda (§7) şarkı bilgisi olmadığı için Mini hal gösterilmez (fare yokken Boşta).
+
+Ek haller (2026-11-06):
+- **Ses** (`.volume`): Sistem sesi değişince 1.5 sn (`VolumeHUD`) notch'un altında yuvarlak köşeli bir satır seviyeyi
+  (hoparlör, çubuk, yüzde) gösterir; müzik çalıyorsa mini satırın altında. Açık oynatıcı ya da video varken gösterilmez;
+  açılıştaki ilk okuma göstermez.
+- **Mini düğmesi:** Mini halin sağ kanadı (`NotchLayout.miniActionFrame`) bir düğmedir: duraklatılmışken oynat, çalarken
+  fare üzerindeyken duraklat simgesi gösterir. Bu bölgede fare paneli açmaz (`NotchInteraction.buttonSuppressesHover`)
+  ve panel tıklamayı yalnızca burada alır.
 Hover'da **Açık** hal, şarkı bilgisi yerine "Şarkı bilgisi alınamıyor" yazısı ve
 yalnızca önceki / oynat-duraklat / sonraki butonlarıyla gösterilir.
 
@@ -129,8 +137,8 @@ yalnızca önceki / oynat-duraklat / sonraki butonlarıyla gösterilir.
 
 - Panel tam siyahtır; renk yalnızca kapaktan gelir. `ArtworkAccent` (Core) kapağın 24 × 24 küçültülmüş
   piksellerinden en canlı tonu seçer, siyah üstünde okunacak kadar açar ve doygunluğunu sınırlar; kapak yoksa
-  ya da griyse nötr açık bir renk kullanılır. Bu renk kapağın arkasındaki yumuşak ışımayı (donanım notch'unun
-  altındaki şeride taşmaz), ilerleme çubuğunu ve ses dalgasını boyar; kapak değişince 0.6 sn'de geçer.
+  ya da griyse nötr açık bir renk kullanılır. Bu renk kapağın çevresindeki ince gölgeyi, ilerleme çubuğunu ve ses dalgasını boyar; kapak değişince 0.6 sn'de geçer.
+- Kapağın çevresinde kapak renginde ince bir gölge (yarıçap 6 pt) vardır; daha büyük bir ışıma yoktur.
 - Kapak 64 × 64pt, köşe yarıçapı 10pt.
 - Şarkı adı, sanatçı ve albüm tek satır, sığmazsa "…" ile kesilir.
 - `[app]`: kaynak uygulamanın ikonu (`NSWorkspace`). Tıklanınca o uygulama öne gelir.
