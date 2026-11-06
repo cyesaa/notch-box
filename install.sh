@@ -41,12 +41,14 @@ destination() {
   fi
 }
 
+# -a: pgrep and pkill skip their own ancestors by default, and when NotchBox runs this script to update
+# itself, NotchBox is one of them.
 quit_running_app() {
-  pgrep -x NotchBox >/dev/null || return 0
+  pgrep -ax NotchBox >/dev/null || return 0
   say "Quitting the running NotchBox"
-  pkill -x NotchBox || true
+  pkill -ax NotchBox || true
   for _ in $(seq 1 50); do
-    pgrep -x NotchBox >/dev/null || return 0
+    pgrep -ax NotchBox >/dev/null || return 0
     sleep 0.1
   done
   fail "NotchBox did not quit. Quit it from its menu bar icon and run this again."
