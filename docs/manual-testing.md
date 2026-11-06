@@ -123,7 +123,10 @@ Needs the repository to be public and a published release.
 - [ ] Hover the notch: a calendar column as wide as the clipboard sits right of the player; the panel is
   symmetric around the notch and the player stays centred under it.
 - [ ] Before access is given, the column offers "Show my calendar". Pressing it shows macOS's calendar prompt once;
-  after allowing, today's remaining and tomorrow's events appear without reopening the notch.
+  after allowing, the week strip and today's remaining events appear without reopening the notch.
+- [ ] The strip shows this week from your first weekday; today is filled white, days with events have a dot.
+  Clicking another day rings it, shows its date in the header and lists all its events ("No events" if none).
+  Closing and reopening the notch goes back to today.
 - [ ] All-day events come first; a running event is highlighted and says "Now · until <time>"; one starting within
   15 minutes says "in N min".
 - [ ] An event with a Zoom / Meet / Teams link has a green Join button that opens the call; clicking the event

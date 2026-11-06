@@ -11,8 +11,9 @@ Control whatever is playing on your Mac from the MacBook notch.
 - Left of the player sits your clipboard: the last 20 texts and images you copied, newest first. Click one to copy
   it again, remove it with its ×, or clear the whole list with the bin. The eye on an image shows it large in
   place of the player.
-- Right of the player, as wide as the clipboard, sits your calendar: what is left of today and tomorrow's
-  events, with a green Join button for Zoom, Meet, Teams, Webex and FaceTime calls. Click an event to open Calendar.
+- Right of the player, as wide as the clipboard, sits your calendar: this week as a strip of days (a dot marks days
+  with events) and the picked day's events below, with a green Join button for Zoom, Meet, Teams, Webex and
+  FaceTime calls. Click a day to see its events, or an event to open Calendar.
 - Watching a YouTube video in Safari, Chrome, Brave, Edge, Vivaldi or Arc? Press the picture-in-picture button in the
   player and the video moves into the notch, from the same moment, so you can put the browser away and keep watching.
   Pass over the video and it fades away so you can see and click what is behind it; only its close button stays.
@@ -68,8 +69,8 @@ Items that password managers mark as private (nspasteboard.org markers) and copi
 images larger than 25 MB are skipped. macOS may ask once whether NotchBox may paste from other apps; say Allow,
 or the list stays empty.
 
-**The calendar** asks for access only when you press "Show my calendar". NotchBox only reads today's and
-tomorrow's events with EventKit; it never changes them and they stay on your Mac.
+**The calendar** asks for access only when you press "Show my calendar". NotchBox only reads this week's events
+with EventKit; it never changes them and they stay on your Mac.
 
 **Watching in the notch** reads the open tabs of your browser (macOS asks once for **Automation** permission) to
 find the YouTube video, then plays it with YouTube's own embedded player. Some videos can only be watched on
@@ -162,8 +163,9 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
 - Oynatıcının solunda panon durur: kopyaladığın son 20 yazı ve görsel, en yenisi en üstte. Birine tıklayınca
   tekrar kopyalanır; yanındaki × ile tek tek silebilir ya da çöp kutusuyla listenin tamamını temizleyebilirsin.
   Görsellerdeki göz düğmesi görseli oynatıcının yerinde büyük gösterir.
-- Oynatıcının sağında, panoyla aynı genişlikte takvimin durur: bugünün kalan ve yarının etkinlikleri. Zoom, Meet,
-  Teams, Webex ve FaceTime görüşmelerinde yeşil bir Katıl düğmesi çıkar; etkinliğe tıklayınca Takvim açılır.
+- Oynatıcının sağında, panoyla aynı genişlikte takvimin durur: üstte bu haftanın günleri (etkinliği olan günlerde
+  nokta), altında seçili günün etkinlikleri. Bir güne tıklayınca o günün etkinlikleri gelir. Zoom, Meet, Teams, Webex
+  ve FaceTime görüşmelerinde yeşil bir Katıl düğmesi çıkar; etkinliğe tıklayınca Takvim açılır.
 - Apple Music ve Safari/Chrome'da YouTube ile test edildi. macOS'a "Şu An Çalıyor" bilgisi veren diğer uygulamalar
   (Spotify gibi) çalışmalı ama test edilmedi.
 - Arayüz Türkçe ve İngilizce; sistem diline göre seçilir.
@@ -215,8 +217,8 @@ yöneticilerinin gizli diye işaretlediği öğeler (nspasteboard.org işaretler
 25 MB'tan büyük görseller atlanır. macOS bir kez NotchBox'ın diğer uygulamalardan yapıştırmasına izin verip
 vermeyeceğini sorabilir; İzin Ver demezsen liste boş kalır.
 
-**Takvim**, yalnızca "Takvimi göster" düğmesine bastığında izin ister. NotchBox bugünün ve yarının etkinliklerini
-EventKit ile yalnızca okur; hiçbir şeyi değiştirmez ve bilgiler Mac'inde kalır.
+**Takvim**, yalnızca "Takvimi göster" düğmesine bastığında izin ister. NotchBox bu haftanın etkinliklerini EventKit
+ile yalnızca okur; hiçbir şeyi değiştirmez ve bilgiler Mac'inde kalır.
 
 **Notch'ta izleme**, YouTube videosunu bulmak için tarayıcındaki açık sekmeleri okur (macOS bir kez **Otomasyon**
 izni ister) ve videoyu YouTube'un kendi gömülü oynatıcısıyla oynatır. Bazı videolar yalnızca YouTube'da

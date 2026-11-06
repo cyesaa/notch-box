@@ -30,7 +30,7 @@
 "calendar_allow_hint" = "Allow access to see today's events here";
 "calendar_denied" = "Calendar access is off. Turn it on in System Settings → Privacy & Security → Calendars";
 "calendar_nothing_left" = "Nothing else today";
-"calendar_tomorrow" = "Tomorrow";
+"calendar_no_events" = "No events";
 "calendar_all_day" = "All day";
 "calendar_now_until" = "Now · until %@";
 "calendar_in_minutes" = "in %d min";

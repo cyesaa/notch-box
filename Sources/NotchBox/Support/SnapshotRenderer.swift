@@ -263,6 +263,7 @@ private final class SnapshotCalendar: CalendarProviding {
             CalendarEvent(id: "2", title: "Tasarım incelemesi", start: at(now, minutes: 40), end: at(now, minutes: 70), isAllDay: false, color: orange, meetingURL: URL(string: "https://zoom.us/j/1")),
             CalendarEvent(id: "3", title: "Spor salonu", start: at(now, minutes: 300), end: at(now, minutes: 360), isAllDay: false, color: green, meetingURL: nil),
             CalendarEvent(id: "4", title: "Annemin doğum günü", start: today, end: tomorrow, isAllDay: true, color: orange, meetingURL: nil),
+            CalendarEvent(id: "6", title: "Diş hekimi", start: at(today, minutes: -1440 * 2 + 900), end: at(today, minutes: -1440 * 2 + 960), isAllDay: false, color: green, meetingURL: nil),
             CalendarEvent(id: "5", title: "Haftalık 1:1", start: at(tomorrow, minutes: 600), end: at(tomorrow, minutes: 630), isAllDay: false, color: blue, meetingURL: URL(string: "https://teams.microsoft.com/l/meetup-join/x")),
         ]
     }
