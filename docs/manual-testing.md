@@ -76,6 +76,27 @@ Needs the repository to be public and a published release.
 - [ ] `… | bash -s -- --uninstall` removes the app, its settings and its permissions.
 - [ ] While the repository is private, the installer stops with "The repository may be private right now".
 
+## Updates
+
+A fake newer release and a local install make this testable while the repository is private:
+
+```bash
+echo '{"tag_name":"v9.0.0","html_url":"https://github.com/cyesaa/notch-box/releases","draft":false}' > /tmp/release.json
+defaults write com.notchbox.NotchBox UpdateFeedURL file:///tmp/release.json
+defaults write com.notchbox.NotchBox UpdateInstallCommand "NOTCHBOX_ZIP=$PWD/dist/NotchBox-<version>.zip NOTCHBOX_DEST=/tmp/nb bash $PWD/install.sh"
+```
+
+- [ ] About 15 seconds after start a dot appears on the menu bar icon and the menu starts with a bold
+  "Update available: NotchBox 9.0.0".
+- [ ] Clicking it asks Update / What's New / Later. Update quits NotchBox and opens the new copy: only one
+  menu bar icon is left. ~/Library/Logs/NotchBox/update.log has the installer's output.
+- [ ] Make the install command fail (`UpdateInstallCommand 'exit 3'`): an alert says the update could not be
+  installed, the real install command is on the clipboard and Finder shows update.log.
+- [ ] "Check for Updates…" with no newer release says NotchBox is up to date; with the repository private (and
+  no feed override) it says the check failed.
+- [ ] "Check for Updates Automatically" off: no check after start (no dot).
+- [ ] Clean up: `defaults delete com.notchbox.NotchBox UpdateFeedURL` and the same for `UpdateInstallCommand`.
+
 ## Watching in the notch
 
 - [ ] Play a YouTube video in Chrome and hover the notch: the Chrome icon sits left of the camera, the waveform
