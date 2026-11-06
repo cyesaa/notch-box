@@ -102,14 +102,13 @@ struct VideoLayoutTests {
         #expect(player == CGSize(width: 432, height: 243))
     }
 
-    @Test func videoPanelFitsBarAndPlayerBelowTheNotch() {
-        #expect(NotchLayout.size(for: .video, notch: notch) == CGSize(width: 464, height: 32 + 8 + 30 + 8 + 243 + 16))
+    @Test func videoPanelFitsThePlayerJustBelowTheNotch() {
         let tall = CGSize(width: 200, height: 50)
-        let expected: CGFloat = 50 + 8 + 30 + 8 + 243 + 16
+        let expected: CGFloat = 50 + 8 + 243 + 16
         #expect(NotchLayout.size(for: .video, notch: tall).height == expected)
     }
 
     @Test func windowCoversTheVideoPanel() {
-        #expect(NotchLayout.maxSize(notch: notch) == CGSize(width: 464, height: 337))
+        #expect(NotchLayout.maxSize(notch: notch) == CGSize(width: 464, height: 299))
     }
 }

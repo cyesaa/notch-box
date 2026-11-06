@@ -10,7 +10,8 @@ Control whatever is playing on your Mac from the MacBook notch.
 - The player takes its colour from the cover: a small shadow around the artwork, the progress bar and the waveform.
 - Watching a YouTube video in Safari, Chrome, Brave, Edge, Vivaldi or Arc? Press the picture-in-picture button in the
   player and the video moves into the notch, from the same moment, so you can put the browser away and keep watching.
-  Point at the video and it fades away so you can see and click what is behind it; only its close button stays.
+  Pass over the video and it fades away so you can see and click what is behind it; only its close button stays.
+  Come down onto it from the menu bar instead and it stays solid, so YouTube's own controls work.
 - Tested with Apple Music and YouTube in Safari and Chrome. Other apps that report "Now Playing" to macOS
   (such as Spotify) should work but are untested.
 - English and Turkish, picked from your system language.
@@ -142,7 +143,8 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
   önceki / oynat-duraklat / sonraki, ses çubuğu ve müziğin çaldığı uygulamanın ikonu.
 - Safari, Chrome, Brave, Edge, Vivaldi ya da Arc'ta YouTube videosu mu izliyorsun? Oynatıcıdaki "resim içinde resim"
   düğmesine bas; video kaldığı yerden notch'a taşınır, tarayıcıyı arkaya alıp izlemeye devam edebilirsin.
-  Fareyle videonun üzerine gelince video saydamlaşır; arkasını görüp tıklayabilirsin, yalnızca kapatma düğmesi kalır.
+  Fareyle videonun üzerine yandan ya da alttan gelince video saydamlaşır; arkasını görüp tıklayabilirsin, yalnızca
+  kapatma düğmesi kalır. Menü çubuğundan aşağı inerek gelirsen video saydamlaşmaz ve YouTube'un kendi düğmeleri çalışır.
 - Oynatıcı rengini kapaktan alır: kapağın etrafında ince bir gölge, ilerleme çubuğu ve ses dalgası.
 - Apple Music ve Safari/Chrome'da YouTube ile test edildi. macOS'a "Şu An Çalıyor" bilgisi veren diğer uygulamalar
   (Spotify gibi) çalışmalı ama test edilmedi.

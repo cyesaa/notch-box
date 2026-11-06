@@ -79,9 +79,9 @@ struct NotchButtonLayoutTests {
     }
 
     @Test func miniTakesClicksOnlyOverItsButton() {
-        #expect(NotchInteraction.acceptsClicks(in: .mini, cursorOverButton: true))
-        #expect(!NotchInteraction.acceptsClicks(in: .mini, cursorOverButton: false))
-        #expect(!NotchInteraction.acceptsClicks(in: .volume, cursorOverButton: true))
+        #expect(NotchInteraction.acceptsClicks(in: .mini, cursorOverButton: true, entry: nil))
+        #expect(!NotchInteraction.acceptsClicks(in: .mini, cursorOverButton: false, entry: nil))
+        #expect(!NotchInteraction.acceptsClicks(in: .volume, cursorOverButton: true, entry: nil))
     }
 
     @Test func onlyTheMiniButtonAreaKeepsThePanelClosed() {

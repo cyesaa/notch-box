@@ -16,19 +16,21 @@ struct NotchLayoutTests {
     }
 
     @Test func expandedSizes() {
-        #expect(NotchLayout.size(for: .expanded, notch: notch) == CGSize(width: 400, height: 200))
+        // The player body hangs right below the notch; the band beside the notch holds the small icons.
+        #expect(NotchLayout.size(for: .expanded, notch: notch) == CGSize(width: 400, height: 32 + 154))
         #expect(NotchLayout.size(for: .expandedEmpty, notch: notch) == CGSize(width: 300, height: 80))
     }
 
     @Test func wideNotchGrowsExpandedWidth() {
         let wide = CGSize(width: 350, height: 40)
-        #expect(NotchLayout.size(for: .expanded, notch: wide) == CGSize(width: 430, height: 200))
+        #expect(NotchLayout.size(for: .expanded, notch: wide) == CGSize(width: 430, height: 40 + 154))
         #expect(NotchLayout.size(for: .expandedEmpty, notch: wide) == CGSize(width: 430, height: 80))
     }
 
     @Test func tallNotchLeavesRoomForThePlayerBelowIt() {
         let tall = CGSize(width: 200, height: 50)
-        #expect(NotchLayout.size(for: .expanded, notch: tall).height == 210)
+        let expected: CGFloat = 50 + 154
+        #expect(NotchLayout.size(for: .expanded, notch: tall).height == expected)
     }
 
     @Test func maxSizeCoversAllStates() {
@@ -46,7 +48,7 @@ struct NotchLayoutTests {
     @Test func windowLeavesRoomForTheFlaredCornersAndTheShadow() {
         let margin = NotchLayout.shadowMargin
         #expect(margin == 24)
-        #expect(NotchLayout.windowSize(notch: notch) == CGSize(width: 464 + 2 * (12 + margin), height: 337 + margin))
+        #expect(NotchLayout.windowSize(notch: notch) == CGSize(width: 464 + 2 * (12 + margin), height: 299 + margin))
     }
 
     @Test func cornerRadiusGrowsWhenOpen() {
