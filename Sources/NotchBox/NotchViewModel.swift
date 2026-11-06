@@ -43,6 +43,8 @@ final class NotchViewModel {
     private(set) var clipboard = ClipboardHistory()
     /// The item just put back on the pasteboard, for a moment, to show it worked.
     private(set) var recentlyCopiedID: Int?
+    /// The clipboard image shown large in place of the player, until closed or the panel closes.
+    private(set) var previewedClipboardItem: ClipboardItem?
 
     @ObservationIgnored var onDisplayStateChange: ((NotchDisplayState) -> Void)?
     @ObservationIgnored private var machine = NotchStateMachine()
@@ -140,15 +142,31 @@ final class NotchViewModel {
     func removeFromClipboard(_ item: ClipboardItem) {
         clipboard.remove(id: item.id)
         thumbnails.keep(clipboard.items)
+        if previewedClipboardItem?.id == item.id { previewedClipboardItem = nil }
     }
 
     func clearClipboard() {
         clipboard.clear()
         thumbnails.keep([])
+        previewedClipboardItem = nil
     }
 
     func thumbnail(for item: ClipboardItem) -> ClipboardThumbnails.Thumbnail? {
         thumbnails.thumbnail(for: item)
+    }
+
+    /// Shows a clipboard image large where the player is.
+    func preview(_ item: ClipboardItem) {
+        guard case .image = item.content else { return }
+        previewedClipboardItem = item
+    }
+
+    func closePreview() {
+        previewedClipboardItem = nil
+    }
+
+    func previewImage(for item: ClipboardItem) -> NSImage? {
+        thumbnails.preview(for: item)
     }
 
     private func copied(_ content: ClipboardContent) {
@@ -375,6 +393,10 @@ final class NotchViewModel {
         if newState != displayState {
             displayState = newState
             onDisplayStateChange?(newState)
+        }
+        // An image preview belongs to this opening of the panel.
+        if !(displayState == .expanded || displayState == .expandedEmpty), previewedClipboardItem != nil {
+            previewedClipboardItem = nil
         }
         // Listen to the audio only while a moving waveform is on screen.
         let showsWaveform = displayState == .mini || displayState == .expanded || displayState == .volume

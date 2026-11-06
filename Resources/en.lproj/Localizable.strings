@@ -23,3 +23,5 @@
 "clipboard_remove" = "Remove";
 "clipboard_image" = "Image";
 "clipboard_copied" = "Copied";
+"clipboard_view" = "View";
+"clipboard_close_preview" = "Close the image";

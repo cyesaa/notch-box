@@ -9,7 +9,7 @@ public enum NotchLayout {
     public static let expandedBodyHeight: CGFloat = 154
     public static let emptyWidth: CGFloat = 300
     /// The clipboard column left of the open player.
-    public static let clipboardWidth: CGFloat = 220
+    public static let clipboardWidth: CGFloat = 240
     public static let expandedArtworkSide: CGFloat = 64
     public static let expandedArtworkRadius: CGFloat = 10
     public static let miniArtworkRadius: CGFloat = 6

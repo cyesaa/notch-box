@@ -123,16 +123,16 @@ struct ClipboardLayoutTests {
     let notch = CGSize(width: 185, height: 32)
 
     @Test func theOpenPlayerGrowsToTheLeftForTheClipboard() {
-        #expect(NotchLayout.clipboardWidth == 220)
-        #expect(NotchLayout.leadingExtension(for: .expanded) == 220)
-        #expect(NotchLayout.leadingExtension(for: .expandedEmpty) == 220)
+        #expect(NotchLayout.clipboardWidth == 240)
+        #expect(NotchLayout.leadingExtension(for: .expanded) == 240)
+        #expect(NotchLayout.leadingExtension(for: .expandedEmpty) == 240)
         #expect(NotchLayout.leadingExtension(for: .video) == 0)
         #expect(NotchLayout.leadingExtension(for: .mini) == 0)
     }
 
     @Test func thePlayerStaysCentredUnderTheNotch() {
         // Content is shifted left by half the extension, so the player part keeps its place.
-        #expect(NotchLayout.horizontalOffset(for: .expanded) == -110)
+        #expect(NotchLayout.horizontalOffset(for: .expanded) == -120)
         #expect(NotchLayout.horizontalOffset(for: .video) == 0)
     }
 
