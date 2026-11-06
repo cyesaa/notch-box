@@ -2,6 +2,14 @@ import AppKit
 import NotchBoxCore
 import Observation
 
+/// A browser's YouTube video playing in the notch.
+struct VideoSession: Equatable {
+    let videoID: String
+    let title: String
+    /// The browser it came from, to hand playback back to.
+    let sourceBundleIdentifier: String
+}
+
 /// Single source of truth for the views. Combines the state machine with the services.
 @MainActor
 @Observable
@@ -18,6 +26,13 @@ final class NotchViewModel {
     private(set) var isVolumeSettable = false
     /// Slider position while the user drags the progress bar.
     private(set) var scrubPosition: TimeInterval?
+    /// Non-nil while a video plays in the notch; the notch then stays open in `.video`.
+    private(set) var video: VideoSession?
+    /// Looking for the video in the browser's tabs.
+    private(set) var isFindingVideo = false
+    /// A short note shown in the player for a few seconds (no video found, no permission, ...).
+    private(set) var videoMessage: String?
+    @ObservationIgnored private(set) var videoPlayer: YouTubePlayer?
 
     @ObservationIgnored var onDisplayStateChange: ((NotchDisplayState) -> Void)?
     @ObservationIgnored private var machine = NotchStateMachine()
@@ -29,15 +44,26 @@ final class NotchViewModel {
     @ObservationIgnored private let mediaKeys: MediaKeySending?
     /// Live bar heights for the waveform; nil in snapshots.
     @ObservationIgnored let audioMeter: AudioLevelMeter?
+    @ObservationIgnored private let tabReader: BrowserTabReading?
+    @ObservationIgnored private let makePlayer: @MainActor (String, TimeInterval) -> YouTubePlayer?
+    @ObservationIgnored private var messageWork: DispatchWorkItem?
     @ObservationIgnored private let now: () -> Date
+
+    static let messageDuration: TimeInterval = 4
+    /// Wait after closing the player before seeking the browser, so the command reaches the browser again.
+    static let handBackDelay: TimeInterval = 0.8
 
     init(
         nowPlayingService: NowPlayingService? = nil,
         volumeControl: VolumeControlling? = nil,
         mediaKeys: MediaKeySending? = nil,
         audioMeter: AudioLevelMeter? = nil,
+        tabReader: BrowserTabReading? = nil,
+        makePlayer: @escaping @MainActor (String, TimeInterval) -> YouTubePlayer? = { YouTubePlayer(videoID: $0, start: $1) },
         now: @escaping () -> Date = Date.init
     ) {
+        self.tabReader = tabReader
+        self.makePlayer = makePlayer
         self.nowPlayingService = nowPlayingService
         self.volumeControl = volumeControl
         self.mediaKeys = mediaKeys
@@ -67,6 +93,8 @@ final class NotchViewModel {
         artworkTimer?.invalidate()
         artwork.cancelPending()
         audioMeter?.setActive(false)
+        videoPlayer?.stop()
+        videoPlayer = nil
         nowPlayingService?.stop()
     }
 
@@ -111,6 +139,91 @@ final class NotchViewModel {
     func openSourceApp() {
         guard let bundleIdentifier = info?.sourceBundleIdentifier else { return }
         AppIconProvider.open(bundleIdentifier: bundleIdentifier)
+    }
+
+    /// The playing app is a browser whose tabs NotchBox can read.
+    var canWatchInNotch: Bool {
+        guard let info, tabReader != nil else { return false }
+        return BrowserTabs.isSupportedBrowser(info.sourceBundleIdentifier)
+    }
+
+    /// Finds the playing YouTube video in the browser's tabs, pauses it there and plays it in the notch
+    /// from the same moment.
+    func watchInNotch() {
+        guard let info, let tabReader, !isFindingVideo, video == nil else { return }
+        isFindingVideo = true
+        let browser = info.sourceBundleIdentifier
+        tabReader.readTabs(of: browser) { [weak self] result in
+            guard let self else { return }
+            self.isFindingVideo = false
+            switch result {
+            case .failure:
+                self.show(message: L10n.browserAccessNeeded)
+            case .success(let tabs):
+                guard let videoID = BrowserTabs.pickYouTubeVideo(from: tabs, nowPlayingTitle: info.title) else {
+                    self.show(message: L10n.noYouTubeVideo)
+                    return
+                }
+                let current = self.info ?? info
+                if current.clock.isPlaying { self.nowPlayingService?.send(.togglePlayPause) }
+                self.showVideo(
+                    VideoSession(videoID: videoID, title: current.title, sourceBundleIdentifier: browser),
+                    start: current.clock.elapsed(at: self.now())
+                )
+            }
+        }
+    }
+
+    /// Opens the video panel. Also used by the snapshot renderer, which passes no player.
+    func showVideo(_ session: VideoSession, start: TimeInterval) {
+        videoPlayer?.stop()
+        let player = makePlayer(session.videoID, start)
+        player?.onError = { [weak self] _ in
+            self?.closeVideo(resumeInBrowser: false)
+            self?.show(message: L10n.videoNotEmbeddable)
+        }
+        videoPlayer = player
+        video = session
+        apply()
+    }
+
+    /// Closes the video panel and moves the browser to where the notch player stopped.
+    /// With `resumeInBrowser` the browser also plays on and comes to the front.
+    func closeVideo(resumeInBrowser: Bool) {
+        guard let session = video else { return }
+        let player = videoPlayer
+        let finish: @MainActor (TimeInterval?) -> Void = { [weak self] time in
+            guard let self else { return }
+            player?.stop()
+            self.videoPlayer = nil
+            self.video = nil
+            self.apply()
+            // Best effort: the seek and play go to whichever player macOS considers active, normally the browser again.
+            DispatchQueue.main.asyncAfter(deadline: .now() + Self.handBackDelay) { [weak self] in
+                MainActor.assumeIsolated {
+                    if let time { self?.nowPlayingService?.send(.seek(to: time)) }
+                    if resumeInBrowser {
+                        self?.nowPlayingService?.send(.togglePlayPause)
+                        AppIconProvider.open(bundleIdentifier: session.sourceBundleIdentifier)
+                    }
+                }
+            }
+        }
+        if let player {
+            player.currentTime(completion: finish)
+        } else {
+            finish(nil)
+        }
+    }
+
+    private func show(message: String) {
+        messageWork?.cancel()
+        videoMessage = message
+        let work = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated { self?.videoMessage = nil }
+        }
+        messageWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.messageDuration, execute: work)
     }
 
     private func perform(_ command: MediaCommand) {
@@ -166,7 +279,8 @@ final class NotchViewModel {
     }
 
     private func apply() {
-        let newState = machine.displayState
+        // A video in the notch keeps it open whatever the hover or media state says.
+        let newState = video != nil ? .video : machine.displayState
         if newState != displayState {
             displayState = newState
             onDisplayStateChange?(newState)

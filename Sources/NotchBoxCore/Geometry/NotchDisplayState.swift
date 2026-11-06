@@ -8,6 +8,10 @@ public enum NotchDisplayState: Equatable, Sendable {
     case expanded
     /// Hovered with nothing playing: small "Nothing playing" panel.
     case expandedEmpty
+    /// A browser's YouTube video playing in the notch. Stays open until closed, whatever the hover.
+    case video
 
-    public var isOpen: Bool { self == .expanded || self == .expandedEmpty }
+    public static let allCases: [NotchDisplayState] = [.idle, .mini, .expanded, .expandedEmpty, .video]
+
+    public var isOpen: Bool { self == .expanded || self == .expandedEmpty || self == .video }
 }

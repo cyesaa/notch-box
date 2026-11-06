@@ -14,6 +14,7 @@ enum SnapshotRenderer {
         let name: String
         let state: NowPlayingState
         let hovering: Bool
+        var video: VideoSession?
     }
 
     static func render(to directory: URL) throws {
@@ -32,6 +33,12 @@ enum SnapshotRenderer {
             Scene(name: "4-expanded-no-artwork", state: .info(track("Live Radio", nil, nil, playing: true, artwork: nil, duration: nil, app: "com.apple.Safari")), hovering: true),
             Scene(name: "5-nothing-playing", state: .nothing, hovering: true),
             Scene(name: "6-unavailable", state: .unavailable, hovering: true),
+            Scene(
+                name: "7-video",
+                state: .info(track("Sena Şener - Alışılır Mı Aşka (Visualizer)", "Sena Şener", nil, playing: false, artwork: video, app: "com.google.Chrome")),
+                hovering: false,
+                video: VideoSession(videoID: "AAAAAAAAAAA", title: "Sena Şener - Alışılır Mı Aşka (Visualizer)", sourceBundleIdentifier: "com.google.Chrome")
+            ),
         ]
         for scene in scenes {
             try render(scene, to: directory.appendingPathComponent(scene.name + ".png"))
@@ -45,10 +52,15 @@ enum SnapshotRenderer {
         let model = NotchViewModel(
             nowPlayingService: SnapshotNowPlayingService(state: scene.state),
             volumeControl: SnapshotVolume(),
+            tabReader: SnapshotTabReader(),
+            makePlayer: { _, _ in nil },
             now: { clock.now }
         )
         model.setNotchSize(notch)
         model.start()
+        if let video = scene.video {
+            model.showVideo(video, start: 0)
+        }
         if scene.hovering {
             model.hoverChanged(true)
             clock.now += 1
@@ -142,6 +154,13 @@ private final class SnapshotNowPlayingService: NowPlayingService {
     func start() { onChange?(state) }
     func stop() {}
     func send(_ command: MediaCommand) {}
+}
+
+@MainActor
+private final class SnapshotTabReader: BrowserTabReading {
+    func readTabs(of bundleIdentifier: String, completion: @escaping @MainActor (Result<[BrowserTab], Error>) -> Void) {
+        completion(.success([]))
+    }
 }
 
 @MainActor

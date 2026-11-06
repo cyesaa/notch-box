@@ -15,7 +15,14 @@ struct ExpandedView: View {
             if let info = model.info {
                 header(info, accent: accent)
                 Spacer(minLength: 12)
-                if info.clock.hasDuration {
+                if let message = model.videoMessage {
+                    Text(message)
+                        .font(NotchTheme.detailFont)
+                        .foregroundStyle(NotchTheme.secondaryText)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, minHeight: 14)
+                    Spacer(minLength: 10)
+                } else if info.clock.hasDuration {
                     ProgressRow(
                         clock: info.clock,
                         scrubPosition: model.scrubPosition,
@@ -105,6 +112,20 @@ struct ExpandedView: View {
             HStack {
                 VolumeRow(volume: model.volume, isEnabled: model.isVolumeSettable, onChange: model.setVolume)
                 Spacer()
+                if model.canWatchInNotch {
+                    Button(action: model.watchInNotch) {
+                        Image(systemName: "pip.enter")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(NotchTheme.primaryText)
+                            .frame(width: 28, height: 28)
+                            .contentShape(Rectangle())
+                            .opacity(model.isFindingVideo ? 0.4 : 1)
+                    }
+                    .buttonStyle(PressableButtonStyle())
+                    .disabled(model.isFindingVideo)
+                    .help(L10n.watchInNotch)
+                    .accessibilityLabel(L10n.watchInNotch)
+                }
                 if let icon = model.sourceAppIcon {
                     Button(action: model.openSourceApp) {
                         Image(nsImage: icon)
