@@ -56,6 +56,16 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 - [ ] With the lid closed on an external display, nothing appears; reopening the lid brings the panel back.
 - [ ] After sleep and wake, track info updates again.
 
+## Installer
+
+Needs the repository to be public and a published release.
+
+- [ ] `curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | bash` installs NotchBox into
+  `/Applications`, opens it, and macOS shows no "unidentified developer" warning.
+- [ ] Running it again while NotchBox runs quits it, replaces it and opens the new copy.
+- [ ] `… | bash -s -- --uninstall` removes the app, its settings and its permissions.
+- [ ] While the repository is private, the installer stops with "The repository may be private right now".
+
 ## Watching in the notch
 
 - [ ] Play a YouTube video in Chrome and hover the notch: a picture-in-picture button sits next to the Chrome icon.
