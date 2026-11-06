@@ -32,6 +32,13 @@ public struct NotchGeometry: Equatable, Sendable {
         )
     }
 
+    /// `rect` (origin top-left, inside content of `contentSize` shown at `panelFrame(for: contentSize)`)
+    /// in global AppKit coordinates.
+    public func screenRect(for rect: CGRect, inContentOf contentSize: CGSize) -> CGRect {
+        let frame = panelFrame(for: contentSize)
+        return CGRect(x: frame.minX + rect.minX, y: frame.maxY - rect.maxY, width: rect.width, height: rect.height)
+    }
+
     /// Like `CGRect.contains`, but includes the max edges (the cursor can sit on the very top row).
     public static func contains(_ rect: CGRect, _ point: CGPoint) -> Bool {
         guard !rect.isNull, !rect.isEmpty else { return false }

@@ -16,7 +16,6 @@ enum L10n {
     static var nothingPlayingHint: String { string("nothing_playing_hint") }
     static var mediaKeysHint: String { string("media_keys_hint") }
     static var watchInNotch: String { string("watch_in_notch") }
-    static var continueInBrowser: String { string("continue_in_browser") }
     static var closeVideo: String { string("close_video") }
     static var noYouTubeVideo: String { string("no_youtube_video") }
     static var browserAccessNeeded: String { string("browser_access_needed") }
