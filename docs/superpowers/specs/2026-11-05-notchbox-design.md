@@ -247,6 +247,13 @@ notch-box/
 | `make app` | Release derleme + adaptör + `build/NotchBox.app` |
 | `make run` | `make app` ardından uygulamayı açar (çeviriler yalnızca `.app` içinden yüklendiği için ham ikili çalıştırılmaz) |
 | `make dist` | `dist/NotchBox-<sürüm>.zip` |
+| `make release VERSION=x.y.z` | Temiz ve push edilmiş `main`'den sürümü artırır, test eder, zip'i üretir, `vX.Y.Z` etiketini push eder, GitHub Release'i otomatik notlarla oluşturup zip'i `NotchBox.zip` adıyla yükler (`DRY_RUN=1` ile prova). |
+
+**Kurulum:** `install.sh` tek komutla kurar, günceller ve (`--uninstall`) kaldırır:
+`curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | bash`. Son sürümün `NotchBox.zip`'ini
+indirir, imzayı doğrular, çalışan NotchBox'ı kapatır ve `/Applications`'a (yazılamıyorsa `~/Applications`) koyar.
+`curl` ile indirilen dosya karantinaya alınmadığı için notarize olmayan uygulama engellenmez. Repo private iken
+sürüm yayınlanabilir; betik başkaları için yalnızca repo public iken çalışır.
 
 "Açılışta başlat" en güvenilir şekilde uygulama `/Applications` içindeyken çalışır; README'de belirtilir.
 
