@@ -47,6 +47,8 @@ struct NotchRootView: View {
                 } else {
                     ExpandedView(model: model)
                 }
+                CalendarView(model: model)
+                    .frame(width: NotchLayout.calendarWidth)
             }
             .transition(.notchContent)
         case .expandedEmpty:
@@ -59,6 +61,8 @@ struct NotchRootView: View {
                     NothingPlayingView()
                         .padding(.top, model.notchSize.height)
                 }
+                CalendarView(model: model)
+                    .frame(width: NotchLayout.calendarWidth)
             }
             .transition(.notchContent)
         case .video:

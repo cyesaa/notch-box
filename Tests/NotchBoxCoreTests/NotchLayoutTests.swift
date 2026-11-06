@@ -17,15 +17,15 @@ struct NotchLayoutTests {
 
     @Test func expandedSizes() {
         // The player body hangs right below the notch; the band beside the notch holds the small icons.
-        // The clipboard column (240) sits left of the player.
-        #expect(NotchLayout.size(for: .expanded, notch: notch) == CGSize(width: 240 + 400, height: 32 + 154))
-        #expect(NotchLayout.size(for: .expandedEmpty, notch: notch) == CGSize(width: 240 + 300, height: 32 + 154))
+        // The clipboard column (240) sits left of the player, the calendar (240) right of it.
+        #expect(NotchLayout.size(for: .expanded, notch: notch) == CGSize(width: 240 + 400 + 240, height: 32 + 154))
+        #expect(NotchLayout.size(for: .expandedEmpty, notch: notch) == CGSize(width: 240 + 300 + 240, height: 32 + 154))
     }
 
     @Test func wideNotchGrowsExpandedWidth() {
         let wide = CGSize(width: 350, height: 40)
-        #expect(NotchLayout.size(for: .expanded, notch: wide) == CGSize(width: 240 + 430, height: 40 + 154))
-        #expect(NotchLayout.size(for: .expandedEmpty, notch: wide) == CGSize(width: 240 + 430, height: 40 + 154))
+        #expect(NotchLayout.size(for: .expanded, notch: wide) == CGSize(width: 240 + 430 + 240, height: 40 + 154))
+        #expect(NotchLayout.size(for: .expandedEmpty, notch: wide) == CGSize(width: 240 + 430 + 240, height: 40 + 154))
     }
 
     @Test func tallNotchLeavesRoomForThePlayerBelowIt() {
@@ -36,7 +36,7 @@ struct NotchLayoutTests {
 
     @Test func windowCoversEveryStateAroundTheNotch() {
         // The window stays centred on the notch, so it is twice the widest reach from the notch's centre:
-        // the open player reaches 640 / 2 + 120 = 440 to the left. The video panel is the tallest.
+        // the open player reaches 880 / 2 = 440 on each side. The video panel is the tallest.
         #expect(NotchLayout.contentReach(notch: notch) == CGSize(width: 440, height: 299))
     }
 

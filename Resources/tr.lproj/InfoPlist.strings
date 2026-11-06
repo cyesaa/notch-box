@@ -1,2 +1,3 @@
 "NSAudioCaptureUsageDescription" = "NotchBox, notch'taki ses dalgasını oynatmak için müziğin ne kadar yüksek çaldığını okur. Hiçbir şey kaydedilmez.";
+"NSCalendarsFullAccessUsageDescription" = "NotchBox, bugünün ve yarının etkinliklerini oynatıcının yanında gösterir. Yalnızca okur, hiçbir şeyi değiştirmez.";
 "NSAppleEventsUsageDescription" = "NotchBox, notch'ta izlemek istediğin YouTube videosunu bulmak için tarayıcındaki açık sekmeleri okur.";

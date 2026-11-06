@@ -29,6 +29,17 @@ enum L10n {
     static var clipboardImage: String { string("clipboard_image") }
     static var clipboardCopied: String { string("clipboard_copied") }
     static var clipboardView: String { string("clipboard_view") }
+    static var calendarTitle: String { string("calendar_title") }
+    static var calendarAllow: String { string("calendar_allow") }
+    static var calendarAllowHint: String { string("calendar_allow_hint") }
+    static var calendarDenied: String { string("calendar_denied") }
+    static var calendarNothingLeft: String { string("calendar_nothing_left") }
+    static var calendarTomorrow: String { string("calendar_tomorrow") }
+    static var calendarAllDay: String { string("calendar_all_day") }
+    static var calendarJoin: String { string("calendar_join") }
+    static var calendarOpen: String { string("calendar_open") }
+    static func calendarNowUntil(_ time: String) -> String { String(format: string("calendar_now_until"), time) }
+    static func calendarInMinutes(_ minutes: Int) -> String { String(format: string("calendar_in_minutes"), minutes) }
     static var clipboardClosePreview: String { string("clipboard_close_preview") }
 
     private static func string(_ key: String) -> String {
