@@ -6,7 +6,7 @@ import SwiftUI
 struct ExpandedView: View {
     let model: NotchViewModel
 
-    private static let horizontalPadding: CGFloat = 20
+    private static let horizontalPadding: CGFloat = 26
     private static let gapBelowNotch: CGFloat = 10
 
     var body: some View {

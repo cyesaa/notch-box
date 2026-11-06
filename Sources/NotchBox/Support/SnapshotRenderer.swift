@@ -19,10 +19,15 @@ enum SnapshotRenderer {
     static func render(to directory: URL) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let warm = makeCover(colors: [NSColor(srgbRed: 1, green: 0.62, blue: 0.3, alpha: 1), NSColor(srgbRed: 0.85, green: 0.2, blue: 0.45, alpha: 1)])
+        let video = makeCover(
+            colors: [NSColor(srgbRed: 0.55, green: 0.7, blue: 0.8, alpha: 1), NSColor(srgbRed: 0.8, green: 0.6, blue: 0.4, alpha: 1)],
+            width: 480, height: 270
+        )
         let cool = makeCover(colors: [NSColor(srgbRed: 0.2, green: 0.75, blue: 0.85, alpha: 1), NSColor(srgbRed: 0.15, green: 0.2, blue: 0.6, alpha: 1)])
         let scenes = [
-            Scene(name: "1-mini", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false),
-            Scene(name: "2-expanded-playing", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true),
+            Scene(name: "1-mini-video-thumbnail", state: .info(track("Sena Şener - Alışılır Mı Aşka (Visualizer)", "Sena Şener", nil, playing: true, artwork: video, app: "com.google.Chrome")), hovering: false),
+            Scene(name: "2-expanded-video-thumbnail", state: .info(track("Sena Şener - Alışılır Mı Aşka (Visualizer)", "Sena Şener", nil, playing: true, artwork: video, app: "com.google.Chrome")), hovering: true),
+            Scene(name: "2b-expanded-square-cover", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true),
             Scene(name: "3-expanded-paused-long-title", state: .info(track("A Very Long Song Title That Does Not Fit On One Line", "Ocean Avenue Collective", nil, playing: false, artwork: cool)), hovering: true),
             Scene(name: "4-expanded-no-artwork", state: .info(track("Live Radio", nil, nil, playing: true, artwork: nil, duration: nil, app: "com.apple.Safari")), hovering: true),
             Scene(name: "5-nothing-playing", state: .nothing, hovering: true),
@@ -49,7 +54,7 @@ enum SnapshotRenderer {
             clock.now += 1
             model.hoverChanged(true)
         }
-        let panel = NotchLayout.maxSize(notch: notch)
+        let panel = NotchLayout.windowSize(notch: notch)
         let canvas = CGSize(width: panel.width + 120, height: panel.height + 60)
         let content = ZStack(alignment: .top) {
             LinearGradient(
@@ -103,15 +108,14 @@ enum SnapshotRenderer {
     }
 
     /// A sample cover: a diagonal gradient with a soft circle, as PNG bytes.
-    private static func makeCover(colors: [NSColor]) -> Data? {
-        let side = 300
+    private static func makeCover(colors: [NSColor], width: Int = 300, height: Int = 300) -> Data? {
         guard let bitmap = NSBitmapImageRep(
-            bitmapDataPlanes: nil, pixelsWide: side, pixelsHigh: side, bitsPerSample: 8, samplesPerPixel: 4,
+            bitmapDataPlanes: nil, pixelsWide: width, pixelsHigh: height, bitsPerSample: 8, samplesPerPixel: 4,
             hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0
         ) else { return nil }
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmap)
-        let rect = NSRect(x: 0, y: 0, width: side, height: side)
+        let rect = NSRect(x: 0, y: 0, width: width, height: height)
         NSGradient(colors: colors)?.draw(in: rect, angle: -45)
         NSColor(white: 1, alpha: 0.25).setFill()
         NSBezierPath(ovalIn: NSRect(x: 150, y: 40, width: 190, height: 190)).fill()

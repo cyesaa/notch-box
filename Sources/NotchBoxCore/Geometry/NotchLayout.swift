@@ -50,4 +50,25 @@ public enum NotchLayout {
     public static func bottomCornerRadius(for state: NotchDisplayState) -> CGFloat {
         state.isOpen ? 20 : 8
     }
+
+    /// Concave corners where the shape meets the top edge of the screen, drawn outside `size(for:)`
+    /// so the panel flares into the bezel like the hardware notch. None while idle, to stay invisible.
+    public static func topCornerRadius(for state: NotchDisplayState) -> CGFloat {
+        switch state {
+        case .idle: return 0
+        case .mini: return 6
+        case .expanded, .expandedEmpty: return 12
+        }
+    }
+
+    /// Transparent room around the shape for its drop shadow.
+    public static let shadowMargin: CGFloat = 24
+
+    /// The panel window: every state plus the flared corners on both sides and the shadow below.
+    public static func windowSize(notch: CGSize) -> CGSize {
+        let states: [NotchDisplayState] = [.idle, .mini, .expanded, .expandedEmpty]
+        let flare = states.map(topCornerRadius(for:)).max() ?? 0
+        let content = maxSize(notch: notch)
+        return CGSize(width: content.width + 2 * (flare + shadowMargin), height: content.height + shadowMargin)
+    }
 }
