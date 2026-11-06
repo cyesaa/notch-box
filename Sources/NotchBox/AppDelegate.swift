@@ -3,12 +3,14 @@ import AppKit
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItemController: StatusItemController?
+    private let updates = UpdateService()
     private var windowController: NotchWindowController?
     private var model: NotchViewModel?
     private var wakeObserver: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        statusItemController = StatusItemController()
+        statusItemController = StatusItemController(updates: updates)
+        updates.start()
 
         let nowPlayingService = AdapterNowPlayingService(location: .resolve())
         let model = NotchViewModel(

@@ -29,6 +29,21 @@ enum L10n {
     static var clipboardImage: String { string("clipboard_image") }
     static var clipboardCopied: String { string("clipboard_copied") }
     static var clipboardView: String { string("clipboard_view") }
+    static var checkForUpdates: String { string("check_for_updates") }
+    static var checkingForUpdates: String { string("checking_for_updates") }
+    static var checkAutomatically: String { string("check_automatically") }
+    static var updateInstalling: String { string("update_installing") }
+    static var updateInstall: String { string("update_install") }
+    static var updateReleaseNotes: String { string("update_release_notes") }
+    static var updateLater: String { string("update_later") }
+    static var updateCheckFailed: String { string("update_check_failed") }
+    static var updateCheckFailedHint: String { string("update_check_failed_hint") }
+    static var updateInstallFailed: String { string("update_install_failed") }
+    static var updateInstallFailedHint: String { string("update_install_failed_hint") }
+    static func updateMenuItem(_ version: String) -> String { String(format: string("update_menu_item"), version) }
+    static func updateAvailableTitle(_ version: String) -> String { String(format: string("update_available_title"), version) }
+    static func updateAvailableInfo(_ version: String) -> String { String(format: string("update_available_info"), version) }
+    static func updateUpToDate(_ version: String) -> String { String(format: string("update_up_to_date"), version) }
     static var calendarTitle: String { string("calendar_title") }
     static var calendarAllow: String { string("calendar_allow") }
     static var calendarAllowHint: String { string("calendar_allow_hint") }

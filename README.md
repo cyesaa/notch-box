@@ -36,8 +36,12 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 ```
 
 This downloads the latest release, puts `NotchBox.app` in `/Applications` (or `~/Applications` without admin
-rights) and opens it. Run the same command again to update. A music note icon appears in the menu bar; use it
-for "Launch at Login" and "Quit".
+rights) and opens it. A music note icon appears in the menu bar; use it for "Launch at Login" and "Quit".
+
+**Updating:** NotchBox looks for a new release soon after it starts and twice a day. When there is one, a dot
+appears on the music note and the menu starts with "Update available"; click it, then Update, and NotchBox
+quits, installs the new version and opens again. "Check for Updates…" checks right away, and checking can be
+turned off in the same menu. Running the install command again also updates.
 
 To remove NotchBox with its settings and permissions:
 
@@ -61,8 +65,9 @@ The one-line installer does not need step 3: files downloaded with `curl` are no
 
 ## Privacy
 
-NotchBox does not connect to the network, except to YouTube while you watch a video in the notch. Track info
-stays on your Mac.
+NotchBox does not connect to the network, except to YouTube while you watch a video in the notch and to GitHub
+(api.github.com) to look for a newer release. The update check sends nothing about you; turn it off with
+"Check for Updates Automatically" in the menu. Track info stays on your Mac.
 
 **The clipboard list** lives in memory only: nothing is written to disk and it is gone when NotchBox quits.
 Items that password managers mark as private (nspasteboard.org markers) and copied files are never kept, and
@@ -184,8 +189,12 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 ```
 
 Bu komut son sürümü indirir, `NotchBox.app`'i `/Applications` klasörüne (yönetici izni yoksa `~/Applications`)
-koyar ve açar. Güncellemek için aynı komutu tekrar çalıştır. Menü çubuğunda bir müzik notası ikonu çıkar;
-"Açılışta başlat" ve "Çık" oradadır.
+koyar ve açar. Menü çubuğunda bir müzik notası ikonu çıkar; "Açılışta başlat" ve "Çık" oradadır.
+
+**Güncelleme:** NotchBox açıldıktan kısa süre sonra ve günde iki kez yeni sürüm olup olmadığına bakar. Yeni sürüm
+varsa müzik notasının yanında bir nokta çıkar ve menünün en üstünde "Güncelleme var" yazar; tıklayıp Güncelle'ye
+basınca NotchBox kapanır, yeni sürümü kurar ve yeniden açılır. "Güncellemeleri denetle…" hemen bakar; otomatik
+denetimi aynı menüden kapatabilirsin. Kurulum komutunu tekrar çalıştırmak da günceller.
 
 NotchBox'ı ayarları ve izinleriyle birlikte kaldırmak için:
 
@@ -210,7 +219,9 @@ Tek satırlık kurulumda 3. adıma gerek yoktur: `curl` ile indirilen dosyalar k
 
 ### Gizlilik
 
-NotchBox, notch'ta video izlerken YouTube'a bağlanmak dışında internete bağlanmaz. Şarkı bilgileri Mac'inde kalır.
+NotchBox, notch'ta video izlerken YouTube'a ve yeni sürüm olup olmadığına bakmak için GitHub'a (api.github.com)
+bağlanmak dışında internete bağlanmaz. Güncelleme denetimi seninle ilgili hiçbir şey göndermez; menüdeki
+"Güncellemeleri otomatik denetle" ile kapatabilirsin. Şarkı bilgileri Mac'inde kalır.
 
 **Pano listesi** yalnızca bellekte tutulur: diske hiçbir şey yazılmaz, NotchBox kapanınca silinir. Şifre
 yöneticilerinin gizli diye işaretlediği öğeler (nspasteboard.org işaretleri) ve kopyalanan dosyalar hiç tutulmaz,
