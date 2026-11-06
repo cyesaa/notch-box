@@ -37,29 +37,31 @@ struct YouTubeLinkTests {
 }
 
 struct BrowserTabsTests {
-    @Test func scriptsExistForSafariAndChromeFamilyBrowsers() {
-        #expect(BrowserTabs.script(forBundleIdentifier: "com.apple.Safari")?.contains("\"Safari\"") == true)
-        #expect(BrowserTabs.script(forBundleIdentifier: "com.google.Chrome")?.contains("\"Google Chrome\"") == true)
-        #expect(BrowserTabs.script(forBundleIdentifier: "com.brave.Browser")?.contains("\"Brave Browser\"") == true)
-        #expect(BrowserTabs.script(forBundleIdentifier: "com.microsoft.edgemac")?.contains("\"Microsoft Edge\"") == true)
-        #expect(BrowserTabs.script(forBundleIdentifier: "com.apple.Music") == nil)
+    @Test func tabTitleKeyDependsOnTheBrowsersScriptingDictionary() {
+        #expect(BrowserTabs.titleKey(forBundleIdentifier: "com.apple.Safari") == "name")
+        #expect(BrowserTabs.titleKey(forBundleIdentifier: "com.google.Chrome") == "title")
+        #expect(BrowserTabs.titleKey(forBundleIdentifier: "com.brave.Browser") == "title")
+        #expect(BrowserTabs.titleKey(forBundleIdentifier: "com.microsoft.edgemac") == "title")
+        #expect(BrowserTabs.titleKey(forBundleIdentifier: "com.vivaldi.Vivaldi") == "title")
+        #expect(BrowserTabs.titleKey(forBundleIdentifier: "company.thebrowser.Browser") == "title")
+        #expect(BrowserTabs.titleKey(forBundleIdentifier: "com.apple.Music") == nil)
     }
 
-    @Test func isBrowserMatchesTheScripts() {
+    @Test func isBrowserMatchesTheTitleKeys() {
         #expect(BrowserTabs.isSupportedBrowser("com.google.Chrome"))
         #expect(!BrowserTabs.isSupportedBrowser("com.spotify.client"))
     }
 
-    @Test func parsesTabLines() {
-        let output = "https://a.com\tA page\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ\tSong - YouTube\n\n"
-        #expect(BrowserTabs.parse(output) == [
-            BrowserTab(url: "https://a.com", title: "A page"),
-            BrowserTab(url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", title: "Song - YouTube"),
-        ])
+    @Test func zipsURLAndTitleListsIntoTabs() {
+        let tabs = BrowserTabs.tabs(urls: ["https://a.com", "https://b.com"], titles: ["A", "B"])
+        #expect(tabs == [BrowserTab(url: "https://a.com", title: "A"), BrowserTab(url: "https://b.com", title: "B")])
     }
 
-    @Test func parseKeepsTabsWithoutATitle() {
-        #expect(BrowserTabs.parse("https://a.com\n") == [BrowserTab(url: "https://a.com", title: "")])
+    @Test func zipKeepsTabsWithoutATitleAndDropsEmptyURLs() {
+        #expect(BrowserTabs.tabs(urls: ["https://a.com", "", "https://c.com"], titles: ["A"]) == [
+            BrowserTab(url: "https://a.com", title: "A"),
+            BrowserTab(url: "https://c.com", title: ""),
+        ])
     }
 
     let tabs = [
