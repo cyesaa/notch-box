@@ -1,7 +1,7 @@
 import NotchBoxCore
 import SwiftUI
 
-/// Full player. The cover's colour pools around it and tints the progress bar and waveform.
+/// Full player. The cover's colour tints a small shadow around it, the progress bar and the waveform.
 /// In degraded mode (no info) the header explains that the buttons send media keys.
 struct ExpandedView: View {
     let model: NotchViewModel
@@ -41,17 +41,14 @@ struct ExpandedView: View {
         .padding(.top, model.notchSize.height + Self.gapBelowNotch)
         .padding(.horizontal, Self.horizontalPadding)
         .padding(.bottom, 14)
-        .background {
-            if model.artworkImage != nil {
-                glow(accent: accent)
-            }
-        }
     }
 
     private func header(_ info: NowPlayingInfo, accent: Color) -> some View {
         HStack(spacing: 14) {
             ArtworkView(image: model.artworkImage, version: model.artworkVersion, cornerRadius: NotchLayout.expandedArtworkRadius)
                 .frame(width: NotchLayout.expandedArtworkSide, height: NotchLayout.expandedArtworkSide)
+                // A small shadow in the cover's colour, just around the artwork.
+                .shadow(color: model.artworkImage == nil ? .clear : accent.opacity(0.45), radius: 6, y: 2)
             VStack(alignment: .leading, spacing: 2) {
                 Text(info.title)
                     .font(NotchTheme.titleFont)
@@ -139,35 +136,5 @@ struct ExpandedView: View {
             }
         }
         .frame(height: 36)
-    }
-
-    /// Light from the cover, kept out of the strip under the hardware notch so the notch stays solid black.
-    private func glow(accent: Color) -> some View {
-        GeometryReader { geometry in
-            let size = geometry.size
-            let notchHeight = model.notchSize.height
-            let center = CGPoint(
-                x: Self.horizontalPadding + NotchLayout.expandedArtworkSide / 2,
-                y: notchHeight + Self.gapBelowNotch + NotchLayout.expandedArtworkSide / 2
-            )
-            RadialGradient(
-                colors: [accent.opacity(0.5), accent.opacity(0.14), accent.opacity(0)],
-                center: UnitPoint(x: center.x / max(size.width, 1), y: center.y / max(size.height, 1)),
-                startRadius: 0,
-                endRadius: 120
-            )
-            .mask(
-                LinearGradient(
-                    stops: [
-                        .init(color: .clear, location: 0),
-                        .init(color: .clear, location: notchHeight / max(size.height, 1)),
-                        .init(color: .black, location: min(1, (notchHeight + 28) / max(size.height, 1))),
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-        }
-        .allowsHitTesting(false)
     }
 }

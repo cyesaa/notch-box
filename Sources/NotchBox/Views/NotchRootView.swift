@@ -44,6 +44,9 @@ struct NotchRootView: View {
         case .video:
             VideoView(model: model)
                 .transition(.notchContent)
+        case .volume:
+            VolumeHUDView(model: model)
+                .transition(.notchContent)
         }
     }
 }

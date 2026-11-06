@@ -1,7 +1,9 @@
 import NotchBoxCore
 import SwiftUI
 
-/// Mini state: artwork left of the notch, a waveform in the cover's colour right of it.
+/// Mini state: artwork left of the notch, a waveform in the cover's colour right of it. When paused the
+/// waveform becomes a play button; while playing, pointing at it turns it into a pause button.
+/// Only that right wing takes clicks (see `NotchInteraction`).
 struct CollapsedView: View {
     let model: NotchViewModel
 
@@ -15,10 +17,30 @@ struct CollapsedView: View {
                 .frame(width: side)
             Color.clear
                 .frame(width: notch.width)
-            WaveformView(isPlaying: model.info?.clock.isPlaying ?? false, tint: Color(model.accent), meter: model.audioMeter)
-                .frame(width: artworkSide * 0.85, height: notch.height * 0.4)
-                .frame(width: side)
+            rightWing(artworkSide: artworkSide, notch: notch)
+                .frame(width: side, height: notch.height)
         }
         .frame(height: notch.height)
+    }
+
+    @ViewBuilder
+    private func rightWing(artworkSide: CGFloat, notch: CGSize) -> some View {
+        let isPlaying = model.info?.clock.isPlaying ?? false
+        if isPlaying && !model.isOverNotchButton {
+            WaveformView(isPlaying: true, tint: Color(model.accent), meter: model.audioMeter)
+                .frame(width: artworkSide * 0.85, height: notch.height * 0.4)
+                .transition(.opacity)
+        } else {
+            Button(action: model.togglePlayPause) {
+                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                    .font(.system(size: max(11, notch.height * 0.42), weight: .bold))
+                    .foregroundStyle(Color(model.accent))
+                    .frame(width: notch.height, height: notch.height)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel(L10n.playPause)
+            .transition(.opacity)
+        }
     }
 }
