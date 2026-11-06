@@ -90,6 +90,8 @@ Needs the repository to be public and a published release.
 - [ ] The X closes the panel with one click; Chrome stays paused at the position where the notch player stopped.
 - [ ] Without a video, the open player still takes clicks as before (buttons, progress bar, volume).
 - [ ] With two YouTube tabs open, the panel shows the one whose title matches what was playing.
+- [ ] With a second copy of Chrome running (`open -n -a "Google Chrome" --args --user-data-dir=/tmp/chrome2`), the
+  video in your normal Chrome still moves into the notch.
 - [ ] With the Automation permission denied (System Settings → Privacy & Security → Automation), the player shows
   "Allow NotchBox under Privacy & Security → Automation" for a few seconds.
 - [ ] A video whose owner disabled embedding closes the panel and shows "This video can only be watched on YouTube".

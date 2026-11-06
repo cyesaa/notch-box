@@ -181,8 +181,9 @@ final class NotchViewModel {
             guard let self else { return }
             self.isFindingVideo = false
             switch result {
-            case .failure:
-                self.show(message: L10n.browserAccessNeeded)
+            case .failure(let error):
+                let refused = (error as? BrowserTabReader.ReadError) == .notAuthorized
+                self.show(message: refused ? L10n.browserAccessNeeded : L10n.noYouTubeVideo)
             case .success(let tabs):
                 guard let videoID = BrowserTabs.pickYouTubeVideo(from: tabs, nowPlayingTitle: info.title) else {
                     if retriesLeft > 0 {
