@@ -18,7 +18,9 @@ final class HoverTracker {
     var buttonSuppressesHover = false {
         didSet { evaluate() }
     }
-    var onHoverChange: ((Bool) -> Void)?
+    /// Called with the new hover state and, when the cursor comes in, how far below the zone's top edge
+    /// it first appeared (0 when it goes out).
+    var onHoverChange: ((Bool, CGFloat) -> Void)?
     var onButtonHoverChange: ((Bool) -> Void)?
     private(set) var isHovering = false
     private(set) var isOverButton = false
@@ -52,12 +54,13 @@ final class HoverTracker {
             isOverButton = overButton
             onButtonHoverChange?(overButton)
         }
-        let inside = NotchGeometry.contains(hotZone, NSEvent.mouseLocation) && !(overButton && buttonSuppressesHover)
+        let location = NSEvent.mouseLocation
+        let inside = NotchGeometry.contains(hotZone, location) && !(overButton && buttonSuppressesHover)
         // Keep the panel open while a drag that started inside it (a slider) continues outside.
         let dragging = isHovering && (NSEvent.pressedMouseButtons & 1) != 0
         let hovering = inside || dragging
         guard hovering != isHovering else { return }
         isHovering = hovering
-        onHoverChange?(hovering)
+        onHoverChange?(hovering, hovering ? max(0, hotZone.maxY - location.y) : 0)
     }
 }

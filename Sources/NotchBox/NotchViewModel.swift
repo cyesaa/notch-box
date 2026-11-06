@@ -30,6 +30,8 @@ final class NotchViewModel {
     private(set) var video: VideoSession?
     /// The cursor is over the panel.
     private(set) var isHovering = false
+    /// Where the cursor came into the panel; nil while it is outside.
+    private(set) var hoverEntry: PanelEntry?
     /// The cursor is over the clickable control of a click-through state (the mini play/pause area).
     private(set) var isOverNotchButton = false
     /// Looking for the video in the browser's tabs.
@@ -111,15 +113,17 @@ final class NotchViewModel {
         onDisplayStateChange?(displayState)
     }
 
-    /// The video panel fades away under the cursor so the windows behind it can be seen and clicked.
-    var isSeeThrough: Bool { NotchInteraction.isSeeThrough(displayState, hovering: isHovering) }
+    /// The video panel fades away under a cursor that came in from the side or below, so the windows
+    /// behind it can be seen and clicked. Coming down from the menu bar keeps it usable.
+    var isSeeThrough: Bool { NotchInteraction.isSeeThrough(displayState, hovering: isHovering, entry: hoverEntry) }
 
     func notchButtonHoverChanged(_ over: Bool) {
         if over != isOverNotchButton { isOverNotchButton = over }
     }
 
-    func hoverChanged(_ hovering: Bool) {
+    func hoverChanged(_ hovering: Bool, entry: PanelEntry? = .fromSide) {
         isHovering = hovering
+        hoverEntry = hovering ? entry : nil
         machine.setHovering(hovering, at: now())
         apply()
     }

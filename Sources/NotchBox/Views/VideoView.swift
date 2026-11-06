@@ -2,9 +2,10 @@ import NotchBoxCore
 import SwiftUI
 import WebKit
 
-/// A browser's YouTube video playing in the notch: a bar with the source browser's icon and a close button, and a
-/// 16:9 player below it. The notch stays open until the video is closed. Under the cursor everything but
-/// the close button fades away and clicks go to the windows behind (see `NotchInteraction`).
+/// A browser's YouTube video playing in the notch: the source browser's icon left of the notch, a close
+/// button right of it, and a 16:9 player just below. The notch stays open until the video is closed.
+/// Under a cursor that came in from the side or below, everything but the close button fades away and
+/// clicks go to the windows behind; coming down from the menu bar keeps it usable (see `NotchInteraction`).
 struct VideoView: View {
     let model: NotchViewModel
 
@@ -16,24 +17,24 @@ struct VideoView: View {
         let player = NotchLayout.videoPlayerSize(notch: notch)
         VStack(spacing: NotchLayout.videoGap) {
             bar
-                .frame(height: NotchLayout.videoBarHeight)
+                .frame(height: notch.height)
             playerArea
                 .frame(width: player.width, height: player.height)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
-        .padding(.top, notch.height + NotchLayout.videoGap)
         .padding(.horizontal, NotchLayout.videoPadding)
         .padding(.bottom, NotchLayout.videoPadding)
     }
 
     private var fade: Double { model.isSeeThrough ? Self.seeThroughOpacity : 1 }
 
+    /// The band beside the notch: the camera sits in the middle of it.
     private var bar: some View {
         HStack(spacing: 10) {
             if let session = model.video, let icon = AppIconProvider.icon(for: session.sourceBundleIdentifier) {
                 Image(nsImage: icon)
                     .resizable()
-                    .frame(width: 20, height: 20)
+                    .frame(width: 18, height: 18)
                     .opacity(fade)
                     .accessibilityHidden(true)
             }
@@ -67,7 +68,7 @@ private struct CloseButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: "xmark")
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(NotchTheme.primaryText)
                 .frame(width: NotchLayout.videoCloseButtonSide, height: NotchLayout.videoCloseButtonSide)
                 .background(Circle().fill(Color(white: 0.16)))

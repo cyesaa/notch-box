@@ -19,6 +19,8 @@ enum SnapshotRenderer {
         var volumeChange = false
         /// The cursor over the mini notch's play/pause area.
         var overButton = false
+        /// Where the hovering cursor came in.
+        var entry: PanelEntry = .fromSide
     }
 
     static func render(to directory: URL) throws {
@@ -48,10 +50,17 @@ enum SnapshotRenderer {
                 video: VideoSession(videoID: "AAAAAAAAAAA", title: "Sena Şener - Alışılır Mı Aşka (Visualizer)", sourceBundleIdentifier: "com.google.Chrome")
             ),
             Scene(
-                name: "8-video-see-through",
+                name: "8-video-see-through-from-the-side",
                 state: .info(track("Sena Şener - Alışılır Mı Aşka (Visualizer)", "Sena Şener", nil, playing: false, artwork: video, app: "com.google.Chrome")),
                 hovering: true,
                 video: VideoSession(videoID: "AAAAAAAAAAA", title: "Sena Şener - Alışılır Mı Aşka (Visualizer)", sourceBundleIdentifier: "com.google.Chrome")
+            ),
+            Scene(
+                name: "8b-video-usable-from-the-top",
+                state: .info(track("Sena Şener - Alışılır Mı Aşka (Visualizer)", "Sena Şener", nil, playing: false, artwork: video, app: "com.google.Chrome")),
+                hovering: true,
+                video: VideoSession(videoID: "AAAAAAAAAAA", title: "Sena Şener - Alışılır Mı Aşka (Visualizer)", sourceBundleIdentifier: "com.google.Chrome"),
+                entry: .fromTop
             ),
         ]
         for scene in scenes {
@@ -84,9 +93,9 @@ enum SnapshotRenderer {
             model.notchButtonHoverChanged(true)
         }
         if scene.hovering {
-            model.hoverChanged(true)
+            model.hoverChanged(true, entry: scene.entry)
             clock.now += 1
-            model.hoverChanged(true)
+            model.hoverChanged(true, entry: scene.entry)
         }
         let panel = NotchLayout.windowSize(notch: notch)
         let canvas = CGSize(width: panel.width + 120, height: panel.height + 60)

@@ -20,7 +20,7 @@ final class NotchWindowController {
 
     func start() {
         model.onDisplayStateChange = { [weak self] _ in self?.updateInteraction() }
-        hoverTracker.onHoverChange = { [weak self] hovering in self?.model.hoverChanged(hovering) }
+        hoverTracker.onHoverChange = { [weak self] hovering, depth in self?.hoverChanged(hovering, depth: depth) }
         hoverTracker.onButtonHoverChange = { [weak self] _ in self?.updateInteraction() }
         screenWatcher.onChange = { [weak self] geometry in self?.apply(geometry) }
         screenWatcher.start()
@@ -40,6 +40,13 @@ final class NotchWindowController {
         updateInteraction()
     }
 
+    private func hoverChanged(_ hovering: Bool, depth: CGFloat) {
+        let notchHeight = geometry?.notchSize.height ?? 0
+        model.hoverChanged(hovering, entry: hovering ? NotchInteraction.entry(atDepth: depth, notchHeight: notchHeight) : nil)
+        // Whether the video takes clicks depends on where the cursor came in.
+        updateInteraction()
+    }
+
     private func updateInteraction() {
         guard let geometry else { return }
         let state = model.displayState
@@ -56,6 +63,6 @@ final class NotchWindowController {
         hoverTracker.buttonZone = button.map { geometry.screenRect(for: $0, inContentOf: model.contentSize) } ?? .null
         let overButton = hoverTracker.isOverButton
         model.notchButtonHoverChanged(overButton)
-        panel.ignoresMouseEvents = !NotchInteraction.acceptsClicks(in: state, cursorOverButton: overButton)
+        panel.ignoresMouseEvents = !NotchInteraction.acceptsClicks(in: state, cursorOverButton: overButton, entry: model.hoverEntry)
     }
 }

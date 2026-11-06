@@ -1,17 +1,21 @@
 import NotchBoxCore
 import SwiftUI
 
-/// Full player. The cover's colour tints a small shadow around it, the progress bar and the waveform.
-/// In degraded mode (no info) the header explains that the buttons send media keys.
+/// Full player. The band beside the notch holds the playing app (left) and the waveform (right); the
+/// player hangs right below the notch. The cover's colour tints a small shadow around it, the progress
+/// bar and the waveform. In degraded mode (no info) the header explains that the buttons send media keys.
 struct ExpandedView: View {
     let model: NotchViewModel
 
     private static let horizontalPadding: CGFloat = 26
-    private static let gapBelowNotch: CGFloat = 10
+    private static let gapBelowNotch: CGFloat = 4
 
     var body: some View {
         let accent = Color(model.accent)
         VStack(spacing: 0) {
+            notchBand(accent: accent)
+                .frame(height: model.notchSize.height)
+                .padding(.bottom, Self.gapBelowNotch)
             if let info = model.info {
                 header(info, accent: accent)
                 Spacer(minLength: 12)
@@ -38,7 +42,6 @@ struct ExpandedView: View {
             }
             bottomRow
         }
-        .padding(.top, model.notchSize.height + Self.gapBelowNotch)
         .padding(.horizontal, Self.horizontalPadding)
         .padding(.bottom, 14)
     }
@@ -67,10 +70,30 @@ struct ExpandedView: View {
             .lineLimit(1)
             .truncationMode(.tail)
             .frame(maxWidth: .infinity, alignment: .leading)
-            WaveformView(isPlaying: info.clock.isPlaying, tint: accent, barCount: 4, meter: model.audioMeter)
-                .frame(width: 18, height: 16)
         }
         .frame(height: NotchLayout.expandedArtworkSide)
+    }
+
+    /// Left and right of the camera: the playing app, and the waveform while something plays.
+    private func notchBand(accent: Color) -> some View {
+        HStack {
+            if let icon = model.sourceAppIcon {
+                Button(action: model.openSourceApp) {
+                    Image(nsImage: icon)
+                        .resizable()
+                        .frame(width: 18, height: 18)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(PressableButtonStyle())
+                .help(L10n.openSourceApp)
+                .accessibilityLabel(L10n.openSourceApp)
+            }
+            Spacer(minLength: 0)
+            if let info = model.info {
+                WaveformView(isPlaying: info.clock.isPlaying, tint: accent, barCount: 4, meter: model.audioMeter)
+                    .frame(width: 18, height: 14)
+            }
+        }
     }
 
     private var unavailableHeader: some View {
@@ -97,7 +120,7 @@ struct ExpandedView: View {
         .frame(height: NotchLayout.expandedArtworkSide)
     }
 
-    /// Volume on the left, transport in the middle, the playing app on the right.
+    /// Volume on the left, transport in the middle, "watch in the notch" on the right.
     private var bottomRow: some View {
         ZStack {
             ControlsRow(
@@ -122,16 +145,6 @@ struct ExpandedView: View {
                     .disabled(model.isFindingVideo)
                     .help(L10n.watchInNotch)
                     .accessibilityLabel(L10n.watchInNotch)
-                }
-                if let icon = model.sourceAppIcon {
-                    Button(action: model.openSourceApp) {
-                        Image(nsImage: icon)
-                            .resizable()
-                            .frame(width: 24, height: 24)
-                    }
-                    .buttonStyle(PressableButtonStyle())
-                    .help(L10n.openSourceApp)
-                    .accessibilityLabel(L10n.openSourceApp)
                 }
             }
         }

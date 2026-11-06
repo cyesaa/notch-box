@@ -1,11 +1,31 @@
+import CoreGraphics
+
+/// Where the cursor came into the open panel. Coming down from the menu bar (through the band beside the
+/// notch) means "I want to use this panel"; coming in from below or the sides means "I am passing over it".
+public enum PanelEntry: Equatable, Sendable {
+    case fromTop
+    case fromSide
+}
+
 /// How the panel treats the cursor in each state.
 public enum NotchInteraction {
-    /// Open panels take clicks. The video panel takes them only over its close button, so the windows
-    /// behind the see-through video stay clickable, and the mini notch only over its play/pause button.
-    /// Other closed states never take them.
-    public static func acceptsClicks(in state: NotchDisplayState, cursorOverButton: Bool) -> Bool {
+    /// Extra depth below the notch band that still counts as entering from the top, so a fast cursor
+    /// whose first sample lands a little lower is not misread.
+    public static let topEntrySlack: CGFloat = 8
+
+    /// Classifies an entry by how far below the panel's top edge the cursor first appeared.
+    public static func entry(atDepth depth: CGFloat, notchHeight: CGFloat) -> PanelEntry {
+        depth <= notchHeight + topEntrySlack ? .fromTop : .fromSide
+    }
+
+    /// Open panels take clicks. The video panel takes them all only when entered from the top; entered
+    /// from elsewhere it takes them only over its close button, so the windows behind the see-through
+    /// video stay clickable. The mini notch takes them only over its play/pause button. Other closed
+    /// states never take them.
+    public static func acceptsClicks(in state: NotchDisplayState, cursorOverButton: Bool, entry: PanelEntry?) -> Bool {
         switch state {
-        case .video, .mini: return cursorOverButton
+        case .video: return cursorOverButton || entry == .fromTop
+        case .mini: return cursorOverButton
         default: return state.isOpen
         }
     }
@@ -16,8 +36,8 @@ public enum NotchInteraction {
         state == .mini
     }
 
-    /// The video panel turns see-through while the cursor is over it.
-    public static func isSeeThrough(_ state: NotchDisplayState, hovering: Bool) -> Bool {
-        state == .video && hovering
+    /// The video panel turns see-through while the cursor is over it, unless it came in from the top.
+    public static func isSeeThrough(_ state: NotchDisplayState, hovering: Bool, entry: PanelEntry?) -> Bool {
+        state == .video && hovering && entry != .fromTop
     }
 }
