@@ -11,7 +11,7 @@ Run `make run` first. Tick every box before a release.
 - [ ] Menu bar items right next to the notch can still be clicked while the panel is closed.
 - [ ] Clicking a button in the panel while typing in TextEdit leaves the text cursor in TextEdit.
 - [ ] The panel stays on screen when switching Spaces and over a full-screen app.
-- [ ] No permission prompt appears during normal use.
+- [ ] The only permission prompt in normal use is System Audio Recording, the first time music plays.
 
 ## Playback (repeat for each source)
 
@@ -25,6 +25,14 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 - [ ] Changing to a track with a differently coloured cover fades the tint over about half a second.
 - [ ] Buttons shrink slightly while pressed; dragging the progress bar makes it thicker.
 - [ ] With System Settings → Accessibility → Display → Reduce motion on, the waveform holds still while playing.
+- [ ] The first time music plays, macOS asks for System Audio Recording; the app keeps responding while the prompt is open.
+- [ ] After allowing it, the mini waveform follows the music (bass on the left, treble on the right), drops when the
+  music gets quiet and lies flat on pause. The log (`/usr/bin/log stream --level info --predicate 'subsystem == "com.notchbox.NotchBox"'`)
+  shows "Audio levels live".
+- [ ] With the permission turned off in System Settings → Privacy & Security → Screen & System Audio Recording,
+  the waveform still moves (on its own) while playing.
+- [ ] The notch's top corners curve into the screen edge in the mini and open states, and a soft shadow sits under it.
+- [ ] A YouTube video's 16:9 thumbnail is cropped to a square and never covers the title.
 - [ ] Play/pause, next and previous work.
 - [ ] Dragging the progress bar seeks; the bar does not jump back after release.
 - [ ] Clicking the source app icon brings that app to the front.

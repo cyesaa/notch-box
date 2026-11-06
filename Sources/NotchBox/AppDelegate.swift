@@ -14,7 +14,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let model = NotchViewModel(
             nowPlayingService: nowPlayingService,
             volumeControl: VolumeService(),
-            mediaKeys: MediaKeySender()
+            mediaKeys: MediaKeySender(),
+            audioMeter: AudioLevelMeter()
         )
         let windowController = NotchWindowController(model: model)
         windowController.start()
