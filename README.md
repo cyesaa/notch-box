@@ -19,13 +19,35 @@ Control whatever is playing on your Mac from the MacBook notch.
 
 ## Install
 
-1. Download `NotchBox-<version>.zip` from [Releases](../../releases) and unzip it.
+Open Terminal and paste:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | bash
+```
+
+This downloads the latest release, puts `NotchBox.app` in `/Applications` (or `~/Applications` without admin
+rights) and opens it. Run the same command again to update. A music note icon appears in the menu bar; use it
+for "Launch at Login" and "Quit".
+
+To remove NotchBox with its settings and permissions:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | bash -s -- --uninstall
+```
+
+<details>
+<summary>Install by hand instead</summary>
+
+1. Download `NotchBox.zip` from [Releases](../../releases) and unzip it.
 2. Move `NotchBox.app` to `/Applications`.
-3. NotchBox is not notarized, so macOS blocks it the first time. Remove the quarantine flag:
+3. NotchBox is not notarized, so macOS blocks a downloaded copy the first time. Remove the quarantine flag:
    ```bash
    xattr -dr com.apple.quarantine /Applications/NotchBox.app
    ```
-4. Open NotchBox. A music note icon appears in the menu bar; use it for "Launch at Login" (works best when the app is in `/Applications`) and "Quit".
+4. Open NotchBox.
+
+The one-line installer does not need step 3: files downloaded with `curl` are not quarantined.
+</details>
 
 ## Privacy
 
@@ -87,6 +109,19 @@ make dist   # dist/NotchBox-<version>.zip
   (add `-AppleLanguages '(tr)'` for Turkish); it writes PNGs and exits.
 - `make icon` redraws `Resources/AppIcon.icns` from `scripts/make-icon.swift`.
 
+### Releasing
+
+From a clean `main` that matches `origin/main`:
+
+```bash
+make release VERSION=0.2.0            # DRY_RUN=1 make release VERSION=0.2.0 to rehearse
+```
+
+This sets the version, runs the tests, builds the zip, commits and tags `v0.2.0`, pushes, and publishes a GitHub
+release with generated notes and `NotchBox.zip` attached (the file `install.sh` downloads). It uses `GITHUB_TOKEN`
+if set, otherwise the github.com login git already has. Releases can be made while the repository is private;
+the one-line installer works for others only while it is public.
+
 ## License
 
 MIT, see [LICENSE](LICENSE). Third-party code: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
@@ -114,13 +149,36 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
 
 ### Kurulum
 
-1. [Releases](../../releases) sayfasından `NotchBox-<sürüm>.zip` dosyasını indirip aç.
+Terminal'i aç ve şunu yapıştır:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | bash
+```
+
+Bu komut son sürümü indirir, `NotchBox.app`'i `/Applications` klasörüne (yönetici izni yoksa `~/Applications`)
+koyar ve açar. Güncellemek için aynı komutu tekrar çalıştır. Menü çubuğunda bir müzik notası ikonu çıkar;
+"Açılışta başlat" ve "Çık" oradadır.
+
+NotchBox'ı ayarları ve izinleriyle birlikte kaldırmak için:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | bash -s -- --uninstall
+```
+
+<details>
+<summary>Elle kurmak istersen</summary>
+
+1. [Releases](../../releases) sayfasından `NotchBox.zip` dosyasını indirip aç.
 2. `NotchBox.app`'i `/Applications` klasörüne taşı.
-3. NotchBox Apple tarafından onaylı (notarize) olmadığı için macOS ilk açılışta engeller. Karantina işaretini kaldır:
+3. NotchBox Apple tarafından onaylı (notarize) olmadığı için macOS indirilen kopyayı ilk açılışta engeller.
+   Karantina işaretini kaldır:
    ```bash
    xattr -dr com.apple.quarantine /Applications/NotchBox.app
    ```
-4. NotchBox'ı aç. Menü çubuğunda bir müzik notası ikonu çıkar; "Açılışta başlat" (uygulama `/Applications` içindeyken en iyi çalışır) ve "Çık" oradadır.
+4. NotchBox'ı aç.
+
+Tek satırlık kurulumda 3. adıma gerek yoktur: `curl` ile indirilen dosyalar karantinaya alınmaz.
+</details>
 
 ### Gizlilik
 

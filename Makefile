@@ -4,7 +4,7 @@ ifeq ($(DEV_DIR),/Library/Developer/CommandLineTools)
 TEST_FLAGS := -Xswiftc -plugin-path -Xswiftc $(DEV_DIR)/usr/lib/swift/host/plugins/testing
 endif
 
-.PHONY: build test adapter icon app run dist clean
+.PHONY: build test adapter icon app run dist release clean
 
 build:
 	swift build
@@ -33,6 +33,10 @@ run: app
 
 dist: app
 	scripts/dist.sh
+
+# Publishes a GitHub release from a clean, pushed main: make release VERSION=0.2.0 (DRY_RUN=1 to rehearse).
+release:
+	scripts/release.sh $(VERSION)
 
 clean:
 	rm -rf .build build dist
