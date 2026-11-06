@@ -27,17 +27,21 @@ final class NotchViewModel {
     @ObservationIgnored private let nowPlayingService: NowPlayingService?
     @ObservationIgnored private let volumeControl: VolumeControlling?
     @ObservationIgnored private let mediaKeys: MediaKeySending?
+    /// Live bar heights for the waveform; nil in snapshots.
+    @ObservationIgnored let audioMeter: AudioLevelMeter?
     @ObservationIgnored private let now: () -> Date
 
     init(
         nowPlayingService: NowPlayingService? = nil,
         volumeControl: VolumeControlling? = nil,
         mediaKeys: MediaKeySending? = nil,
+        audioMeter: AudioLevelMeter? = nil,
         now: @escaping () -> Date = Date.init
     ) {
         self.nowPlayingService = nowPlayingService
         self.volumeControl = volumeControl
         self.mediaKeys = mediaKeys
+        self.audioMeter = audioMeter
         self.now = now
     }
 
@@ -62,6 +66,7 @@ final class NotchViewModel {
         deadlineTimer?.invalidate()
         artworkTimer?.invalidate()
         artwork.cancelPending()
+        audioMeter?.setActive(false)
         nowPlayingService?.stop()
     }
 
@@ -166,6 +171,9 @@ final class NotchViewModel {
             displayState = newState
             onDisplayStateChange?(newState)
         }
+        // Listen to the audio only while a moving waveform is on screen.
+        let showsWaveform = displayState == .mini || displayState == .expanded
+        audioMeter?.setActive(showsWaveform && info?.clock.isPlaying == true)
         scheduleNextTick()
     }
 

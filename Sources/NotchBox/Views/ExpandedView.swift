@@ -63,7 +63,7 @@ struct ExpandedView: View {
             .lineLimit(1)
             .truncationMode(.tail)
             .frame(maxWidth: .infinity, alignment: .leading)
-            WaveformView(isPlaying: info.clock.isPlaying, tint: accent, barCount: 4)
+            WaveformView(isPlaying: info.clock.isPlaying, tint: accent, barCount: 4, meter: model.audioMeter)
                 .frame(width: 18, height: 16)
         }
         .frame(height: NotchLayout.expandedArtworkSide)

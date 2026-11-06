@@ -29,6 +29,11 @@ Control whatever is playing on your Mac from the MacBook notch.
 
 NotchBox never connects to the network. Track info stays on your Mac.
 
+To move the waveform with the music, NotchBox asks for **System Audio Recording** permission the first time
+music plays (macOS 14.2 or later). It only measures how loud each frequency range is, many times a second;
+nothing is recorded or saved. If you deny it, the waveform simply animates on its own. You can change this in
+System Settings → Privacy & Security → Screen & System Audio Recording.
+
 ## How it works
 
 Since macOS 15.4, apps cannot read "Now Playing" info directly. NotchBox bundles
@@ -50,7 +55,8 @@ to read. It may flash in Control Center or other "Now Playing" widgets; NotchBox
 - Tested only on macOS 27.2.
 - While music plays, the area right beside the notch (about the notch height + 12 pt on each side) opens the
   panel on hover, so menu bar items right next to the notch are harder to reach.
-- After installing a new version, Accessibility permission (only used in limited mode) must be granted again.
+- After installing a new version, System Audio Recording permission (for the waveform) and Accessibility
+  permission (only used in limited mode) must be granted again.
 
 ## Development
 
@@ -65,8 +71,8 @@ make dist   # dist/NotchBox-<version>.zip
 
 - Do not use `@State` or `#Preview`: with only the Command Line Tools, the SwiftUI macro plugin is missing.
   Keep view state in `NotchViewModel`.
-- Accessibility permission is tied to the app's signature. Ad-hoc signed builds get a new signature on
-  every build, so you may need to grant it again while developing.
+- Accessibility and System Audio Recording permissions are tied to the app's signature. Ad-hoc signed builds
+  get a new signature on every build, so you may need to grant them again while developing.
 - Before a release, go through [docs/manual-testing.md](docs/manual-testing.md).
 - There are no Xcode previews. To look at every notch state with sample data, run
   `build/NotchBox.app/Contents/MacOS/NotchBox --render-snapshots /tmp/notch` after `make app`
@@ -110,6 +116,11 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
 
 NotchBox internete hiç bağlanmaz. Şarkı bilgileri Mac'inde kalır.
 
+Ses dalgasının müziğe göre oynaması için NotchBox, ilk kez müzik çaldığında **Sistem Sesi Kaydı** izni ister
+(macOS 14.2 ve sonrası). Yalnızca her frekans aralığının ne kadar yüksek çaldığını saniyede birçok kez ölçer;
+hiçbir şey kaydedilmez ya da saklanmaz. İzin vermezsen dalga kendi kendine oynar. Bu ayarı Sistem Ayarları →
+Gizlilik ve Güvenlik → Ekran ve Sistem Sesi Kaydı altında değiştirebilirsin.
+
 ### Nasıl çalışır
 
 macOS 15.4'ten beri uygulamalar "Şu An Çalıyor" bilgisini doğrudan okuyamıyor. NotchBox, bu bilgiyi Apple imzalı
@@ -130,6 +141,7 @@ Bu parça Denetim Merkezi'nde ya da başka "Şu An Çalıyor" araçlarında bir 
 - Yalnızca macOS 27.2'de test edildi.
 - Müzik çalarken notch'un hemen yanındaki alan (her yanda yaklaşık notch yüksekliği + 12 pt) fareyle üzerine gelince
   paneli açar; bu yüzden notch'un hemen yanındaki menü çubuğu öğelerine ulaşmak zorlaşır.
-- Yeni sürüm kurulduktan sonra Erişilebilirlik izni (yalnızca kısıtlı modda kullanılır) yeniden verilmelidir.
+- Yeni sürüm kurulduktan sonra Sistem Sesi Kaydı izni (ses dalgası için) ve Erişilebilirlik izni (yalnızca kısıtlı
+  modda kullanılır) yeniden verilmelidir.
 
 Geliştirme ve lisans bilgileri için yukarıdaki İngilizce "Development" ve "License" bölümlerine bakın.
