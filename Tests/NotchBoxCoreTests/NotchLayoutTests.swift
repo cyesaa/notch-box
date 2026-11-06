@@ -35,6 +35,19 @@ struct NotchLayoutTests {
         #expect(NotchLayout.maxSize(notch: notch) == CGSize(width: 400, height: 200))
     }
 
+    @Test func topCornersFlareIntoTheScreenEdgeOnlyWhenVisible() {
+        #expect(NotchLayout.topCornerRadius(for: .idle) == 0)
+        #expect(NotchLayout.topCornerRadius(for: .mini) == 6)
+        #expect(NotchLayout.topCornerRadius(for: .expanded) == 12)
+        #expect(NotchLayout.topCornerRadius(for: .expandedEmpty) == 12)
+    }
+
+    @Test func windowLeavesRoomForTheFlaredCornersAndTheShadow() {
+        let margin = NotchLayout.shadowMargin
+        #expect(margin == 24)
+        #expect(NotchLayout.windowSize(notch: notch) == CGSize(width: 400 + 2 * (12 + margin), height: 200 + margin))
+    }
+
     @Test func cornerRadiusGrowsWhenOpen() {
         #expect(NotchLayout.bottomCornerRadius(for: .idle) == 8)
         #expect(NotchLayout.bottomCornerRadius(for: .mini) == 8)

@@ -5,15 +5,19 @@ struct NotchRootView: View {
     let model: NotchViewModel
 
     var body: some View {
+        let state = model.displayState
         let size = model.contentSize
-        let shape = NotchShape(bottomRadius: NotchLayout.bottomCornerRadius(for: model.displayState))
+        let flare = NotchLayout.topCornerRadius(for: state)
+        let bottomRadius = NotchLayout.bottomCornerRadius(for: state)
         ZStack(alignment: .top) {
-            shape
+            // The silhouette is wider than the content by the flared top corners on each side.
+            NotchShape(topRadius: flare, bottomRadius: bottomRadius)
                 .fill(Color.black)
-                .frame(width: size.width, height: size.height)
+                .frame(width: size.width + 2 * flare, height: size.height)
+                .shadow(color: Color.black.opacity(state == .idle ? 0 : 0.45), radius: state.isOpen ? 16 : 8, y: state.isOpen ? 8 : 3)
             content
                 .frame(width: size.width, height: size.height, alignment: .top)
-                .clipShape(shape)
+                .clipShape(NotchShape(topRadius: 0, bottomRadius: bottomRadius))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: model.displayState)

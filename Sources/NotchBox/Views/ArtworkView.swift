@@ -11,9 +11,15 @@ struct ArtworkView: View {
         ZStack {
             Group {
                 if let image {
-                    Image(nsImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
+                    // Covers are not always square (video thumbnails are 16:9): fill the square frame
+                    // and crop, instead of letting the image grow past it.
+                    Color.clear
+                        .overlay(
+                            Image(nsImage: image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        )
+                        .clipped()
                 } else {
                     GeometryReader { geometry in
                         ZStack {
@@ -32,6 +38,7 @@ struct ArtworkView: View {
             .id(version)
             .transition(.opacity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .animation(.easeInOut(duration: 0.25), value: version)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
     }
