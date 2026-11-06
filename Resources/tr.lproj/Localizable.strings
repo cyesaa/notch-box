@@ -23,3 +23,5 @@
 "clipboard_remove" = "Kaldır";
 "clipboard_image" = "Görsel";
 "clipboard_copied" = "Kopyalandı";
+"clipboard_view" = "Görüntüle";
+"clipboard_close_preview" = "Görseli kapat";

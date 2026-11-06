@@ -112,7 +112,9 @@ Needs the repository to be public and a published release.
 - [ ] Copy the same text again: it moves to the top instead of showing twice.
 - [ ] Copy more than 20 things: the list keeps the newest 20 and scrolls.
 - [ ] Click an older item: it shows "Copied", moves to the top, and ⌘V pastes it in another app (text and image).
-- [ ] Right-click an item → Remove removes it; the bin clears the list.
+- [ ] Each row's × removes just that item (right-click → Remove does the same); the bin clears the list.
+- [ ] An image row has an eye: it shows the image large in place of the player, with its size, a copy button and
+  an × that brings the player back. Closing the notch also closes the image.
 - [ ] Copy a password from a password manager (or a file in Finder): it is not added.
 - [ ] Quit and reopen NotchBox: the list starts over.
 

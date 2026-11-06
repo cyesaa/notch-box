@@ -42,15 +42,23 @@ struct NotchRootView: View {
             HStack(spacing: 0) {
                 ClipboardView(model: model)
                     .frame(width: NotchLayout.clipboardWidth)
-                ExpandedView(model: model)
+                if let item = model.previewedClipboardItem {
+                    ClipboardPreviewView(model: model, item: item)
+                } else {
+                    ExpandedView(model: model)
+                }
             }
             .transition(.notchContent)
         case .expandedEmpty:
             HStack(spacing: 0) {
                 ClipboardView(model: model)
                     .frame(width: NotchLayout.clipboardWidth)
-                NothingPlayingView()
-                    .padding(.top, model.notchSize.height)
+                if let item = model.previewedClipboardItem {
+                    ClipboardPreviewView(model: model, item: item)
+                } else {
+                    NothingPlayingView()
+                        .padding(.top, model.notchSize.height)
+                }
             }
             .transition(.notchContent)
         case .video:

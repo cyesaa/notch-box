@@ -15,7 +15,31 @@ final class ClipboardThumbnails {
     /// Longest side of a preview, in pixels (the list shows them at 26 points on a 2x screen).
     static let maxPixelSize = 96
 
+    /// Longest side of the large preview, in pixels.
+    static let previewPixelSize = 1600
+
     private var cache: [Int: Thumbnail] = [:]
+    /// Only the image being previewed is kept at the larger size.
+    private var previewCache: (id: Int, image: NSImage)?
+
+    func preview(for item: ClipboardItem) -> NSImage? {
+        if let previewCache, previewCache.id == item.id { return previewCache.image }
+        guard case .image(let data, _) = item.content, let image = Self.decode(data, maxPixelSize: Self.previewPixelSize) else {
+            return nil
+        }
+        let preview = NSImage(cgImage: image, size: CGSize(width: image.width, height: image.height))
+        previewCache = (item.id, preview)
+        return preview
+    }
+
+    private static func decode(_ data: Data, maxPixelSize: Int) -> CGImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        return CGImageSourceCreateThumbnailAtIndex(source, 0, [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+        ] as CFDictionary)
+    }
 
     func thumbnail(for item: ClipboardItem) -> Thumbnail? {
         if let cached = cache[item.id] { return cached }
@@ -42,5 +66,6 @@ final class ClipboardThumbnails {
     func keep(_ items: [ClipboardItem]) {
         let ids = Set(items.map(\.id))
         cache = cache.filter { ids.contains($0.key) }
+        if let previewCache, !ids.contains(previewCache.id) { self.previewCache = nil }
     }
 }
