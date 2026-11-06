@@ -23,22 +23,7 @@ public struct CalendarEvent: Equatable, Identifiable, Sendable {
     }
 }
 
-public struct AgendaDay: Equatable, Sendable {
-    public enum Day: Equatable, Sendable {
-        case today
-        case tomorrow
-    }
-
-    public let day: Day
-    public let events: [CalendarEvent]
-
-    public init(day: Day, events: [CalendarEvent]) {
-        self.day = day
-        self.events = events
-    }
-}
-
-/// What is left of today and what is on tomorrow.
+/// The week strip and the events of the day picked in it.
 public enum CalendarAgenda {
     public enum Status: Equatable, Sendable {
         case allDay
@@ -48,37 +33,48 @@ public enum CalendarAgenda {
         case later
     }
 
-    public static let maxEvents = 8
     public static let soonThreshold: TimeInterval = 15 * 60
 
-    /// The events to ask the calendar for: from the start of today to the end of tomorrow.
+    /// The starts of the seven days of the week around `date`, from the calendar's first weekday.
+    public static func week(containing date: Date, calendar: Calendar) -> [Date] {
+        let start = calendar.dateInterval(of: .weekOfYear, for: date)?.start ?? calendar.startOfDay(for: date)
+        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: start) }
+    }
+
+    /// The events to ask the calendar for: the whole week around `now`.
     public static func fetchRange(now: Date, calendar: Calendar) -> (start: Date, end: Date) {
-        let start = calendar.startOfDay(for: now)
-        let end = calendar.date(byAdding: .day, value: 2, to: start) ?? start.addingTimeInterval(2 * 86_400)
+        let week = week(containing: now, calendar: calendar)
+        let start = week.first ?? calendar.startOfDay(for: now)
+        let end = calendar.date(byAdding: .day, value: 7, to: start) ?? start.addingTimeInterval(7 * 86_400)
         return (start, end)
     }
 
-    /// Events that have not ended, grouped into today (always present) and tomorrow (only when it has
-    /// events). All-day events come first, then by start time; at most `maxEvents` in all.
-    public static func days(from events: [CalendarEvent], now: Date, calendar: Calendar) -> [AgendaDay] {
-        let range = fetchRange(now: now, calendar: calendar)
-        let startOfTomorrow = calendar.date(byAdding: .day, value: 1, to: range.start) ?? range.end
-        let remaining = events
-            .filter { $0.end > now && $0.start < range.end }
+    /// The events on `day` (any time on that day), all-day first, then by start time. Today leaves out
+    /// what has already ended.
+    public static func events(on day: Date, from events: [CalendarEvent], now: Date, calendar: Calendar) -> [CalendarEvent] {
+        let start = calendar.startOfDay(for: day)
+        let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start.addingTimeInterval(86_400)
+        let isToday = calendar.isDate(start, inSameDayAs: now)
+        return events
+            .filter { $0.start < end && $0.end > start && (!isToday || $0.end > now) }
             .sorted { lhs, rhs in
-                let lhsDay = lhs.start < startOfTomorrow ? 0 : 1
-                let rhsDay = rhs.start < startOfTomorrow ? 0 : 1
-                if lhsDay != rhsDay { return lhsDay < rhsDay }
                 if lhs.isAllDay != rhs.isAllDay { return lhs.isAllDay }
                 if lhs.start != rhs.start { return lhs.start < rhs.start }
                 return lhs.title < rhs.title
             }
-            .prefix(maxEvents)
-        let today = remaining.filter { $0.start < startOfTomorrow }
-        let tomorrow = remaining.filter { $0.start >= startOfTomorrow }
-        var days = [AgendaDay(day: .today, events: Array(today))]
-        if !tomorrow.isEmpty {
-            days.append(AgendaDay(day: .tomorrow, events: Array(tomorrow)))
+    }
+
+    /// The starts of the days that have at least one event.
+    public static func busyDays(from events: [CalendarEvent], calendar: Calendar) -> Set<Date> {
+        var days = Set<Date>()
+        for event in events {
+            var day = calendar.startOfDay(for: event.start)
+            days.insert(day)
+            // Later days it reaches into; an event ending exactly at midnight does not touch the next day.
+            while let next = calendar.date(byAdding: .day, value: 1, to: day), next < event.end {
+                days.insert(next)
+                day = next
+            }
         }
         return days
     }

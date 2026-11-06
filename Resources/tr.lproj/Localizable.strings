@@ -30,7 +30,7 @@
 "calendar_allow_hint" = "Bugünün etkinliklerini burada görmek için izin ver";
 "calendar_denied" = "Takvim erişimi kapalı. Sistem Ayarları → Gizlilik ve Güvenlik → Takvimler'den açabilirsin";
 "calendar_nothing_left" = "Bugün başka etkinlik yok";
-"calendar_tomorrow" = "Yarın";
+"calendar_no_events" = "Etkinlik yok";
 "calendar_all_day" = "Tüm gün";
 "calendar_now_until" = "Şimdi · bitiş %@";
 "calendar_in_minutes" = "%d dk sonra";

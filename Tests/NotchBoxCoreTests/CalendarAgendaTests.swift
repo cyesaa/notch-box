@@ -18,37 +18,44 @@ struct CalendarAgendaTests {
         CalendarEvent(id: id, title: id, start: start, end: end, isAllDay: allDay, color: nil, meetingURL: nil)
     }
 
-    @Test func fetchesFromTheStartOfTodayToTheEndOfTomorrow() {
-        let range = CalendarAgenda.fetchRange(now: date(14), calendar: calendar)
-        #expect(range.start == date(0))
-        #expect(range.end == date(0, day: 8))
+    @Test func theWeekStartsOnTheCalendarsFirstWeekday() {
+        var monday = calendar
+        monday.firstWeekday = 2
+        let week = CalendarAgenda.week(containing: date(14), calendar: monday)
+        #expect(week == (2...8).map { date(0, day: $0) })
+        var sunday = calendar
+        sunday.firstWeekday = 1
+        #expect(CalendarAgenda.week(containing: date(14), calendar: sunday) == (1...7).map { date(0, day: $0) })
     }
 
-    @Test func endedEventsAreLeftOut() {
-        let now = date(14)
-        let days = CalendarAgenda.days(
-            from: [event("past", date(9), date(10)), event("next", date(15), date(16))],
-            now: now, calendar: calendar
+    @Test func fetchesTheWholeWeek() {
+        var monday = calendar
+        monday.firstWeekday = 2
+        let range = CalendarAgenda.fetchRange(now: date(14), calendar: monday)
+        #expect(range.start == date(0, day: 2))
+        #expect(range.end == date(0, day: 9))
+    }
+
+    @Test func todayLeavesOutEndedEvents() {
+        let events = CalendarAgenda.events(
+            on: date(0), from: [event("past", date(9), date(10)), event("now", date(13), date(15)), event("next", date(16), date(17))],
+            now: date(14), calendar: calendar
         )
-        #expect(days.map(\.day) == [.today])
-        #expect(days[0].events.map(\.id) == ["next"])
+        #expect(events.map(\.id) == ["now", "next"])
     }
 
-    @Test func anOngoingEventStays() {
-        let days = CalendarAgenda.days(from: [event("now", date(13), date(15))], now: date(14), calendar: calendar)
-        #expect(days[0].events.map(\.id) == ["now"])
-    }
-
-    @Test func todayIsAlwaysThereAndTomorrowOnlyWithEvents() {
-        #expect(CalendarAgenda.days(from: [], now: date(14), calendar: calendar) == [AgendaDay(day: .today, events: [])])
-        let days = CalendarAgenda.days(from: [event("tomorrow", date(9, day: 7), date(10, day: 7))], now: date(14), calendar: calendar)
-        #expect(days.map(\.day) == [.today, .tomorrow])
-        #expect(days[0].events.isEmpty)
-        #expect(days[1].events.map(\.id) == ["tomorrow"])
+    @Test func otherDaysShowAllTheirEvents() {
+        let events = CalendarAgenda.events(
+            on: date(0, day: 5),
+            from: [event("yesterday", date(9, day: 5), date(10, day: 5)), event("today", date(16), date(17))],
+            now: date(14), calendar: calendar
+        )
+        #expect(events.map(\.id) == ["yesterday"])
     }
 
     @Test func allDayEventsComeFirstThenByStartTime() {
-        let days = CalendarAgenda.days(
+        let events = CalendarAgenda.events(
+            on: date(0),
             from: [
                 event("b", date(16), date(17)),
                 event("a", date(15), date(16)),
@@ -56,20 +63,24 @@ struct CalendarAgendaTests {
             ],
             now: date(14), calendar: calendar
         )
-        #expect(days[0].events.map(\.id) == ["holiday", "a", "b"])
+        #expect(events.map(\.id) == ["holiday", "a", "b"])
     }
 
-    @Test func anEventThatStartedTodayAndRunsIntoTomorrowBelongsToToday() {
-        let days = CalendarAgenda.days(from: [event("late", date(23), date(1, day: 7))], now: date(14), calendar: calendar)
-        #expect(days.map(\.day) == [.today])
+    @Test func eventsSpanningMidnightShowOnBothDays() {
+        let late = event("late", date(23), date(1, day: 7))
+        #expect(CalendarAgenda.events(on: date(0), from: [late], now: date(14), calendar: calendar).map(\.id) == ["late"])
+        #expect(CalendarAgenda.events(on: date(0, day: 7), from: [late], now: date(14), calendar: calendar).map(\.id) == ["late"])
+        // An all-day event ends at the next midnight and does not spill into the next day.
+        let holiday = event("holiday", date(0), date(0, day: 7), allDay: true)
+        #expect(CalendarAgenda.events(on: date(0, day: 7), from: [holiday], now: date(14), calendar: calendar).isEmpty)
     }
 
-    @Test func atMostEightEventsAreShown() {
-        #expect(CalendarAgenda.maxEvents == 8)
-        let events = (0..<12).map { event("e\($0)", date(15, $0 * 4), date(15, $0 * 4 + 2)) }
-        let days = CalendarAgenda.days(from: events, now: date(14), calendar: calendar)
-        #expect(days.flatMap(\.events).count == 8)
-        #expect(days[0].events.first?.id == "e0")
+    @Test func busyDaysMarkEveryDayWithAnEvent() {
+        let busy = CalendarAgenda.busyDays(
+            from: [event("a", date(9, day: 3), date(10, day: 3)), event("late", date(23), date(1, day: 7))],
+            calendar: calendar
+        )
+        #expect(busy == [date(0, day: 3), date(0), date(0, day: 7)])
     }
 
     @Test func statusTellsOngoingSoonAndLater() {

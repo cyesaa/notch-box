@@ -45,11 +45,18 @@ final class NotchViewModel {
     private(set) var recentlyCopiedID: Int?
     /// The clipboard image shown large in place of the player, until closed or the panel closes.
     private(set) var previewedClipboardItem: ClipboardItem?
-    /// What is left of today and tomorrow's events, refreshed while the open player shows them.
-    private(set) var agenda: [AgendaDay] = [AgendaDay(day: .today, events: [])]
+    /// The seven days of this week (starts of day), for the week strip.
+    private(set) var week: [Date] = []
+    /// Days of this week that have events (a dot under the day).
+    private(set) var busyDays: Set<Date> = []
+    /// The day picked in the week strip; today until the user picks another, and again when the panel closes.
+    private(set) var selectedDay: Date?
+    /// The picked day's events (today: what has not ended yet).
+    private(set) var dayEvents: [CalendarEvent] = []
     private(set) var calendarAccess: CalendarAccess = .notDetermined
-    /// The time the agenda was read at, for "in 5 min" and "now".
+    /// The time the calendar was read at, for "in 5 min" and "now".
     private(set) var agendaTime = Date.distantPast
+    @ObservationIgnored private var weekEvents: [CalendarEvent] = []
 
     @ObservationIgnored var onDisplayStateChange: ((NotchDisplayState) -> Void)?
     @ObservationIgnored private var machine = NotchStateMachine()
@@ -151,6 +158,16 @@ final class NotchViewModel {
         CalendarService.openCalendarApp()
     }
 
+    /// The day shown under the week strip.
+    var shownDay: Date { selectedDay ?? Calendar.current.startOfDay(for: agendaTime == .distantPast ? now() : agendaTime) }
+
+    var isShowingToday: Bool { Calendar.current.isDate(shownDay, inSameDayAs: agendaTime) }
+
+    func selectDay(_ day: Date) {
+        selectedDay = Calendar.current.isDate(day, inSameDayAs: now()) ? nil : day
+        updateDayEvents()
+    }
+
     func join(_ event: CalendarEvent) {
         guard let url = event.meetingURL else { return }
         NSWorkspace.shared.open(url)
@@ -160,11 +177,20 @@ final class NotchViewModel {
         guard let calendarProvider else { return }
         let time = now()
         calendarAccess = calendarProvider.access
-        let range = CalendarAgenda.fetchRange(now: time, calendar: .current)
-        let events = calendarProvider.events(from: range.start, to: range.end)
-        let days = CalendarAgenda.days(from: events, now: time, calendar: .current)
-        if days != agenda { agenda = days }
+        let calendar = Calendar.current
+        let range = CalendarAgenda.fetchRange(now: time, calendar: calendar)
+        weekEvents = calendarProvider.events(from: range.start, to: range.end)
+        let newWeek = CalendarAgenda.week(containing: time, calendar: calendar)
+        if newWeek != week { week = newWeek }
+        let busy = CalendarAgenda.busyDays(from: weekEvents, calendar: calendar)
+        if busy != busyDays { busyDays = busy }
         agendaTime = time
+        updateDayEvents()
+    }
+
+    private func updateDayEvents() {
+        let events = CalendarAgenda.events(on: shownDay, from: weekEvents, now: now(), calendar: .current)
+        if events != dayEvents { dayEvents = events }
     }
 
     /// Reads the calendar when the open player appears, and keeps "in 5 min" current while it is open.
@@ -172,6 +198,10 @@ final class NotchViewModel {
         guard showsSideColumns else {
             agendaTimer?.invalidate()
             agendaTimer = nil
+            if selectedDay != nil {
+                selectedDay = nil
+                updateDayEvents()
+            }
             return
         }
         guard agendaTimer == nil else { return }
