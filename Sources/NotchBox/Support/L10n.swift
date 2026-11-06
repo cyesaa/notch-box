@@ -34,7 +34,7 @@ enum L10n {
     static var calendarAllowHint: String { string("calendar_allow_hint") }
     static var calendarDenied: String { string("calendar_denied") }
     static var calendarNothingLeft: String { string("calendar_nothing_left") }
-    static var calendarTomorrow: String { string("calendar_tomorrow") }
+    static var calendarNoEvents: String { string("calendar_no_events") }
     static var calendarAllDay: String { string("calendar_all_day") }
     static var calendarJoin: String { string("calendar_join") }
     static var calendarOpen: String { string("calendar_open") }

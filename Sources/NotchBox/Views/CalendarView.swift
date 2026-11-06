@@ -1,8 +1,8 @@
 import NotchBoxCore
 import SwiftUI
 
-/// The calendar column right of the open player, mirroring the clipboard on the left: what is left of
-/// today and tomorrow's events, with a join button for video calls.
+/// The calendar column right of the open player, mirroring the clipboard on the left: this week as a strip
+/// of days (dots mark days with events), and the picked day's events below, with a join button for calls.
 struct CalendarView: View {
     let model: NotchViewModel
     @Environment(\.isRenderingSnapshot) private var isRenderingSnapshot
@@ -35,7 +35,7 @@ struct CalendarView: View {
         HStack(spacing: 6) {
             Image(systemName: "calendar")
                 .font(.system(size: 11, weight: .semibold))
-            Text(Self.dayFormatter.string(from: model.agendaTime == .distantPast ? Date() : model.agendaTime))
+            Text(Self.dayFormatter.string(from: model.shownDay))
                 .font(.system(size: 12, weight: .semibold))
                 .lineLimit(1)
             Spacer(minLength: 0)
@@ -80,41 +80,44 @@ struct CalendarView: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         case .granted:
-            if isRenderingSnapshot {
-                // ImageRenderer draws scroll views blank.
-                agenda
-            } else {
-                ScrollView(.vertical, showsIndicators: false) { agenda }
+            VStack(spacing: 6) {
+                WeekStrip(
+                    days: model.week,
+                    selected: model.shownDay,
+                    today: model.agendaTime,
+                    busyDays: model.busyDays,
+                    onSelect: model.selectDay
+                )
+                Group {
+                    if isRenderingSnapshot {
+                        // ImageRenderer draws scroll views blank.
+                        events
+                    } else {
+                        ScrollView(.vertical, showsIndicators: false) { events }
+                    }
+                }
+                .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .top)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
         }
     }
 
-    private var agenda: some View {
+    private var events: some View {
         VStack(alignment: .leading, spacing: 4) {
-            ForEach(model.agenda, id: \.day) { day in
-                if day.day == .tomorrow {
-                    Text(L10n.calendarTomorrow)
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(NotchTheme.tertiaryText)
-                        .padding(.top, 4)
-                        .padding(.leading, 2)
-                }
-                if day.day == .today, day.events.isEmpty {
-                    Text(L10n.calendarNothingLeft)
-                        .font(NotchTheme.detailFont)
-                        .foregroundStyle(NotchTheme.tertiaryText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .frame(height: EventRow.height)
-                        .padding(.leading, 2)
-                }
-                ForEach(day.events) { event in
-                    EventRow(
-                        event: event,
-                        status: CalendarAgenda.status(of: event, at: model.agendaTime),
-                        onOpen: model.openCalendar,
-                        onJoin: { model.join(event) }
-                    )
-                }
+            if model.dayEvents.isEmpty {
+                Text(model.isShowingToday ? L10n.calendarNothingLeft : L10n.calendarNoEvents)
+                    .font(NotchTheme.detailFont)
+                    .foregroundStyle(NotchTheme.tertiaryText)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: EventRow.height)
+            }
+            ForEach(model.dayEvents) { event in
+                EventRow(
+                    event: event,
+                    status: CalendarAgenda.status(of: event, at: model.agendaTime),
+                    onOpen: model.openCalendar,
+                    onJoin: { model.join(event) }
+                )
             }
         }
     }
@@ -127,13 +130,80 @@ struct CalendarView: View {
     }()
 }
 
+/// This week's seven days side by side: today filled, the picked day ringed, a dot under days with events.
+private struct WeekStrip: View {
+    let days: [Date]
+    let selected: Date
+    let today: Date
+    let busyDays: Set<Date>
+    let onSelect: (Date) -> Void
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(days, id: \.self) { day in
+                Button { onSelect(day) } label: { cell(day) }
+                    .buttonStyle(PressableButtonStyle())
+                    .accessibilityLabel(Self.fullDate.string(from: day))
+                    .accessibilityAddTraits(isSelected(day) ? .isSelected : [])
+            }
+        }
+    }
+
+    private func cell(_ day: Date) -> some View {
+        let isToday = Calendar.current.isDate(day, inSameDayAs: today)
+        let selected = isSelected(day)
+        return VStack(spacing: 2) {
+            Text(Self.weekday.string(from: day))
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(isToday ? NotchTheme.primaryText : NotchTheme.tertiaryText)
+                .lineLimit(1)
+            Text(Self.dayNumber.string(from: day))
+                .font(.system(size: 12, weight: isToday || selected ? .bold : .medium))
+                .monospacedDigit()
+                .foregroundStyle(isToday ? Color.black : NotchTheme.primaryText.opacity(selected ? 1 : 0.8))
+                .frame(width: 22, height: 22)
+                .background(
+                    Circle().fill(isToday ? Color.white : selected ? Color.white.opacity(0.18) : Color.clear)
+                )
+            Circle()
+                .fill(busyDays.contains(day) ? NotchTheme.secondaryText : Color.clear)
+                .frame(width: 4, height: 4)
+        }
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+    }
+
+    private func isSelected(_ day: Date) -> Bool {
+        Calendar.current.isDate(day, inSameDayAs: selected)
+    }
+
+    /// "Pzt" / "Mon".
+    private static let weekday: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("EEE")
+        return formatter
+    }()
+
+    private static let dayNumber: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d"
+        return formatter
+    }()
+
+    private static let fullDate: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        return formatter
+    }()
+}
+
 private struct EventRow: View {
     let event: CalendarEvent
     let status: CalendarAgenda.Status
     let onOpen: () -> Void
     let onJoin: () -> Void
 
-    static let height: CGFloat = 36
+    static let height: CGFloat = 34
 
     var body: some View {
         HStack(spacing: 8) {
