@@ -1,7 +1,7 @@
 import NotchBoxCore
 import SwiftUI
 
-/// The calendar column right of the open player, mirroring the clipboard on the left: this week as a strip
+/// The calendar column of the open player: this week as a strip
 /// of days (dots mark days with events), and the picked day's events below, with a join button for calls.
 struct CalendarView: View {
     let model: NotchViewModel
@@ -17,20 +17,9 @@ struct CalendarView: View {
                 .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .top)
                 .clipped()
         }
-        // Mirrors the clipboard's padding (16 outside, 12 next to the player).
-        .padding(.leading, 12)
-        .padding(.trailing, 16)
-        .padding(.bottom, 14)
-        .overlay(alignment: .leading) {
-            Rectangle()
-                .fill(Color.white.opacity(0.08))
-                .frame(width: 1)
-                .padding(.top, model.notchSize.height + 8)
-                .padding(.bottom, 18)
-        }
     }
 
-    /// Sits in the band right of the camera.
+    /// Sits in the band beside the camera.
     private var header: some View {
         HStack(spacing: 6) {
             Image(systemName: "calendar")

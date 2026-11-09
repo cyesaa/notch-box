@@ -56,3 +56,14 @@
 "clipboard_pin" = "Pin";
 "clipboard_unpin" = "Unpin";
 "clipboard_pins_full" = "You can pin up to 10 items";
+"settings_menu_item" = "Settings…";
+"settings_title" = "NotchBox Settings";
+"settings_sides_header" = "When you hover the notch";
+"settings_sides_footer" = "Choose what sits left and right of the player. Picking the same widget for both sides swaps them.";
+"settings_left" = "Left";
+"settings_right" = "Right";
+"settings_none" = "Empty";
+"settings_player" = "Player";
+"settings_notch_header" = "Notch";
+"settings_general_header" = "General";
+"settings_version" = "Version %@";

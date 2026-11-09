@@ -117,7 +117,28 @@ final class NotchViewModel {
 
     var isUnavailable: Bool { nowPlaying == .unavailable }
 
-    var contentSize: CGSize { NotchLayout.size(for: displayState, notch: notchSize) }
+    var contentSize: CGSize { NotchLayout.size(for: displayState, notch: notchSize, sides: sideWidgets) }
+
+    /// What sits left and right of the open player (chosen in Settings).
+    private(set) var sideWidgets = SideWidgets.default
+
+    func setSideWidgets(_ sides: SideWidgets) {
+        guard sides != sideWidgets else { return }
+        sideWidgets = sides
+        if !sides.shows(.clipboard), previewedClipboardItem != nil { previewedClipboardItem = nil }
+        updateClipboardWatching()
+        refreshAgenda()
+        onDisplayStateChange?(displayState)
+    }
+
+    /// The pasteboard is read only while the clipboard column is on one side.
+    private func updateClipboardWatching() {
+        if sideWidgets.shows(.clipboard) {
+            clipboardWatcher?.start()
+        } else {
+            clipboardWatcher?.stop()
+        }
+    }
 
     func start() {
         nowPlayingService?.onChange = { [weak self] state in self?.nowPlayingChanged(state) }
@@ -126,7 +147,7 @@ final class NotchViewModel {
             clipboard.restorePinned(saved, at: now())
         }
         clipboardWatcher?.onCopy = { [weak self] content in self?.copied(content) }
-        clipboardWatcher?.start()
+        updateClipboardWatching()
         calendarProvider?.onChange = { [weak self] in self?.refreshAgenda() }
         calendarProvider?.start()
         refreshAgenda()
@@ -180,7 +201,7 @@ final class NotchViewModel {
     }
 
     private func refreshAgenda() {
-        guard let calendarProvider else { return }
+        guard let calendarProvider, sideWidgets.shows(.calendar) else { return }
         let time = now()
         calendarAccess = calendarProvider.access
         let calendar = Calendar.current
