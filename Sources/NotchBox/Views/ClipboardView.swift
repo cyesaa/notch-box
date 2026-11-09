@@ -1,7 +1,7 @@
 import NotchBoxCore
 import SwiftUI
 
-/// The clipboard column left of the open player: the last things the user copied, newest first. Clicking
+/// The clipboard column of the open player: the last things the user copied, newest first. Clicking
 /// one puts it back on the pasteboard; each row can be removed, and an image can be viewed large.
 struct ClipboardView: View {
     let model: NotchViewModel
@@ -17,20 +17,9 @@ struct ClipboardView: View {
                 .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .top)
                 .clipped()
         }
-        .padding(.leading, 16)
-        .padding(.trailing, 12)
-        .padding(.bottom, 14)
-        .overlay(alignment: .trailing) {
-            // A hairline between the clipboard and the player, below the notch band.
-            Rectangle()
-                .fill(Color.white.opacity(0.08))
-                .frame(width: 1)
-                .padding(.top, model.notchSize.height + 8)
-                .padding(.bottom, 18)
-        }
     }
 
-    /// Sits in the band left of the camera.
+    /// Sits in the band beside the camera.
     private var header: some View {
         HStack(spacing: 6) {
             Image(systemName: "doc.on.clipboard")

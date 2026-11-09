@@ -56,3 +56,14 @@
 "clipboard_pin" = "Sabitle";
 "clipboard_unpin" = "Sabitlemeyi kaldır";
 "clipboard_pins_full" = "En fazla 10 öğe sabitlenebilir";
+"settings_menu_item" = "Ayarlar…";
+"settings_title" = "NotchBox Ayarları";
+"settings_sides_header" = "Notch'un üzerine geldiğinde";
+"settings_sides_footer" = "Oynatıcının solunda ve sağında ne duracağını seç. Bir bileşeni iki tarafa birden seçersen yer değiştirirler.";
+"settings_left" = "Solda";
+"settings_right" = "Sağda";
+"settings_none" = "Boş";
+"settings_player" = "Oynatıcı";
+"settings_notch_header" = "Çentik";
+"settings_general_header" = "Genel";
+"settings_version" = "Sürüm %@";

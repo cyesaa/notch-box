@@ -55,7 +55,7 @@ final class NotchWindowController {
     private func updateInteraction() {
         guard let geometry else { return }
         let state = model.displayState
-        let offset = NotchLayout.horizontalOffset(for: state)
+        let offset = NotchLayout.horizontalOffset(for: state, sides: model.sideWidgets)
         hoverTracker.hotZone = geometry.panelFrame(for: model.contentSize, offsetX: offset)
         // The one clickable control of a click-through state. A little slack around the close button makes
         // it easy to hit while everything else clicks through.

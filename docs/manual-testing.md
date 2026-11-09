@@ -9,14 +9,14 @@ treats every screen as one without a notch (`defaults delete com.notchbox.NotchB
 An external display set as the main display (lid closed) is the real case.
 
 - [ ] With nothing playing, a small black notch (185 pt wide, as tall as the menu bar) sits at the top centre.
-- [ ] Menu → "Hide When Idle" on: with nothing playing nothing is drawn there, and pointing there still opens the
+- [ ] Settings → "Hide When Idle" on: with nothing playing nothing is drawn there, and pointing there still opens the
   player. Off brings the black notch back. The item is greyed out while "Show on Screens Without a Notch" is off.
 - [ ] Pointing at the top centre of the menu bar opens the player as usual; the clipboard and calendar columns
   are there and the panel is centred on the screen.
 - [ ] While music plays, a black pill as tall as the menu bar shows the cover, the title and artist in the
   middle, and the waveform.
 - [ ] Video mode and the volume bar work from the virtual notch.
-- [ ] Menu → "Show on Screens Without a Notch" off hides it at once; on brings it back. On a notched MacBook the
+- [ ] Settings → "Show on Screens Without a Notch" off hides it at once; on brings it back. On a notched MacBook the
   setting changes nothing.
 
 ## Notch and hover
@@ -59,7 +59,20 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 ## Menu bar and quitting
 
 - [ ] A music note icon appears in the menu bar and there is no Dock icon.
-- [ ] "Launch at Login" toggles on and off (check System Settings → General → Login Items).
+- [ ] The menu has Settings… (⌘,), Check for Updates… and Quit NotchBox (plus the update line when one waits).
+- [ ] Settings → "Launch at Login" toggles on and off (check System Settings → General → Login Items).
+
+## Settings
+
+- [ ] Settings… opens the "NotchBox Settings" window in front, even from another app; ⌘, opens it too.
+- [ ] The drawing at the top shows the chosen left and right widgets around the player.
+- [ ] Left: Calendar while the right is Calendar swaps them; hovering the notch shows the calendar on the left
+  and the clipboard on the right at once.
+- [ ] Left: Empty: the open player grows only to the right and the player stays centred under the notch; moving
+  the cursor over the right column keeps it open. Both Empty: the plain player.
+- [ ] With the clipboard on neither side, copying no longer adds items (the pasteboard is not read); choosing
+  it again resumes.
+- [ ] The choice survives quitting and reopening NotchBox.
 - [ ] "Quit NotchBox" quits the app; `pgrep -f mediaremote-adapter` then prints nothing.
 - [ ] `pkill -x NotchBox` also quits cleanly; `pgrep -f mediaremote-adapter` then prints nothing.
 
@@ -111,7 +124,7 @@ defaults write com.notchbox.NotchBox UpdateInstallCommand "NOTCHBOX_ZIP=$PWD/dis
   installed, the real install command is on the clipboard and Finder shows update.log.
 - [ ] "Check for Updates…" with no newer release says NotchBox is up to date; with the repository private (and
   no feed override) it says the check failed.
-- [ ] "Check for Updates Automatically" off: no check after start (no dot).
+- [ ] Settings → "Check for Updates Automatically" off: no check after start (no dot).
 - [ ] Clean up: `defaults delete com.notchbox.NotchBox UpdateFeedURL` and the same for `UpdateInstallCommand`.
 
 ## Watching in the notch

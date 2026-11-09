@@ -10,7 +10,7 @@ struct NotchRootView: View {
         let flare = NotchLayout.topCornerRadius(for: state)
         let bottomRadius = NotchLayout.bottomCornerRadius(for: state)
         // The open player grows to the left for the clipboard, keeping the player under the notch.
-        let offset = NotchLayout.horizontalOffset(for: state)
+        let offset = NotchLayout.horizontalOffset(for: state, sides: model.sideWidgets)
         // A virtual notch can be hidden while idle (menu setting).
         let hidden = state == .idle && model.hidesIdleShape
         ZStack(alignment: .top) {
@@ -41,30 +41,22 @@ struct NotchRootView: View {
             CollapsedView(model: model)
                 .transition(.notchContent)
         case .expanded:
-            HStack(spacing: 0) {
-                ClipboardView(model: model)
-                    .frame(width: NotchLayout.clipboardWidth)
+            withSideColumns {
                 if let item = model.previewedClipboardItem {
                     ClipboardPreviewView(model: model, item: item)
                 } else {
                     ExpandedView(model: model)
                 }
-                CalendarView(model: model)
-                    .frame(width: NotchLayout.calendarWidth)
             }
             .transition(.notchContent)
         case .expandedEmpty:
-            HStack(spacing: 0) {
-                ClipboardView(model: model)
-                    .frame(width: NotchLayout.clipboardWidth)
+            withSideColumns {
                 if let item = model.previewedClipboardItem {
                     ClipboardPreviewView(model: model, item: item)
                 } else {
                     NothingPlayingView()
                         .padding(.top, model.notchSize.height)
                 }
-                CalendarView(model: model)
-                    .frame(width: NotchLayout.calendarWidth)
             }
             .transition(.notchContent)
         case .video:
@@ -73,6 +65,21 @@ struct NotchRootView: View {
         case .volume:
             VolumeHUDView(model: model)
                 .transition(.notchContent)
+        }
+    }
+}
+
+extension NotchRootView {
+    /// The open player with the widgets chosen for its left and right columns.
+    private func withSideColumns<Center: View>(@ViewBuilder center: () -> Center) -> some View {
+        HStack(spacing: 0) {
+            if let widget = model.sideWidgets.left {
+                SideColumn(widget: widget, side: .left, model: model)
+            }
+            center()
+            if let widget = model.sideWidgets.right {
+                SideColumn(widget: widget, side: .right, model: model)
+            }
         }
     }
 }

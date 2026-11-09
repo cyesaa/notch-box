@@ -4,12 +4,18 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItemController: StatusItemController?
     private let updates = UpdateService()
+    private var settings: AppSettings?
+    private var settingsWindow: SettingsWindowController?
     private var windowController: NotchWindowController?
     private var model: NotchViewModel?
     private var wakeObserver: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        statusItemController = StatusItemController(updates: updates)
+        let settings = AppSettings(updates: updates)
+        let settingsWindow = SettingsWindowController(settings: settings)
+        self.settings = settings
+        self.settingsWindow = settingsWindow
+        statusItemController = StatusItemController(updates: updates) { settingsWindow.show() }
         updates.start()
 
         let nowPlayingService = AdapterNowPlayingService(location: .resolve())
@@ -23,6 +29,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             pinnedStore: PinnedClipboardStore(),
             calendarProvider: CalendarService()
         )
+        model.setSideWidgets(settings.sideWidgets)
+        settings.onSideWidgetsChange = { [weak model] sides in model?.setSideWidgets(sides) }
         let windowController = NotchWindowController(model: model)
         windowController.start()
         model.start()

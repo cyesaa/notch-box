@@ -30,7 +30,7 @@ Control whatever is playing on your Mac from the MacBook notch.
 
 On a MacBook with a notch NotchBox lives in the notch. On a Mac without one (MacBook Air M1, iMac, Mac mini,
 Mac Studio or an external display) it draws its own small black notch at the top centre of the menu bar and works the same way, with the
-title in the middle of the mini notch. In the menu, "Hide When Idle" hides it while nothing plays (pointing
+title in the middle of the mini notch. In Settings, "Hide When Idle" hides it while nothing plays (pointing
 there still opens it), and "Show on Screens Without a Notch" turns it off.
 
 ## Install
@@ -42,12 +42,15 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 ```
 
 This downloads the latest release, puts `NotchBox.app` in `/Applications` (or `~/Applications` without admin
-rights) and opens it. A music note icon appears in the menu bar; use it for "Launch at Login" and "Quit".
+rights) and opens it. A music note icon appears in the menu bar with Settings (⌘,), Check for Updates and Quit.
+
+**Settings** decides what sits left and right of the player when you hover the notch (Clipboard, Calendar or
+nothing; more widgets will follow), and holds the notch, launch-at-login and update options.
 
 **Updating:** NotchBox looks for a new release soon after it starts and twice a day. When there is one, a dot
 appears on the music note and the menu starts with "Update available"; click it, then Update, and NotchBox
 quits, installs the new version and opens again. "Check for Updates…" checks right away, and checking can be
-turned off in the same menu. Running the install command again also updates.
+turned off in Settings. Running the install command again also updates.
 
 To remove NotchBox with its settings and permissions:
 
@@ -73,7 +76,7 @@ The one-line installer does not need step 3: files downloaded with `curl` are no
 
 NotchBox does not connect to the network, except to YouTube while you watch a video in the notch and to GitHub
 (api.github.com) to look for a newer release. The update check sends nothing about you; turn it off with
-"Check for Updates Automatically" in the menu. Track info stays on your Mac.
+"Check for Updates Automatically" in Settings. Track info stays on your Mac.
 
 **The clipboard list** lives in memory only and is gone when NotchBox quits, except the items you pin: those are
 saved in `~/Library/Application Support/NotchBox/pinned-clipboard.json`, readable only by you, until you unpin
@@ -192,7 +195,7 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
 
 Çentikli MacBook'larda NotchBox çentiğin içinde durur. Çentiği olmayan Mac'lerde (M1 MacBook Air, iMac, Mac mini,
 Mac Studio ya da harici ekran) menü çubuğunun ortasına kendi küçük siyah çentiğini çizer ve aynı şekilde çalışır;
-küçük notch'un ortasında şarkının adı yazar. Menüdeki "Boştayken gizle" müzik çalmıyorken çentiği gizler (fareyi
+küçük notch'un ortasında şarkının adı yazar. Ayarlar'daki "Boştayken gizle" müzik çalmıyorken çentiği gizler (fareyi
 oraya getirince yine açılır); "Çentiksiz ekranlarda göster" ise tamamen kapatır.
 
 ### Kurulum
@@ -204,12 +207,15 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 ```
 
 Bu komut son sürümü indirir, `NotchBox.app`'i `/Applications` klasörüne (yönetici izni yoksa `~/Applications`)
-koyar ve açar. Menü çubuğunda bir müzik notası ikonu çıkar; "Açılışta başlat" ve "Çık" oradadır.
+koyar ve açar. Menü çubuğunda bir müzik notası ikonu çıkar; Ayarlar (⌘,), Güncellemeleri denetle ve Çık oradadır.
+
+**Ayarlar**, notch'un üzerine geldiğinde oynatıcının solunda ve sağında ne duracağını seçtiğin yerdir (Pano, Takvim
+ya da boş; zamanla yeni bileşenler eklenecek). Çentik, açılışta başlatma ve güncelleme seçenekleri de buradadır.
 
 **Güncelleme:** NotchBox açıldıktan kısa süre sonra ve günde iki kez yeni sürüm olup olmadığına bakar. Yeni sürüm
 varsa müzik notasının yanında bir nokta çıkar ve menünün en üstünde "Güncelleme var" yazar; tıklayıp Güncelle'ye
 basınca NotchBox kapanır, yeni sürümü kurar ve yeniden açılır. "Güncellemeleri denetle…" hemen bakar; otomatik
-denetimi aynı menüden kapatabilirsin. Kurulum komutunu tekrar çalıştırmak da günceller.
+denetimi Ayarlar'dan kapatabilirsin. Kurulum komutunu tekrar çalıştırmak da günceller.
 
 NotchBox'ı ayarları ve izinleriyle birlikte kaldırmak için:
 
@@ -235,7 +241,7 @@ Tek satırlık kurulumda 3. adıma gerek yoktur: `curl` ile indirilen dosyalar k
 ### Gizlilik
 
 NotchBox, notch'ta video izlerken YouTube'a ve yeni sürüm olup olmadığına bakmak için GitHub'a (api.github.com)
-bağlanmak dışında internete bağlanmaz. Güncelleme denetimi seninle ilgili hiçbir şey göndermez; menüdeki
+bağlanmak dışında internete bağlanmaz. Güncelleme denetimi seninle ilgili hiçbir şey göndermez; Ayarlar'daki
 "Güncellemeleri otomatik denetle" ile kapatabilirsin. Şarkı bilgileri Mac'inde kalır.
 
 **Pano listesi** yalnızca bellekte tutulur ve NotchBox kapanınca silinir; tek istisna sabitlediğin öğelerdir. Onlar

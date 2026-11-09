@@ -32,6 +32,17 @@ enum L10n {
     static var clipboardPin: String { string("clipboard_pin") }
     static var clipboardUnpin: String { string("clipboard_unpin") }
     static var clipboardPinsFull: String { string("clipboard_pins_full") }
+    static var settingsMenuItem: String { string("settings_menu_item") }
+    static var settingsTitle: String { string("settings_title") }
+    static var settingsSidesHeader: String { string("settings_sides_header") }
+    static var settingsSidesFooter: String { string("settings_sides_footer") }
+    static var settingsLeft: String { string("settings_left") }
+    static var settingsRight: String { string("settings_right") }
+    static var settingsNone: String { string("settings_none") }
+    static var settingsPlayer: String { string("settings_player") }
+    static var settingsNotchHeader: String { string("settings_notch_header") }
+    static var settingsGeneralHeader: String { string("settings_general_header") }
+    static func settingsVersion(_ version: String) -> String { String(format: string("settings_version"), version) }
     static var showWithoutNotch: String { string("show_without_notch") }
     static var hideIdleVirtualNotch: String { string("hide_idle_virtual_notch") }
     static var checkForUpdates: String { string("check_for_updates") }

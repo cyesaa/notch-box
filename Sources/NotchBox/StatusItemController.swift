@@ -1,23 +1,20 @@
 import AppKit
 import NotchBoxCore
-import os
-import ServiceManagement
 
+/// The menu bar icon: an update line when one is waiting, Settings, Check for Updates and Quit.
+/// The options themselves live in the Settings window.
 @MainActor
 final class StatusItemController: NSObject, NSMenuDelegate {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-    private let launchAtLoginItem = NSMenuItem()
     private let updateItem = NSMenuItem()
     private let updateSeparator = NSMenuItem.separator()
     private let checkForUpdatesItem = NSMenuItem()
-    private let automaticUpdatesItem = NSMenuItem()
-    private let withoutNotchItem = NSMenuItem()
-    private let hideIdleItem = NSMenuItem()
     private let updates: UpdateService
-    private let logger = Logger(subsystem: AppConstants.logSubsystem, category: "status-item")
+    private let onOpenSettings: () -> Void
 
-    init(updates: UpdateService) {
+    init(updates: UpdateService, onOpenSettings: @escaping () -> Void) {
         self.updates = updates
+        self.onOpenSettings = onOpenSettings
         super.init()
 
         updateItem.action = #selector(installUpdate)
@@ -25,21 +22,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         checkForUpdatesItem.title = L10n.checkForUpdates
         checkForUpdatesItem.action = #selector(checkForUpdates)
         checkForUpdatesItem.target = self
-        automaticUpdatesItem.title = L10n.checkAutomatically
-        automaticUpdatesItem.action = #selector(toggleAutomaticUpdates)
-        automaticUpdatesItem.target = self
-        withoutNotchItem.title = L10n.showWithoutNotch
-        withoutNotchItem.action = #selector(toggleWithoutNotch)
-        withoutNotchItem.target = self
-        hideIdleItem.title = L10n.hideIdleVirtualNotch
-        hideIdleItem.action = #selector(toggleHideIdle)
-        hideIdleItem.target = self
-        hideIdleItem.indentationLevel = 1
 
-        launchAtLoginItem.title = L10n.launchAtLogin
-        launchAtLoginItem.action = #selector(toggleLaunchAtLogin)
-        launchAtLoginItem.target = self
-
+        let settingsItem = NSMenuItem(title: L10n.settingsMenuItem, action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.target = self
         let quitItem = NSMenuItem(title: L10n.quit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         quitItem.target = NSApp
 
@@ -47,11 +32,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         menu.delegate = self
         menu.addItem(updateItem)
         menu.addItem(updateSeparator)
-        menu.addItem(launchAtLoginItem)
-        menu.addItem(withoutNotchItem)
-        menu.addItem(hideIdleItem)
+        menu.addItem(settingsItem)
         menu.addItem(checkForUpdatesItem)
-        menu.addItem(automaticUpdatesItem)
         menu.addItem(.separator())
         menu.addItem(quitItem)
         statusItem.menu = menu
@@ -61,10 +43,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     }
 
     func menuWillOpen(_ menu: NSMenu) {
-        launchAtLoginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
-        withoutNotchItem.state = ScreenWatcher.showsWithoutNotch ? .on : .off
-        hideIdleItem.state = ScreenWatcher.hidesIdleVirtualNotch ? .on : .off
-        hideIdleItem.isEnabled = ScreenWatcher.showsWithoutNotch
         refresh()
     }
 
@@ -87,7 +65,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         }
         checkForUpdatesItem.isEnabled = updates.status != .checking && !installing
         checkForUpdatesItem.title = updates.status == .checking ? L10n.checkingForUpdates : L10n.checkForUpdates
-        automaticUpdatesItem.state = updates.checksAutomatically ? .on : .off
         let version = updates.currentVersion.map { " \($0)" } ?? ""
         statusItem.button?.image = Self.icon(withDot: release != nil)
         statusItem.button?.toolTip = release.map { L10n.updateMenuItem($0.version.description) } ?? "NotchBox\(version)"
@@ -114,38 +91,16 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         return image
     }
 
+    @objc private func openSettings() {
+        onOpenSettings()
+    }
+
     @objc private func installUpdate() {
         updates.installWithConfirmation()
     }
 
     @objc private func checkForUpdates() {
         updates.check(userInitiated: true)
-    }
-
-    /// The screen watcher sees the change through UserDefaults and moves or hides the panel.
-    @objc private func toggleWithoutNotch() {
-        ScreenWatcher.showsWithoutNotch.toggle()
-    }
-
-    @objc private func toggleHideIdle() {
-        ScreenWatcher.hidesIdleVirtualNotch.toggle()
-    }
-
-    @objc private func toggleAutomaticUpdates() {
-        updates.checksAutomatically.toggle()
-        refresh()
-    }
-
-    @objc private func toggleLaunchAtLogin() {
-        do {
-            if SMAppService.mainApp.status == .enabled {
-                try SMAppService.mainApp.unregister()
-            } else {
-                try SMAppService.mainApp.register()
-            }
-        } catch {
-            logger.error("Launch at login change failed: \(error.localizedDescription, privacy: .public)")
-        }
     }
 }
 

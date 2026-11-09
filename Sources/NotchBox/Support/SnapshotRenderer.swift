@@ -88,7 +88,8 @@ enum SnapshotRenderer {
         for scene in scenes {
             try render(scene, to: directory.appendingPathComponent(scene.name + ".png"))
         }
-        print("Wrote \(scenes.count) snapshots to \(directory.path)")
+        try renderSettings(to: directory.appendingPathComponent("11-settings.png"))
+        print("Wrote \(scenes.count + 1) snapshots to \(directory.path)")
     }
 
     /// Newest first.
@@ -163,6 +164,24 @@ enum SnapshotRenderer {
         CGImageDestinationAddImage(destination, image, nil)
         guard CGImageDestinationFinalize(destination) else { throw CocoaError(.fileWriteUnknown) }
         model.stop()
+    }
+
+    /// The Settings window's content, drawn through AppKit (its controls are AppKit views, which
+    /// ImageRenderer leaves blank).
+    private static func renderSettings(to url: URL) throws {
+        let settings = AppSettings(updates: UpdateService())
+        let view = NSHostingView(rootView: SettingsView(settings: settings).environment(\.colorScheme, .dark))
+        view.appearance = NSAppearance(named: .darkAqua)
+        let size = view.fittingSize
+        let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.borderless], backing: .buffered, defer: false)
+        window.appearance = NSAppearance(named: .darkAqua)
+        window.contentView = view
+        view.frame = NSRect(origin: .zero, size: size)
+        view.layoutSubtreeIfNeeded()
+        guard let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { throw CocoaError(.fileWriteUnknown) }
+        view.cacheDisplay(in: view.bounds, to: bitmap)
+        guard let data = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
+        try data.write(to: url)
     }
 
     /// App icons can carry HDR content, which turns the whole render into a PQ (extended range) image
