@@ -10,6 +10,7 @@ final class NotchWindowController {
     private let hoverTracker = HoverTracker()
     private let screenWatcher = ScreenWatcher()
     private var geometry: NotchGeometry?
+    private var defaultsObserver: NSObjectProtocol?
 
     init(model: NotchViewModel) {
         self.model = model
@@ -23,6 +24,10 @@ final class NotchWindowController {
         hoverTracker.onHoverChange = { [weak self] hovering, depth in self?.hoverChanged(hovering, depth: depth) }
         hoverTracker.onButtonHoverChange = { [weak self] _ in self?.updateInteraction() }
         screenWatcher.onChange = { [weak self] geometry in self?.apply(geometry) }
+        model.setHidesIdleVirtualNotch(ScreenWatcher.hidesIdleVirtualNotch)
+        defaultsObserver = NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.model.setHidesIdleVirtualNotch(ScreenWatcher.hidesIdleVirtualNotch) }
+        }
         screenWatcher.start()
         hoverTracker.start()
     }
@@ -34,7 +39,7 @@ final class NotchWindowController {
             hoverTracker.hotZone = .null
             return
         }
-        model.setNotchSize(geometry.notchSize)
+        model.setNotchSize(geometry.notchSize, isVirtual: geometry.isVirtual)
         panel.setFrame(geometry.panelFrame(for: NotchLayout.windowSize(notch: geometry.notchSize)), display: true)
         panel.orderFrontRegardless()
         updateInteraction()

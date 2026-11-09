@@ -26,6 +26,9 @@ enum SnapshotRenderer {
         /// The copied image shown large.
         var previewImage = false
         var calendarAccess: CalendarAccess = .granted
+        /// A screen without a notch: NotchBox's own 185 x 24 notch.
+        var virtualNotch = false
+        var hideIdle = false
     }
 
     static func render(to directory: URL) throws {
@@ -45,6 +48,10 @@ enum SnapshotRenderer {
         )
         let cool = makeCover(colors: [NSColor(srgbRed: 0.2, green: 0.75, blue: 0.85, alpha: 1), NSColor(srgbRed: 0.15, green: 0.2, blue: 0.6, alpha: 1)])
         let scenes = [
+            Scene(name: "0a-virtual-notch-idle", state: .nothing, hovering: false, virtualNotch: true),
+            Scene(name: "0a2-virtual-notch-idle-hidden", state: .nothing, hovering: false, virtualNotch: true, hideIdle: true),
+            Scene(name: "0b-virtual-notch-mini", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, virtualNotch: true),
+            Scene(name: "0c-virtual-notch-expanded", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, virtualNotch: true),
             Scene(name: "1a-mini-paused", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: false, artwork: warm)), hovering: false),
             Scene(name: "1b-mini-pointing-at-waveform", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, overButton: true),
             Scene(name: "9a-volume-while-playing", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, volumeChange: true),
@@ -89,7 +96,7 @@ enum SnapshotRenderer {
 
     private static func render(_ scene: Scene, to url: URL) throws {
         let clock = SnapshotClock()
-        let notch = CGSize(width: 200, height: 32)
+        let notch = scene.virtualNotch ? CGSize(width: 185, height: 24) : CGSize(width: 200, height: 32)
         let volume = SnapshotVolume()
         let model = NotchViewModel(
             nowPlayingService: SnapshotNowPlayingService(state: scene.state),
@@ -100,7 +107,8 @@ enum SnapshotRenderer {
             makePlayer: { _, _ in nil },
             now: { clock.now }
         )
-        model.setNotchSize(notch)
+        model.setNotchSize(notch, isVirtual: scene.virtualNotch)
+        model.setHidesIdleVirtualNotch(scene.hideIdle)
         model.start()
         if let video = scene.video {
             model.showVideo(video, start: 0)
@@ -128,6 +136,12 @@ enum SnapshotRenderer {
                 startPoint: .top,
                 endPoint: .bottom
             )
+            if scene.virtualNotch {
+                // The menu bar of a screen without a notch.
+                Rectangle()
+                    .fill(Color.white.opacity(0.55))
+                    .frame(height: notch.height)
+            }
             NotchRootView(model: model)
                 .frame(width: panel.width, height: panel.height)
         }

@@ -15,12 +15,27 @@ struct CollapsedView: View {
             ArtworkView(image: model.artworkImage, version: model.artworkVersion, cornerRadius: NotchLayout.miniArtworkRadius)
                 .frame(width: artworkSide, height: artworkSide)
                 .frame(width: side)
-            Color.clear
+            middle
                 .frame(width: notch.width)
             rightWing(artworkSide: artworkSide, notch: notch)
                 .frame(width: side, height: notch.height)
         }
         .frame(height: notch.height)
+    }
+
+    /// A real notch hides the camera here; a virtual one shows what is playing.
+    @ViewBuilder
+    private var middle: some View {
+        if model.isVirtualNotch, let info = model.info {
+            Text(info.artist.map { "\(info.title) · \($0)" } ?? info.title)
+                .font(.system(size: max(10, model.notchSize.height * 0.46), weight: .medium))
+                .foregroundStyle(NotchTheme.secondaryText)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .padding(.horizontal, 6)
+        } else {
+            Color.clear
+        }
     }
 
     @ViewBuilder

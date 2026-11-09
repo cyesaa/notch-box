@@ -29,6 +29,8 @@ enum L10n {
     static var clipboardImage: String { string("clipboard_image") }
     static var clipboardCopied: String { string("clipboard_copied") }
     static var clipboardView: String { string("clipboard_view") }
+    static var showWithoutNotch: String { string("show_without_notch") }
+    static var hideIdleVirtualNotch: String { string("hide_idle_virtual_notch") }
     static var checkForUpdates: String { string("check_for_updates") }
     static var checkingForUpdates: String { string("checking_for_updates") }
     static var checkAutomatically: String { string("check_automatically") }

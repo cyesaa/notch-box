@@ -51,3 +51,5 @@
 "update_check_failed_hint" = "İnternet bağlantını kontrol et. Proje şu an herkese açık değilse güncellemeler görünmez.";
 "update_install_failed" = "Güncelleme kurulamadı";
 "update_install_failed_hint" = "Kurulum komutu panoya kopyalandı; Terminal'e yapıştırıp çalıştırabilirsin. Ayrıntılar update.log dosyasında.";
+"show_without_notch" = "Çentiksiz ekranlarda göster";
+"hide_idle_virtual_notch" = "Boştayken gizle";

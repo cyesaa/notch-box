@@ -24,7 +24,7 @@ fail() { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 
 check_mac() {
   [ "$(uname -s)" = "Darwin" ] || fail "NotchBox runs only on macOS."
-  [ "$(uname -m)" = "arm64" ] || fail "NotchBox needs a Mac with Apple silicon (MacBooks with a notch)."
+  [ "$(uname -m)" = "arm64" ] || fail "NotchBox needs a Mac with Apple silicon (M1 or later)."
   local major
   major="$(sw_vers -productVersion | cut -d. -f1)"
   [ "$major" -ge 14 ] || fail "NotchBox needs macOS 14 or later (this Mac has $(sw_vers -productVersion))."
