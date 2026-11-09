@@ -78,4 +78,9 @@
 "vpn_connect_in_settings" = "Ayarlar'da bağlan";
 "vpn_open_forticlient" = "FortiClient'ı aç";
 "vpn_open_settings" = "VPN ayarlarını aç";
-"vpn_none" = "Bu Mac'te bir VPN bulunamadı. FortiClient'ı kurduğunda burada görünür.";
+"vpn_none" = "Bu Mac'te bir VPN bulunamadı. FortiClient ya da OpenVPN Connect kurduğunda burada görünür.";
+"vpn_connect" = "Bağlan";
+"vpn_choose_profile" = "Bağlanılacak profili seç";
+"vpn_open_openvpn" = "OpenVPN Connect'i aç";
+"vpn_open_short" = "Aç";
+"vpn_disconnect_short" = "Kes";

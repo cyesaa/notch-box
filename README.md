@@ -47,9 +47,10 @@ rights) and opens it. A music note icon appears in the menu bar with Settings (�
 **Settings** decides what sits left and right of the player when you hover the notch (Clipboard, Calendar, VPN or
 nothing; more widgets will follow), and holds the notch, launch-at-login and update options.
 
-**VPN** shows whether your VPN is connected and for how long, with a Disconnect button. It picks FortiClient's
-VPN when FortiClient is installed, otherwise a VPN from System Settings. Connecting happens in FortiClient (it
-asks for your password or single sign-on), so the button there opens FortiClient.
+**VPN** shows whether your VPNs are connected and for how long, with a Disconnect button: FortiClient's VPN (or
+otherwise one from System Settings) and OpenVPN Connect, a row each when both are installed. OpenVPN profiles
+connect right from the notch (a menu picks the profile when there are several). FortiClient's VPN connects only
+from FortiClient (it asks for your password or single sign-on), so its button opens FortiClient.
 
 **Updating:** NotchBox looks for a new release soon after it starts and twice a day. When there is one, a dot
 appears on the music note and the menu starts with "Update available"; click it, then Update, and NotchBox
@@ -216,9 +217,10 @@ koyar ve açar. Menü çubuğunda bir müzik notası ikonu çıkar; Ayarlar (⌘
 **Ayarlar**, notch'un üzerine geldiğinde oynatıcının solunda ve sağında ne duracağını seçtiğin yerdir (Pano, Takvim,
 VPN ya da boş; zamanla yeni bileşenler eklenecek).
 
-**VPN** bileşeni VPN'inin bağlı olup olmadığını ve ne kadar süredir bağlı olduğunu gösterir; "Bağlantıyı kes" düğmesi
-vardır. FortiClient kuruluysa onun VPN'ini, değilse Sistem Ayarları'ndaki bir VPN'i seçer. Bağlanma FortiClient'ta
-yapılır (şifre ya da SSO ister); bu yüzden oradaki düğme FortiClient'ı açar. Çentik, açılışta başlatma ve güncelleme seçenekleri de buradadır.
+**VPN** bileşeni VPN'lerinin bağlı olup olmadığını ve ne kadar süredir bağlı olduklarını gösterir; "Bağlantıyı kes"
+düğmesi vardır: FortiClient'ın VPN'i (yoksa Sistem Ayarları'ndaki bir VPN) ve OpenVPN Connect; ikisi de kuruluysa
+her biri bir satırda. OpenVPN profillerine doğrudan notch'tan bağlanılır (birden fazla profil varsa menüden seçilir).
+FortiClient'ın VPN'i yalnızca FortiClient'tan bağlanır (şifre ya da SSO ister); bu yüzden onun düğmesi FortiClient'ı açar. Çentik, açılışta başlatma ve güncelleme seçenekleri de buradadır.
 
 **Güncelleme:** NotchBox açıldıktan kısa süre sonra ve günde iki kez yeni sürüm olup olmadığına bakar. Yeni sürüm
 varsa müzik notasının yanında bir nokta çıkar ve menünün en üstünde "Güncelleme var" yazar; tıklayıp Güncelle'ye

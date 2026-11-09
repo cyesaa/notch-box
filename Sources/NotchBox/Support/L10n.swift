@@ -44,6 +44,11 @@ enum L10n {
     static var vpnOpenFortiClient: String { string("vpn_open_forticlient") }
     static var vpnOpenSettings: String { string("vpn_open_settings") }
     static var vpnNone: String { string("vpn_none") }
+    static var vpnConnect: String { string("vpn_connect") }
+    static var vpnDisconnectShort: String { string("vpn_disconnect_short") }
+    static var vpnChooseProfile: String { string("vpn_choose_profile") }
+    static var vpnOpenOpenVPN: String { string("vpn_open_openvpn") }
+    static var vpnOpenShort: String { string("vpn_open_short") }
     static var settingsMenuItem: String { string("settings_menu_item") }
     static var settingsTitle: String { string("settings_title") }
     static var settingsSidesHeader: String { string("settings_sides_header") }

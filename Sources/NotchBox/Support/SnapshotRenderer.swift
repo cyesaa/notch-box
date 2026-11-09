@@ -32,6 +32,8 @@ enum SnapshotRenderer {
         var sides: SideWidgets = .default
         /// The VPN's status after it was seen disconnected (connected shows a running time).
         var vpn: VPNStatus = .disconnected
+        /// OpenVPN Connect installed, with this status.
+        var openVPN: VPNStatus?
     }
 
     static func render(to directory: URL) throws {
@@ -68,6 +70,8 @@ enum SnapshotRenderer {
             Scene(name: "5b-nothing-playing-empty-clipboard", state: .nothing, hovering: true, emptyClipboard: true, calendarAccess: .notDetermined),
             Scene(name: "12a-vpn-connected", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: .vpn), vpn: .connected),
             Scene(name: "12b-vpn-disconnected", state: .nothing, hovering: true, sides: SideWidgets(left: .vpn, right: .calendar), vpn: .disconnected),
+            Scene(name: "12d-forticlient-and-openvpn", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: .vpn), vpn: .disconnected, openVPN: .connected),
+            Scene(name: "12e-openvpn-only-disconnected", state: .nothing, hovering: true, sides: SideWidgets(left: .vpn, right: .calendar), vpn: .unavailable, openVPN: .disconnected),
             Scene(name: "12c-only-left-column", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: nil)),
             Scene(name: "10-clipboard-image-preview", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, previewImage: true),
             Scene(name: "6-unavailable", state: .unavailable, hovering: true),
@@ -106,12 +110,15 @@ enum SnapshotRenderer {
         let notch = scene.virtualNotch ? CGSize(width: 185, height: 24) : CGSize(width: 200, height: 32)
         let volume = SnapshotVolume()
         let vpn = SnapshotVPN()
+        vpn.hasService = scene.vpn != .unavailable
+        let openVPN = scene.openVPN.map { SnapshotOpenVPN(status: $0, since: clock.now.addingTimeInterval(3_905 - 754)) }
         let model = NotchViewModel(
             nowPlayingService: SnapshotNowPlayingService(state: scene.state),
             volumeControl: volume,
             tabReader: SnapshotTabReader(),
             clipboardWatcher: SnapshotClipboard(items: scene.emptyClipboard ? [] : sampleClipboard),
             vpnControl: vpn,
+            openVPN: openVPN,
             calendarProvider: SnapshotCalendar(access: scene.calendarAccess, now: clock.now),
             makePlayer: { _, _ in nil },
             now: { clock.now }
@@ -331,11 +338,42 @@ private final class SnapshotCalendar: CalendarProviding {
 @MainActor
 private final class SnapshotVPN: VPNControlling {
     var status: VPNStatus = .disconnected
+    var hasService = true
 
     func services() -> [VPNServiceInfo] {
-        [VPNServiceInfo(id: "689A790A-026F-4E3D-9480-D4AF8362B958", name: "VPN", providerBundleID: "com.fortinet.forticlient.macos.vpn", isEnabled: true)]
+        guard hasService else { return [] }
+        return [VPNServiceInfo(id: "689A790A-026F-4E3D-9480-D4AF8362B958", name: "VPN", providerBundleID: "com.fortinet.forticlient.macos.vpn", isEnabled: true)]
     }
 
     func status(of serviceID: String) -> VPNStatus { status }
     func disconnect(_ serviceID: String) {}
+}
+
+@MainActor
+private final class SnapshotOpenVPN: OpenVPNControlling {
+    let status: VPNStatus
+    let since: Date
+    let isInstalled = true
+    let profiles = [
+        OpenVPNProfile(id: "1", name: "212.64.199.51 [fatmavpn]", host: "212.64.199.51", lastConnected: nil),
+        OpenVPNProfile(id: "2", name: "173.212.194.24 [Eren1]", host: "173.212.194.24", lastConnected: nil),
+    ]
+
+    init(status: VPNStatus, since: Date) {
+        self.status = status
+        self.since = since
+    }
+
+    func read(preferring profileID: String?) -> OpenVPNReading {
+        OpenVPNReading(
+            status: status,
+            connectedSince: status == .connected ? since : nil,
+            profiles: profiles,
+            activeProfile: status == .connected ? profiles[0] : nil
+        )
+    }
+
+    func connect(profileID: String) {}
+    func disconnect() {}
+    func openApp() {}
 }
