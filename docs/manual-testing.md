@@ -2,6 +2,23 @@
 
 Run `make run` first. Tick every box before a release.
 
+## Screens without a notch
+
+On a notched MacBook, `defaults write com.notchbox.NotchBox ForceVirtualNotch -bool YES` and restarting NotchBox
+treats every screen as one without a notch (`defaults delete com.notchbox.NotchBox ForceVirtualNotch` undoes it).
+An external display set as the main display (lid closed) is the real case.
+
+- [ ] With nothing playing, a small black notch (185 pt wide, as tall as the menu bar) sits at the top centre.
+- [ ] Menu → "Hide When Idle" on: with nothing playing nothing is drawn there, and pointing there still opens the
+  player. Off brings the black notch back. The item is greyed out while "Show on Screens Without a Notch" is off.
+- [ ] Pointing at the top centre of the menu bar opens the player as usual; the clipboard and calendar columns
+  are there and the panel is centred on the screen.
+- [ ] While music plays, a black pill as tall as the menu bar shows the cover, the title and artist in the
+  middle, and the waveform.
+- [ ] Video mode and the volume bar work from the virtual notch.
+- [ ] Menu → "Show on Screens Without a Notch" off hides it at once; on brings it back. On a notched MacBook the
+  setting changes nothing.
+
 ## Notch and hover
 
 - [ ] With nothing playing, the notch looks unchanged.

@@ -11,13 +11,15 @@ struct NotchRootView: View {
         let bottomRadius = NotchLayout.bottomCornerRadius(for: state)
         // The open player grows to the left for the clipboard, keeping the player under the notch.
         let offset = NotchLayout.horizontalOffset(for: state)
+        // A virtual notch can be hidden while idle (menu setting).
+        let hidden = state == .idle && model.hidesIdleShape
         ZStack(alignment: .top) {
             // The silhouette is wider than the content by the flared top corners on each side.
             NotchShape(topRadius: flare, bottomRadius: bottomRadius)
                 .fill(Color.black)
                 .frame(width: size.width + 2 * flare, height: size.height)
                 .shadow(color: Color.black.opacity(state == .idle ? 0 : 0.45), radius: state.isOpen ? 16 : 8, y: state.isOpen ? 8 : 3)
-                .opacity(model.isSeeThrough ? 0.12 : 1)
+                .opacity(hidden ? 0 : model.isSeeThrough ? 0.12 : 1)
                 .offset(x: offset)
             content
                 .frame(width: size.width, height: size.height, alignment: .top)

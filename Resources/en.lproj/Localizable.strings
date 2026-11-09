@@ -51,3 +51,5 @@
 "update_check_failed_hint" = "Check your internet connection. Updates do not show while the project is not public.";
 "update_install_failed" = "The update could not be installed";
 "update_install_failed_hint" = "The install command is on your clipboard; paste it into Terminal and run it. Details are in update.log.";
+"show_without_notch" = "Show on Screens Without a Notch";
+"hide_idle_virtual_notch" = "Hide When Idle";

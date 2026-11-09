@@ -1,9 +1,70 @@
 import CoreGraphics
 
-/// Where the hardware notch is on a screen, in global AppKit coordinates (origin bottom-left).
+/// Where the hardware notch is on a screen, in global AppKit coordinates (origin bottom-left). On a screen
+/// without one, a virtual notch: a notch-wide area at the top centre, as tall as the menu bar.
 public struct NotchGeometry: Equatable, Sendable {
     public let screenFrame: CGRect
     public let notchRect: CGRect
+    /// Drawn by NotchBox on a screen without a notch.
+    public let isVirtual: Bool
+
+    /// A typical notch width (14" and 16" MacBook Pro at default scaling).
+    public static let virtualNotchWidth: CGFloat = 185
+    public static let defaultMenuBarHeight: CGFloat = 24
+    static let maxVirtualHeight: CGFloat = 40
+
+    /// What `choose` needs to know about a screen.
+    public struct ScreenInfo: Equatable, Sendable {
+        public let frame: CGRect
+        /// The top of the area below the menu bar (`NSScreen.visibleFrame.maxY`).
+        public let visibleTop: CGFloat
+        public let safeAreaTop: CGFloat
+        public let auxiliaryTopLeft: CGRect?
+        public let auxiliaryTopRight: CGRect?
+
+        public init(frame: CGRect, visibleTop: CGFloat, safeAreaTop: CGFloat, auxiliaryTopLeft: CGRect?, auxiliaryTopRight: CGRect?) {
+            self.frame = frame
+            self.visibleTop = visibleTop
+            self.safeAreaTop = safeAreaTop
+            self.auxiliaryTopLeft = auxiliaryTopLeft
+            self.auxiliaryTopRight = auxiliaryTopRight
+        }
+    }
+
+    private init(screenFrame: CGRect, notchRect: CGRect, isVirtual: Bool) {
+        self.screenFrame = screenFrame
+        self.notchRect = notchRect
+        self.isVirtual = isVirtual
+    }
+
+    /// A virtual notch for a screen without one. A hidden menu bar (height 0) uses the usual height.
+    public static func virtual(screenFrame: CGRect, menuBarHeight: CGFloat) -> NotchGeometry {
+        let height = menuBarHeight > 0 ? min(menuBarHeight, maxVirtualHeight) : defaultMenuBarHeight
+        let rect = CGRect(
+            x: screenFrame.midX - virtualNotchWidth / 2,
+            y: screenFrame.maxY - height,
+            width: virtualNotchWidth,
+            height: height
+        )
+        return NotchGeometry(screenFrame: screenFrame, notchRect: rect, isVirtual: true)
+    }
+
+    /// The screen to use: the first one with a real notch; otherwise, when allowed, a virtual notch on the
+    /// first screen (the one with the menu bar).
+    public static func choose(from screens: [ScreenInfo], allowVirtual: Bool) -> NotchGeometry? {
+        for screen in screens {
+            if let geometry = NotchGeometry(
+                screenFrame: screen.frame,
+                safeAreaTop: screen.safeAreaTop,
+                auxiliaryTopLeft: screen.auxiliaryTopLeft,
+                auxiliaryTopRight: screen.auxiliaryTopRight
+            ) {
+                return geometry
+            }
+        }
+        guard allowVirtual, let main = screens.first else { return nil }
+        return virtual(screenFrame: main.frame, menuBarHeight: main.frame.maxY - main.visibleTop)
+    }
 
     /// Returns nil when the screen has no notch.
     /// Only the widths of the auxiliary areas are used, so their coordinate space does not matter.
@@ -18,6 +79,7 @@ public struct NotchGeometry: Equatable, Sendable {
             width: width,
             height: safeAreaTop
         )
+        self.isVirtual = false
     }
 
     public var notchSize: CGSize { notchRect.size }

@@ -265,9 +265,24 @@ final class NotchViewModel {
         thumbnails.keep(clipboard.items)
     }
 
-    func setNotchSize(_ size: CGSize) {
-        guard size != notchSize else { return }
+    /// The notch is NotchBox's own, on a screen without one: the mini notch shows the title where a real
+    /// notch has its camera.
+    private(set) var isVirtualNotch = false
+    /// The user chose to hide a virtual notch while nothing is shown in it.
+    private(set) var hidesIdleVirtualNotch = false
+
+    /// Whether the idle shape is drawn: always invisible on a real notch (the hardware is there), and on a
+    /// virtual one unless the user hid it.
+    var hidesIdleShape: Bool { isVirtualNotch && hidesIdleVirtualNotch }
+
+    func setHidesIdleVirtualNotch(_ hides: Bool) {
+        if hides != hidesIdleVirtualNotch { hidesIdleVirtualNotch = hides }
+    }
+
+    func setNotchSize(_ size: CGSize, isVirtual: Bool = false) {
+        guard size != notchSize || isVirtual != isVirtualNotch else { return }
         notchSize = size
+        isVirtualNotch = isVirtual
         onDisplayStateChange?(displayState)
     }
 

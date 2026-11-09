@@ -24,8 +24,13 @@ Control whatever is playing on your Mac from the MacBook notch.
 
 ## Requirements
 
-- A MacBook with a notch (Apple silicon)
+- A Mac with Apple silicon (M1 or later)
 - macOS 14 or later
+
+On a MacBook with a notch NotchBox lives in the notch. On a Mac without one (MacBook Air M1, iMac, Mac mini,
+Mac Studio or an external display) it draws its own small black notch at the top centre of the menu bar and works the same way, with the
+title in the middle of the mini notch. In the menu, "Hide When Idle" hides it while nothing plays (pointing
+there still opens it), and "Show on Screens Without a Notch" turns it off.
 
 ## Install
 
@@ -177,8 +182,13 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
 
 ### Gereksinimler
 
-- Notch'lu bir MacBook (Apple silicon)
+- Apple silicon bir Mac (M1 veya sonrası)
 - macOS 14 veya sonrası
+
+Çentikli MacBook'larda NotchBox çentiğin içinde durur. Çentiği olmayan Mac'lerde (M1 MacBook Air, iMac, Mac mini,
+Mac Studio ya da harici ekran) menü çubuğunun ortasına kendi küçük siyah çentiğini çizer ve aynı şekilde çalışır;
+küçük notch'un ortasında şarkının adı yazar. Menüdeki "Boştayken gizle" müzik çalmıyorken çentiği gizler (fareyi
+oraya getirince yine açılır); "Çentiksiz ekranlarda göster" ise tamamen kapatır.
 
 ### Kurulum
 

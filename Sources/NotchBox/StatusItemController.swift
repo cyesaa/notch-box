@@ -11,6 +11,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private let updateSeparator = NSMenuItem.separator()
     private let checkForUpdatesItem = NSMenuItem()
     private let automaticUpdatesItem = NSMenuItem()
+    private let withoutNotchItem = NSMenuItem()
+    private let hideIdleItem = NSMenuItem()
     private let updates: UpdateService
     private let logger = Logger(subsystem: AppConstants.logSubsystem, category: "status-item")
 
@@ -26,6 +28,13 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         automaticUpdatesItem.title = L10n.checkAutomatically
         automaticUpdatesItem.action = #selector(toggleAutomaticUpdates)
         automaticUpdatesItem.target = self
+        withoutNotchItem.title = L10n.showWithoutNotch
+        withoutNotchItem.action = #selector(toggleWithoutNotch)
+        withoutNotchItem.target = self
+        hideIdleItem.title = L10n.hideIdleVirtualNotch
+        hideIdleItem.action = #selector(toggleHideIdle)
+        hideIdleItem.target = self
+        hideIdleItem.indentationLevel = 1
 
         launchAtLoginItem.title = L10n.launchAtLogin
         launchAtLoginItem.action = #selector(toggleLaunchAtLogin)
@@ -39,6 +48,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         menu.addItem(updateItem)
         menu.addItem(updateSeparator)
         menu.addItem(launchAtLoginItem)
+        menu.addItem(withoutNotchItem)
+        menu.addItem(hideIdleItem)
         menu.addItem(checkForUpdatesItem)
         menu.addItem(automaticUpdatesItem)
         menu.addItem(.separator())
@@ -51,6 +62,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     func menuWillOpen(_ menu: NSMenu) {
         launchAtLoginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
+        withoutNotchItem.state = ScreenWatcher.showsWithoutNotch ? .on : .off
+        hideIdleItem.state = ScreenWatcher.hidesIdleVirtualNotch ? .on : .off
+        hideIdleItem.isEnabled = ScreenWatcher.showsWithoutNotch
         refresh()
     }
 
@@ -106,6 +120,15 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     @objc private func checkForUpdates() {
         updates.check(userInitiated: true)
+    }
+
+    /// The screen watcher sees the change through UserDefaults and moves or hides the panel.
+    @objc private func toggleWithoutNotch() {
+        ScreenWatcher.showsWithoutNotch.toggle()
+    }
+
+    @objc private func toggleHideIdle() {
+        ScreenWatcher.hidesIdleVirtualNotch.toggle()
     }
 
     @objc private func toggleAutomaticUpdates() {
