@@ -80,6 +80,9 @@ final class NotchViewModel {
     @ObservationIgnored private var vpnClock = VPNConnectionClock()
     @ObservationIgnored private var vpnTimer: Timer?
     @ObservationIgnored private var hasReadVPN = false
+    @ObservationIgnored private let openVPN: OpenVPNControlling?
+    /// The OpenVPN profile NotchBox last connected, to tell profiles on the same server apart.
+    @ObservationIgnored private var requestedOpenVPNProfile: String?
     @ObservationIgnored private let calendarProvider: CalendarProviding?
     @ObservationIgnored private var agendaTimer: Timer?
     @ObservationIgnored private let thumbnails = ClipboardThumbnails()
@@ -99,6 +102,7 @@ final class NotchViewModel {
         clipboardWatcher: ClipboardWatching? = nil,
         pinnedStore: PinnedClipboardStoring? = nil,
         vpnControl: VPNControlling? = nil,
+        openVPN: OpenVPNControlling? = nil,
         calendarProvider: CalendarProviding? = nil,
         makePlayer: @escaping @MainActor (String, TimeInterval) -> YouTubePlayer? = { YouTubePlayer(videoID: $0, start: $1) },
         now: @escaping () -> Date = Date.init
@@ -107,6 +111,7 @@ final class NotchViewModel {
         self.clipboardWatcher = clipboardWatcher
         self.pinnedStore = pinnedStore
         self.vpnControl = vpnControl
+        self.openVPN = openVPN
         self.calendarProvider = calendarProvider
         self.makePlayer = makePlayer
         self.nowPlayingService = nowPlayingService
@@ -181,36 +186,84 @@ final class NotchViewModel {
 
     // MARK: VPN
 
-    static let vpnRefreshInterval: TimeInterval = 1
+    /// A VPN in the VPN column.
+    struct VPNEntry: Equatable, Identifiable {
+        enum Kind: Equatable {
+            /// A VPN macOS knows about (FortiClient's, or one from System Settings).
+            case system(VPNServiceInfo)
+            case openVPN
+        }
 
-    /// The VPN shown in the VPN column (FortiClient's when there is one); nil when none is configured.
-    private(set) var vpnService: VPNServiceInfo?
-    private(set) var vpnStatus: VPNStatus = .unavailable
-    /// When NotchBox saw the VPN come up; nil when it was already up at launch.
-    private(set) var vpnConnectedSince: Date?
-    /// The time of the last reading, so the connected time counts up.
-    private(set) var vpnTime = Date.distantPast
+        let kind: Kind
+        let status: VPNStatus
+        let connectedSince: Date?
+        /// OpenVPN's profiles, to pick one to connect.
+        let profiles: [OpenVPNProfile]
+        /// OpenVPN's profile in use.
+        let activeProfile: OpenVPNProfile?
 
-    /// Disconnects the shown VPN.
-    func disconnectVPN() {
-        guard let vpnService else { return }
-        vpnControl?.disconnect(vpnService.id)
-        refreshVPN()
-    }
+        var id: String {
+            switch kind {
+            case .system(let service): return "system:" + service.id
+            case .openVPN: return "openvpn"
+            }
+        }
 
-    /// Connecting happens in the VPN's own app: FortiClient for its VPN, System Settings for the others.
-    func openVPNApp() {
-        if vpnService?.isFortiClient == true {
-            AppIconProvider.open(bundleIdentifier: "com.fortinet.FortiClient")
-        } else if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
-            NSWorkspace.shared.open(url)
+        var name: String {
+            switch kind {
+            case .system(let service): return service.displayName
+            case .openVPN: return "OpenVPN"
+            }
+        }
+
+        var isFortiClient: Bool {
+            if case .system(let service) = kind { return service.isFortiClient }
+            return false
         }
     }
 
-    /// The VPN is read every second while its column is chosen, also with the panel closed, so
-    /// the connected time starts when the connection really came up.
+    static let vpnRefreshInterval: TimeInterval = 1
+
+    /// FortiClient's (or another system) VPN and OpenVPN Connect, whichever are installed.
+    private(set) var vpns: [VPNEntry] = []
+    /// The time of the last reading, so connected times count up.
+    private(set) var vpnTime = Date.distantPast
+
+    /// Disconnects a VPN.
+    func disconnect(_ entry: VPNEntry) {
+        switch entry.kind {
+        case .system(let service): vpnControl?.disconnect(service.id)
+        case .openVPN: openVPN?.disconnect()
+        }
+        refreshVPN()
+    }
+
+    /// Connects an OpenVPN profile.
+    func connect(_ profile: OpenVPNProfile) {
+        requestedOpenVPNProfile = profile.id
+        openVPN?.connect(profileID: profile.id)
+        refreshVPN()
+    }
+
+    /// Opens the VPN's own app: FortiClient (which connects its VPN only itself), OpenVPN Connect, or the
+    /// VPN settings for other VPNs.
+    func openApp(for entry: VPNEntry) {
+        switch entry.kind {
+        case .system(let service):
+            if service.isFortiClient {
+                AppIconProvider.open(bundleIdentifier: "com.fortinet.FortiClient")
+            } else if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
+                NSWorkspace.shared.open(url)
+            }
+        case .openVPN:
+            openVPN?.openApp()
+        }
+    }
+
+    /// VPNs are read every second while the VPN column is chosen, also with the panel closed, so a
+    /// connection's time starts when it really came up.
     private func updateVPNWatching() {
-        guard vpnControl != nil, sideWidgets.shows(.vpn) else {
+        guard vpnControl != nil || openVPN != nil, sideWidgets.shows(.vpn) else {
             vpnTimer?.invalidate()
             vpnTimer = nil
             return
@@ -225,23 +278,33 @@ final class NotchViewModel {
         vpnTimer = timer
     }
 
-    /// Reads the VPN now (the timer does this every second; snapshots call it directly).
+    /// Reads the VPNs now (the timer does this every second; snapshots call it directly).
     func refreshVPN() {
-        guard let vpnControl else { return }
         let time = now()
-        var service = VPNServiceList.preferred(in: vpnControl.services())
-        var status = service.map { vpnControl.status(of: $0.id) } ?? .unavailable
-        if status == .unavailable, service != nil {
-            // The configuration may have been replaced; try once more with a fresh list.
-            service = VPNServiceList.preferred(in: vpnControl.services())
-            status = service.map { vpnControl.status(of: $0.id) } ?? .unavailable
+        var entries: [VPNEntry] = []
+        if let vpnControl {
+            var service = VPNServiceList.preferred(in: vpnControl.services())
+            var status = service.map { vpnControl.status(of: $0.id) } ?? .unavailable
+            if status == .unavailable, service != nil {
+                // The configuration may have been replaced (FortiClient does on each connection); read again.
+                service = VPNServiceList.preferred(in: vpnControl.services())
+                status = service.map { vpnControl.status(of: $0.id) } ?? .unavailable
+            }
+            if let service {
+                vpnClock.update(status, at: time, isFirstReading: !hasReadVPN)
+                hasReadVPN = true
+                entries.append(VPNEntry(kind: .system(service), status: status, connectedSince: vpnClock.connectedSince, profiles: [], activeProfile: nil))
+            }
         }
-        vpnClock.update(status, at: time, isFirstReading: !hasReadVPN)
-        hasReadVPN = true
-        if service != vpnService { vpnService = service }
-        if status != vpnStatus { vpnStatus = status }
-        if vpnClock.connectedSince != vpnConnectedSince { vpnConnectedSince = vpnClock.connectedSince }
-        // Only tick the clock that drives the connected time while it is shown.
+        if let openVPN, openVPN.isInstalled {
+            let reading = openVPN.read(preferring: requestedOpenVPNProfile)
+            entries.append(VPNEntry(
+                kind: .openVPN, status: reading.status, connectedSince: reading.connectedSince,
+                profiles: reading.profiles, activeProfile: reading.activeProfile
+            ))
+        }
+        if entries != vpns { vpns = entries }
+        // Only tick the clock that drives the connected times while they are shown.
         if showsSideColumns || vpnTime == .distantPast { vpnTime = time }
     }
 

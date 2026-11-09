@@ -78,4 +78,9 @@
 "vpn_connect_in_settings" = "Connect in Settings";
 "vpn_open_forticlient" = "Open FortiClient";
 "vpn_open_settings" = "Open VPN settings";
-"vpn_none" = "No VPN is set up on this Mac. Once FortiClient is installed it shows up here.";
+"vpn_none" = "No VPN is set up on this Mac. Once FortiClient or OpenVPN Connect is installed it shows up here.";
+"vpn_connect" = "Connect";
+"vpn_choose_profile" = "Choose a profile to connect";
+"vpn_open_openvpn" = "Open OpenVPN Connect";
+"vpn_open_short" = "Open";
+"vpn_disconnect_short" = "End";

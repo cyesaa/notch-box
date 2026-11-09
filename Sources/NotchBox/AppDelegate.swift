@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             clipboardWatcher: ClipboardMonitor(),
             pinnedStore: PinnedClipboardStore(),
             vpnControl: VPNService(),
+            openVPN: OpenVPNConnectService(),
             calendarProvider: CalendarService()
         )
         model.setSideWidgets(settings.sideWidgets)

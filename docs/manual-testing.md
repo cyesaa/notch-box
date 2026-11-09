@@ -202,6 +202,11 @@ defaults write com.notchbox.NotchBox UpdateInstallCommand "NOTCHBOX_ZIP=$PWD/dis
 - [ ] "Disconnect" in the column disconnects (FortiClient shows it disconnected too).
 - [ ] Quit NotchBox while connected and reopen: it says "Connected" without a time (it did not see it come up).
 - [ ] Without any VPN configured, the column says none was found.
+- [ ] With OpenVPN Connect installed too, the column shows a row for each. OpenVPN's "Connect ▾" lists the
+  profiles by their bracketed name; picking one connects it (OpenVPN Connect starts if needed) and the row turns
+  green with the profile and the time since it came up (taken from OpenVPN Connect's log).
+- [ ] "End" on the OpenVPN row disconnects it. Quitting OpenVPN Connect while connected shows it disconnected.
+- [ ] Only OpenVPN Connect installed: the whole column is OpenVPN's, with "Connect ▾".
 
 ## Health check
 
