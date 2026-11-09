@@ -44,8 +44,12 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 This downloads the latest release, puts `NotchBox.app` in `/Applications` (or `~/Applications` without admin
 rights) and opens it. A music note icon appears in the menu bar with Settings (⌘,), Check for Updates and Quit.
 
-**Settings** decides what sits left and right of the player when you hover the notch (Clipboard, Calendar or
+**Settings** decides what sits left and right of the player when you hover the notch (Clipboard, Calendar, VPN or
 nothing; more widgets will follow), and holds the notch, launch-at-login and update options.
+
+**VPN** shows whether your VPN is connected and for how long, with a Disconnect button. It picks FortiClient's
+VPN when FortiClient is installed, otherwise a VPN from System Settings. Connecting happens in FortiClient (it
+asks for your password or single sign-on), so the button there opens FortiClient.
 
 **Updating:** NotchBox looks for a new release soon after it starts and twice a day. When there is one, a dot
 appears on the music note and the menu starts with "Update available"; click it, then Update, and NotchBox
@@ -209,8 +213,12 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 Bu komut son sürümü indirir, `NotchBox.app`'i `/Applications` klasörüne (yönetici izni yoksa `~/Applications`)
 koyar ve açar. Menü çubuğunda bir müzik notası ikonu çıkar; Ayarlar (⌘,), Güncellemeleri denetle ve Çık oradadır.
 
-**Ayarlar**, notch'un üzerine geldiğinde oynatıcının solunda ve sağında ne duracağını seçtiğin yerdir (Pano, Takvim
-ya da boş; zamanla yeni bileşenler eklenecek). Çentik, açılışta başlatma ve güncelleme seçenekleri de buradadır.
+**Ayarlar**, notch'un üzerine geldiğinde oynatıcının solunda ve sağında ne duracağını seçtiğin yerdir (Pano, Takvim,
+VPN ya da boş; zamanla yeni bileşenler eklenecek).
+
+**VPN** bileşeni VPN'inin bağlı olup olmadığını ve ne kadar süredir bağlı olduğunu gösterir; "Bağlantıyı kes" düğmesi
+vardır. FortiClient kuruluysa onun VPN'ini, değilse Sistem Ayarları'ndaki bir VPN'i seçer. Bağlanma FortiClient'ta
+yapılır (şifre ya da SSO ister); bu yüzden oradaki düğme FortiClient'ı açar. Çentik, açılışta başlatma ve güncelleme seçenekleri de buradadır.
 
 **Güncelleme:** NotchBox açıldıktan kısa süre sonra ve günde iki kez yeni sürüm olup olmadığına bakar. Yeni sürüm
 varsa müzik notasının yanında bir nokta çıkar ve menünün en üstünde "Güncelleme var" yazar; tıklayıp Güncelle'ye

@@ -29,6 +29,9 @@ enum SnapshotRenderer {
         /// A screen without a notch: NotchBox's own 185 x 24 notch.
         var virtualNotch = false
         var hideIdle = false
+        var sides: SideWidgets = .default
+        /// The VPN's status after it was seen disconnected (connected shows a running time).
+        var vpn: VPNStatus = .disconnected
     }
 
     static func render(to directory: URL) throws {
@@ -63,6 +66,9 @@ enum SnapshotRenderer {
             Scene(name: "4-expanded-no-artwork", state: .info(track("Live Radio", nil, nil, playing: true, artwork: nil, duration: nil, app: "com.apple.Safari")), hovering: true),
             Scene(name: "5-nothing-playing", state: .nothing, hovering: true),
             Scene(name: "5b-nothing-playing-empty-clipboard", state: .nothing, hovering: true, emptyClipboard: true, calendarAccess: .notDetermined),
+            Scene(name: "12a-vpn-connected", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: .vpn), vpn: .connected),
+            Scene(name: "12b-vpn-disconnected", state: .nothing, hovering: true, sides: SideWidgets(left: .vpn, right: .calendar), vpn: .disconnected),
+            Scene(name: "12c-only-left-column", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: nil)),
             Scene(name: "10-clipboard-image-preview", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, previewImage: true),
             Scene(name: "6-unavailable", state: .unavailable, hovering: true),
             Scene(
@@ -99,16 +105,19 @@ enum SnapshotRenderer {
         let clock = SnapshotClock()
         let notch = scene.virtualNotch ? CGSize(width: 185, height: 24) : CGSize(width: 200, height: 32)
         let volume = SnapshotVolume()
+        let vpn = SnapshotVPN()
         let model = NotchViewModel(
             nowPlayingService: SnapshotNowPlayingService(state: scene.state),
             volumeControl: volume,
             tabReader: SnapshotTabReader(),
             clipboardWatcher: SnapshotClipboard(items: scene.emptyClipboard ? [] : sampleClipboard),
+            vpnControl: vpn,
             calendarProvider: SnapshotCalendar(access: scene.calendarAccess, now: clock.now),
             makePlayer: { _, _ in nil },
             now: { clock.now }
         )
         model.setNotchSize(notch, isVirtual: scene.virtualNotch)
+        model.setSideWidgets(scene.sides)
         model.setHidesIdleVirtualNotch(scene.hideIdle)
         model.start()
         // A pinned row in every scene with a clipboard: the oldest sample item.
@@ -117,6 +126,13 @@ enum SnapshotRenderer {
         }
         if let video = scene.video {
             model.showVideo(video, start: 0)
+        }
+        if scene.sides.shows(.vpn) {
+            // Seen disconnected first, then up for an hour and five minutes.
+            vpn.status = scene.vpn
+            model.refreshVPN()
+            clock.now += 3_905
+            model.refreshVPN()
         }
         if scene.volumeChange {
             volume.volume = 0.72
@@ -310,4 +326,16 @@ private final class SnapshotCalendar: CalendarProviding {
     func events(from start: Date, to end: Date) -> [CalendarEvent] {
         access == .granted ? sample : []
     }
+}
+
+@MainActor
+private final class SnapshotVPN: VPNControlling {
+    var status: VPNStatus = .disconnected
+
+    func services() -> [VPNServiceInfo] {
+        [VPNServiceInfo(id: "689A790A-026F-4E3D-9480-D4AF8362B958", name: "VPN", providerBundleID: "com.fortinet.forticlient.macos.vpn", isEnabled: true)]
+    }
+
+    func status(of serviceID: String) -> VPNStatus { status }
+    func disconnect(_ serviceID: String) {}
 }

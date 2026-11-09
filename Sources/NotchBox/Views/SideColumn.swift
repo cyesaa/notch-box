@@ -6,6 +6,7 @@ extension NotchWidget {
         switch self {
         case .clipboard: return L10n.clipboardTitle
         case .calendar: return L10n.calendarTitle
+        case .vpn: return L10n.vpnTitle
         }
     }
 
@@ -13,6 +14,7 @@ extension NotchWidget {
         switch self {
         case .clipboard: return "doc.on.clipboard"
         case .calendar: return "calendar"
+        case .vpn: return "lock.shield"
         }
     }
 }
@@ -28,6 +30,7 @@ struct SideColumn: View {
             switch widget {
             case .clipboard: ClipboardView(model: model)
             case .calendar: CalendarView(model: model)
+            case .vpn: VPNView(model: model)
             }
         }
         .sideColumnFrame(side: side, notchHeight: model.notchSize.height)

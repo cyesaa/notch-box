@@ -4,6 +4,7 @@ import Foundation
 public enum NotchWidget: String, CaseIterable, Codable, Sendable {
     case clipboard
     case calendar
+    case vpn
 }
 
 /// Which widget sits left and right of the open player; either side can be empty.
