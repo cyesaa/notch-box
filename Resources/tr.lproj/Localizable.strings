@@ -53,3 +53,6 @@
 "update_install_failed_hint" = "Kurulum komutu panoya kopyalandı; Terminal'e yapıştırıp çalıştırabilirsin. Ayrıntılar update.log dosyasında.";
 "show_without_notch" = "Çentiksiz ekranlarda göster";
 "hide_idle_virtual_notch" = "Boştayken gizle";
+"clipboard_pin" = "Sabitle";
+"clipboard_unpin" = "Sabitlemeyi kaldır";
+"clipboard_pins_full" = "En fazla 10 öğe sabitlenebilir";

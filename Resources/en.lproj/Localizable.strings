@@ -53,3 +53,6 @@
 "update_install_failed_hint" = "The install command is on your clipboard; paste it into Terminal and run it. Details are in update.log.";
 "show_without_notch" = "Show on Screens Without a Notch";
 "hide_idle_virtual_notch" = "Hide When Idle";
+"clipboard_pin" = "Pin";
+"clipboard_unpin" = "Unpin";
+"clipboard_pins_full" = "You can pin up to 10 items";

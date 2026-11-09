@@ -110,6 +110,10 @@ enum SnapshotRenderer {
         model.setNotchSize(notch, isVirtual: scene.virtualNotch)
         model.setHidesIdleVirtualNotch(scene.hideIdle)
         model.start()
+        // A pinned row in every scene with a clipboard: the oldest sample item.
+        if let oldest = model.clipboard.recent.last {
+            model.togglePin(oldest)
+        }
         if let video = scene.video {
             model.showVideo(video, start: 0)
         }

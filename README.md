@@ -10,7 +10,8 @@ Control whatever is playing on your Mac from the MacBook notch.
 - The player takes its colour from the cover: a small shadow around the artwork, the progress bar and the waveform.
 - Left of the player sits your clipboard: the last 20 texts and images you copied, newest first. Click one to copy
   it again, remove it with its ×, or clear the whole list with the bin. The eye on an image shows it large in
-  place of the player.
+  place of the player. The pin keeps an item at the top, past the 20-item limit and across restarts (up to 10
+  pins); the bin leaves pinned items alone.
 - Right of the player, as wide as the clipboard, sits your calendar: this week as a strip of days (a dot marks days
   with events) and the picked day's events below, with a green Join button for Zoom, Meet, Teams, Webex and
   FaceTime calls. Click a day to see its events, or an event to open Calendar.
@@ -74,7 +75,9 @@ NotchBox does not connect to the network, except to YouTube while you watch a vi
 (api.github.com) to look for a newer release. The update check sends nothing about you; turn it off with
 "Check for Updates Automatically" in the menu. Track info stays on your Mac.
 
-**The clipboard list** lives in memory only: nothing is written to disk and it is gone when NotchBox quits.
+**The clipboard list** lives in memory only and is gone when NotchBox quits, except the items you pin: those are
+saved in `~/Library/Application Support/NotchBox/pinned-clipboard.json`, readable only by you, until you unpin
+or remove them.
 Items that password managers mark as private (nspasteboard.org markers) and copied files are never kept, and
 images larger than 25 MB are skipped. macOS may ask once whether NotchBox may paste from other apps; say Allow,
 or the list stays empty.
@@ -172,7 +175,9 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
 - Oynatıcı rengini kapaktan alır: kapağın etrafında ince bir gölge, ilerleme çubuğu ve ses dalgası.
 - Oynatıcının solunda panon durur: kopyaladığın son 20 yazı ve görsel, en yenisi en üstte. Birine tıklayınca
   tekrar kopyalanır; yanındaki × ile tek tek silebilir ya da çöp kutusuyla listenin tamamını temizleyebilirsin.
-  Görsellerdeki göz düğmesi görseli oynatıcının yerinde büyük gösterir.
+  Görsellerdeki göz düğmesi görseli oynatıcının yerinde büyük gösterir. Raptiye bir öğeyi sabitler: en üstte
+  kalır, 20 sınırına takılmaz ve NotchBox yeniden açılınca da durur (en fazla 10 öğe). Çöp kutusu sabitlenenlere
+  dokunmaz.
 - Oynatıcının sağında, panoyla aynı genişlikte takvimin durur: üstte bu haftanın günleri (etkinliği olan günlerde
   nokta), altında seçili günün etkinlikleri. Bir güne tıklayınca o günün etkinlikleri gelir. Zoom, Meet, Teams, Webex
   ve FaceTime görüşmelerinde yeşil bir Katıl düğmesi çıkar; etkinliğe tıklayınca Takvim açılır.
@@ -233,7 +238,9 @@ NotchBox, notch'ta video izlerken YouTube'a ve yeni sürüm olup olmadığına b
 bağlanmak dışında internete bağlanmaz. Güncelleme denetimi seninle ilgili hiçbir şey göndermez; menüdeki
 "Güncellemeleri otomatik denetle" ile kapatabilirsin. Şarkı bilgileri Mac'inde kalır.
 
-**Pano listesi** yalnızca bellekte tutulur: diske hiçbir şey yazılmaz, NotchBox kapanınca silinir. Şifre
+**Pano listesi** yalnızca bellekte tutulur ve NotchBox kapanınca silinir; tek istisna sabitlediğin öğelerdir. Onlar
+sabitlemeyi kaldırana ya da silene kadar yalnızca senin okuyabildiğin
+`~/Library/Application Support/NotchBox/pinned-clipboard.json` dosyasında saklanır. Şifre
 yöneticilerinin gizli diye işaretlediği öğeler (nspasteboard.org işaretleri) ve kopyalanan dosyalar hiç tutulmaz,
 25 MB'tan büyük görseller atlanır. macOS bir kez NotchBox'ın diğer uygulamalardan yapıştırmasına izin verip
 vermeyeceğini sorabilir; İzin Ver demezsen liste boş kalır.

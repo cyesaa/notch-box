@@ -20,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             audioMeter: AudioLevelMeter(),
             tabReader: BrowserTabReader(),
             clipboardWatcher: ClipboardMonitor(),
+            pinnedStore: PinnedClipboardStore(),
             calendarProvider: CalendarService()
         )
         let windowController = NotchWindowController(model: model)

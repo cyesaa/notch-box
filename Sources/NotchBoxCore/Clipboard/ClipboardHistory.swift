@@ -1,7 +1,7 @@
 import Foundation
 
 /// Something the user copied.
-public enum ClipboardContent: Equatable, Sendable {
+public enum ClipboardContent: Equatable, Sendable, Codable {
     case text(String)
     /// Image data as it was on the pasteboard, with its type (`public.png` or `public.tiff`).
     case image(Data, type: String)
@@ -11,39 +11,85 @@ public struct ClipboardItem: Identifiable, Equatable, Sendable {
     public let id: Int
     public let content: ClipboardContent
     public let copiedAt: Date
+    /// Kept at the top, past the capacity and across restarts, until unpinned or removed.
+    public let isPinned: Bool
 }
 
-/// The last things the user copied, newest first. Kept in memory only: nothing is written to disk.
+/// The last things the user copied, newest first, after the items the user pinned. Recent items are kept
+/// in memory only; pinned ones are saved by the app (see `restorePinned`).
 public struct ClipboardHistory: Equatable, Sendable {
+    /// How many recent (not pinned) items are kept.
     public static let capacity = 20
+    public static let pinnedCapacity = 10
 
-    public private(set) var items: [ClipboardItem] = []
+    /// Pinned items (latest pin first), then recent ones (newest first).
+    public var items: [ClipboardItem] { pinned + recent }
+    public private(set) var pinned: [ClipboardItem] = []
+    public private(set) var recent: [ClipboardItem] = []
     private var nextID = 0
 
     public init() {}
 
-    /// Adds `content` at the top. Copying something already in the list moves it to the top instead of
-    /// adding it twice; the oldest item falls off past `capacity`.
+    public var canPin: Bool { pinned.count < Self.pinnedCapacity }
+
+    /// Adds `content` at the top of the recent items. Copying something already there moves it to the top
+    /// instead of adding it twice, and copying a pinned item changes nothing; the oldest recent item falls
+    /// off past `capacity`.
     public mutating func record(_ content: ClipboardContent, at date: Date) {
+        if pinned.contains(where: { $0.content == content }) { return }
         let id: Int
-        if let index = items.firstIndex(where: { $0.content == content }) {
-            id = items.remove(at: index).id
+        if let index = recent.firstIndex(where: { $0.content == content }) {
+            id = recent.remove(at: index).id
         } else {
-            id = nextID
-            nextID += 1
+            id = makeID()
         }
-        items.insert(ClipboardItem(id: id, content: content, copiedAt: date), at: 0)
-        if items.count > Self.capacity {
-            items.removeLast(items.count - Self.capacity)
+        insertRecent(ClipboardItem(id: id, content: content, copiedAt: date, isPinned: false))
+    }
+
+    /// Pins a recent item; false when it is not there or `pinnedCapacity` pins already exist.
+    @discardableResult
+    public mutating func pin(id: Int) -> Bool {
+        guard canPin, let index = recent.firstIndex(where: { $0.id == id }) else { return false }
+        let item = recent.remove(at: index)
+        pinned.insert(ClipboardItem(id: item.id, content: item.content, copiedAt: item.copiedAt, isPinned: true), at: 0)
+        return true
+    }
+
+    /// Unpins an item; it goes back on top of the recent items.
+    public mutating func unpin(id: Int) {
+        guard let index = pinned.firstIndex(where: { $0.id == id }) else { return }
+        let item = pinned.remove(at: index)
+        insertRecent(ClipboardItem(id: item.id, content: item.content, copiedAt: item.copiedAt, isPinned: false))
+    }
+
+    /// Puts back pins saved before a restart, in the same order (top first).
+    public mutating func restorePinned(_ contents: [ClipboardContent], at date: Date) {
+        for content in contents.prefix(Self.pinnedCapacity) where !pinned.contains(where: { $0.content == content }) {
+            recent.removeAll { $0.content == content }
+            pinned.append(ClipboardItem(id: makeID(), content: content, copiedAt: date, isPinned: true))
         }
     }
 
     public mutating func remove(id: Int) {
-        items.removeAll { $0.id == id }
+        pinned.removeAll { $0.id == id }
+        recent.removeAll { $0.id == id }
     }
 
+    /// Clears the recent items; pinned ones stay.
     public mutating func clear() {
-        items.removeAll()
+        recent.removeAll()
+    }
+
+    private mutating func makeID() -> Int {
+        defer { nextID += 1 }
+        return nextID
+    }
+
+    private mutating func insertRecent(_ item: ClipboardItem) {
+        recent.insert(item, at: 0)
+        if recent.count > Self.capacity {
+            recent.removeLast(recent.count - Self.capacity)
+        }
     }
 }
 

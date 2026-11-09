@@ -154,7 +154,15 @@ defaults write com.notchbox.NotchBox UpdateInstallCommand "NOTCHBOX_ZIP=$PWD/dis
 - [ ] An image row has an eye: it shows the image large in place of the player, with its size, a copy button and
   an × that brings the player back. Closing the notch also closes the image.
 - [ ] Copy a password from a password manager (or a file in Finder): it is not added.
-- [ ] Quit and reopen NotchBox: the list starts over.
+- [ ] The pin on a row moves it to the top, above a hairline, with a filled pin. Pinning another puts it on
+  top of the pins. Unpinning puts the item back on top of the recent items.
+- [ ] Copy 25 more things: pinned items stay; the recent part keeps 20.
+- [ ] Copying a pinned item again leaves it pinned and adds no second row.
+- [ ] With 10 pins, the other rows' pins are dimmed and say "You can pin up to 10 items".
+- [ ] The bin clears only the recent items; × removes a pinned item.
+- [ ] Quit and reopen NotchBox: the recent list starts over, the pinned items (text and images) are back in the
+  same order. `~/Library/Application Support/NotchBox/pinned-clipboard.json` is mode 600 and is deleted once
+  nothing is pinned.
 
 ## Calendar
 
