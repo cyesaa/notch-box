@@ -193,6 +193,16 @@ defaults write com.notchbox.NotchBox UpdateInstallCommand "NOTCHBOX_ZIP=$PWD/dis
 - [ ] Add or move an event in Calendar while the notch is open: the column updates.
 - [ ] Deny access in System Settings → Privacy & Security → Calendars: the column says how to turn it back on.
 
+## VPN
+
+- [ ] Settings → choose VPN for a side: the column shows "Not connected" and "FortiClient VPN" (with FortiClient
+  installed), and "Connect in FortiClient" brings FortiClient forward.
+- [ ] Connect in FortiClient: within a second the column turns green, says "Connected" and counts up the time.
+  (FortiClient replaces its VPN configuration with a new ID on each connection; the column must keep up.)
+- [ ] "Disconnect" in the column disconnects (FortiClient shows it disconnected too).
+- [ ] Quit NotchBox while connected and reopen: it says "Connected" without a time (it did not see it come up).
+- [ ] Without any VPN configured, the column says none was found.
+
 ## Health check
 
 Watch the log in a second terminal. zsh has its own `log` command, so use the full path:

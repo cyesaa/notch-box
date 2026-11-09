@@ -67,3 +67,15 @@
 "settings_notch_header" = "Notch";
 "settings_general_header" = "General";
 "settings_version" = "Version %@";
+"vpn_title" = "VPN";
+"vpn_connected" = "Connected";
+"vpn_connecting" = "Connecting…";
+"vpn_disconnecting" = "Disconnecting…";
+"vpn_disconnected" = "Not connected";
+"vpn_unavailable" = "Status unavailable";
+"vpn_disconnect" = "Disconnect";
+"vpn_connect_in_forticlient" = "Connect in FortiClient";
+"vpn_connect_in_settings" = "Connect in Settings";
+"vpn_open_forticlient" = "Open FortiClient";
+"vpn_open_settings" = "Open VPN settings";
+"vpn_none" = "No VPN is set up on this Mac. Once FortiClient is installed it shows up here.";

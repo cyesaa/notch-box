@@ -67,3 +67,15 @@
 "settings_notch_header" = "Çentik";
 "settings_general_header" = "Genel";
 "settings_version" = "Sürüm %@";
+"vpn_title" = "VPN";
+"vpn_connected" = "Bağlı";
+"vpn_connecting" = "Bağlanıyor…";
+"vpn_disconnecting" = "Bağlantı kesiliyor…";
+"vpn_disconnected" = "Bağlı değil";
+"vpn_unavailable" = "Durum okunamadı";
+"vpn_disconnect" = "Bağlantıyı kes";
+"vpn_connect_in_forticlient" = "FortiClient'ta bağlan";
+"vpn_connect_in_settings" = "Ayarlar'da bağlan";
+"vpn_open_forticlient" = "FortiClient'ı aç";
+"vpn_open_settings" = "VPN ayarlarını aç";
+"vpn_none" = "Bu Mac'te bir VPN bulunamadı. FortiClient'ı kurduğunda burada görünür.";

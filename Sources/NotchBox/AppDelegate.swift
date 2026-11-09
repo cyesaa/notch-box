@@ -27,6 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             tabReader: BrowserTabReader(),
             clipboardWatcher: ClipboardMonitor(),
             pinnedStore: PinnedClipboardStore(),
+            vpnControl: VPNService(),
             calendarProvider: CalendarService()
         )
         model.setSideWidgets(settings.sideWidgets)

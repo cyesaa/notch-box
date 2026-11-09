@@ -76,6 +76,10 @@ final class NotchViewModel {
     @ObservationIgnored private let now: () -> Date
     @ObservationIgnored private let clipboardWatcher: ClipboardWatching?
     @ObservationIgnored private let pinnedStore: PinnedClipboardStoring?
+    @ObservationIgnored private let vpnControl: VPNControlling?
+    @ObservationIgnored private var vpnClock = VPNConnectionClock()
+    @ObservationIgnored private var vpnTimer: Timer?
+    @ObservationIgnored private var hasReadVPN = false
     @ObservationIgnored private let calendarProvider: CalendarProviding?
     @ObservationIgnored private var agendaTimer: Timer?
     @ObservationIgnored private let thumbnails = ClipboardThumbnails()
@@ -94,6 +98,7 @@ final class NotchViewModel {
         tabReader: BrowserTabReading? = nil,
         clipboardWatcher: ClipboardWatching? = nil,
         pinnedStore: PinnedClipboardStoring? = nil,
+        vpnControl: VPNControlling? = nil,
         calendarProvider: CalendarProviding? = nil,
         makePlayer: @escaping @MainActor (String, TimeInterval) -> YouTubePlayer? = { YouTubePlayer(videoID: $0, start: $1) },
         now: @escaping () -> Date = Date.init
@@ -101,6 +106,7 @@ final class NotchViewModel {
         self.tabReader = tabReader
         self.clipboardWatcher = clipboardWatcher
         self.pinnedStore = pinnedStore
+        self.vpnControl = vpnControl
         self.calendarProvider = calendarProvider
         self.makePlayer = makePlayer
         self.nowPlayingService = nowPlayingService
@@ -127,6 +133,7 @@ final class NotchViewModel {
         sideWidgets = sides
         if !sides.shows(.clipboard), previewedClipboardItem != nil { previewedClipboardItem = nil }
         updateClipboardWatching()
+        updateVPNWatching()
         refreshAgenda()
         onDisplayStateChange?(displayState)
     }
@@ -148,6 +155,7 @@ final class NotchViewModel {
         }
         clipboardWatcher?.onCopy = { [weak self] content in self?.copied(content) }
         updateClipboardWatching()
+        updateVPNWatching()
         calendarProvider?.onChange = { [weak self] in self?.refreshAgenda() }
         calendarProvider?.start()
         refreshAgenda()
@@ -168,6 +176,73 @@ final class NotchViewModel {
         clipboardWatcher?.stop()
         copiedWork?.cancel()
         agendaTimer?.invalidate()
+        vpnTimer?.invalidate()
+    }
+
+    // MARK: VPN
+
+    static let vpnRefreshInterval: TimeInterval = 1
+
+    /// The VPN shown in the VPN column (FortiClient's when there is one); nil when none is configured.
+    private(set) var vpnService: VPNServiceInfo?
+    private(set) var vpnStatus: VPNStatus = .unavailable
+    /// When NotchBox saw the VPN come up; nil when it was already up at launch.
+    private(set) var vpnConnectedSince: Date?
+    /// The time of the last reading, so the connected time counts up.
+    private(set) var vpnTime = Date.distantPast
+
+    /// Disconnects the shown VPN.
+    func disconnectVPN() {
+        guard let vpnService else { return }
+        vpnControl?.disconnect(vpnService.id)
+        refreshVPN()
+    }
+
+    /// Connecting happens in the VPN's own app: FortiClient for its VPN, System Settings for the others.
+    func openVPNApp() {
+        if vpnService?.isFortiClient == true {
+            AppIconProvider.open(bundleIdentifier: "com.fortinet.FortiClient")
+        } else if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    /// The VPN is read every second while its column is chosen, also with the panel closed, so
+    /// the connected time starts when the connection really came up.
+    private func updateVPNWatching() {
+        guard vpnControl != nil, sideWidgets.shows(.vpn) else {
+            vpnTimer?.invalidate()
+            vpnTimer = nil
+            return
+        }
+        guard vpnTimer == nil else { return }
+        refreshVPN()
+        let timer = Timer(timeInterval: Self.vpnRefreshInterval, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.refreshVPN() }
+        }
+        timer.tolerance = 0.5
+        RunLoop.main.add(timer, forMode: .common)
+        vpnTimer = timer
+    }
+
+    /// Reads the VPN now (the timer does this every second; snapshots call it directly).
+    func refreshVPN() {
+        guard let vpnControl else { return }
+        let time = now()
+        var service = VPNServiceList.preferred(in: vpnControl.services())
+        var status = service.map { vpnControl.status(of: $0.id) } ?? .unavailable
+        if status == .unavailable, service != nil {
+            // The configuration may have been replaced; try once more with a fresh list.
+            service = VPNServiceList.preferred(in: vpnControl.services())
+            status = service.map { vpnControl.status(of: $0.id) } ?? .unavailable
+        }
+        vpnClock.update(status, at: time, isFirstReading: !hasReadVPN)
+        hasReadVPN = true
+        if service != vpnService { vpnService = service }
+        if status != vpnStatus { vpnStatus = status }
+        if vpnClock.connectedSince != vpnConnectedSince { vpnConnectedSince = vpnClock.connectedSince }
+        // Only tick the clock that drives the connected time while it is shown.
+        if showsSideColumns || vpnTime == .distantPast { vpnTime = time }
     }
 
     // MARK: Calendar
@@ -233,6 +308,7 @@ final class NotchViewModel {
         }
         guard agendaTimer == nil else { return }
         refreshAgenda()
+        if sideWidgets.shows(.vpn) { refreshVPN() }
         let timer = Timer(timeInterval: Self.agendaRefreshInterval, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refreshAgenda() }
         }

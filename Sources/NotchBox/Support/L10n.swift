@@ -32,6 +32,18 @@ enum L10n {
     static var clipboardPin: String { string("clipboard_pin") }
     static var clipboardUnpin: String { string("clipboard_unpin") }
     static var clipboardPinsFull: String { string("clipboard_pins_full") }
+    static var vpnTitle: String { string("vpn_title") }
+    static var vpnConnected: String { string("vpn_connected") }
+    static var vpnConnecting: String { string("vpn_connecting") }
+    static var vpnDisconnecting: String { string("vpn_disconnecting") }
+    static var vpnDisconnected: String { string("vpn_disconnected") }
+    static var vpnUnavailable: String { string("vpn_unavailable") }
+    static var vpnDisconnect: String { string("vpn_disconnect") }
+    static var vpnConnectInFortiClient: String { string("vpn_connect_in_forticlient") }
+    static var vpnConnectInSettings: String { string("vpn_connect_in_settings") }
+    static var vpnOpenFortiClient: String { string("vpn_open_forticlient") }
+    static var vpnOpenSettings: String { string("vpn_open_settings") }
+    static var vpnNone: String { string("vpn_none") }
     static var settingsMenuItem: String { string("settings_menu_item") }
     static var settingsTitle: String { string("settings_title") }
     static var settingsSidesHeader: String { string("settings_sides_header") }
