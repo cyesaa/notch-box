@@ -151,3 +151,109 @@ struct ClipboardLayoutTests {
         #expect(rect == CGRect(x: 756 - 310 - 110 + 10, y: 982 - 20 - 40, width: 30, height: 40))
     }
 }
+
+struct ClipboardPinTests {
+    let t0 = Date(timeIntervalSince1970: 1_000)
+
+    func history(_ texts: String...) -> ClipboardHistory {
+        var history = ClipboardHistory()
+        for (index, text) in texts.enumerated() {
+            history.record(.text(text), at: t0.addingTimeInterval(Double(index)))
+        }
+        return history
+    }
+
+    func id(of text: String, in history: ClipboardHistory) -> Int {
+        history.items.first { $0.content == .text(text) }!.id
+    }
+
+    @Test func pinnedItemsComeFirst() {
+        var h = history("a", "b", "c")  // c, b, a
+        h.pin(id: id(of: "a", in: h))
+        #expect(h.items.map(\.content) == [.text("a"), .text("c"), .text("b")])
+        #expect(h.items.map(\.isPinned) == [true, false, false])
+        #expect(h.pinned.map(\.content) == [.text("a")])
+        #expect(h.recent.map(\.content) == [.text("c"), .text("b")])
+    }
+
+    @Test func theLatestPinGoesOnTopOfThePins() {
+        var h = history("a", "b")
+        h.pin(id: id(of: "a", in: h))
+        h.pin(id: id(of: "b", in: h))
+        #expect(h.pinned.map(\.content) == [.text("b"), .text("a")])
+    }
+
+    @Test func pinnedItemsDoNotCountTowardsTheTwentyRecentOnes() {
+        var h = history("keep")
+        h.pin(id: id(of: "keep", in: h))
+        for index in 0..<25 {
+            h.record(.text("item \(index)"), at: t0.addingTimeInterval(Double(10 + index)))
+        }
+        #expect(h.pinned.map(\.content) == [.text("keep")])
+        #expect(h.recent.count == ClipboardHistory.capacity)
+    }
+
+    @Test func copyingAPinnedItemAgainLeavesItPinnedAndAddsNoCopy() {
+        var h = history("a", "b")
+        h.pin(id: id(of: "a", in: h))
+        h.record(.text("a"), at: t0.addingTimeInterval(50))
+        #expect(h.items.map(\.content) == [.text("a"), .text("b")])
+        #expect(h.items[0].isPinned)
+    }
+
+    @Test func unpinningPutsItBackOnTopOfTheRecentOnes() {
+        var h = history("a", "b", "c")
+        let a = id(of: "a", in: h)
+        h.pin(id: a)
+        h.unpin(id: a)
+        #expect(h.pinned.isEmpty)
+        #expect(h.recent.map(\.content) == [.text("a"), .text("c"), .text("b")])
+    }
+
+    @Test func atMostTenPins() {
+        #expect(ClipboardHistory.pinnedCapacity == 10)
+        var h = ClipboardHistory()
+        for index in 0..<11 {
+            h.record(.text("\(index)"), at: t0)
+        }
+        for item in h.items.prefix(10) {
+            let pinned = h.pin(id: item.id)
+            #expect(pinned)
+        }
+        #expect(!h.canPin)
+        let last = h.recent[0].id
+        let pinnedEleventh = h.pin(id: last)
+        #expect(!pinnedEleventh)
+        #expect(h.pinned.count == 10)
+    }
+
+    @Test func clearKeepsThePins() {
+        var h = history("a", "b")
+        h.pin(id: id(of: "a", in: h))
+        h.clear()
+        #expect(h.items.map(\.content) == [.text("a")])
+    }
+
+    @Test func removeTakesAPinnedItemToo() {
+        var h = history("a", "b")
+        let a = id(of: "a", in: h)
+        h.pin(id: a)
+        h.remove(id: a)
+        #expect(h.pinned.isEmpty)
+    }
+
+    @Test func savedPinsComeBackPinnedInTheirOrder() {
+        var h = ClipboardHistory()
+        h.restorePinned([.text("first"), .text("second")], at: t0)
+        #expect(h.pinned.map(\.content) == [.text("first"), .text("second")])
+        h.record(.text("new"), at: t0)
+        #expect(h.items.map(\.content) == [.text("first"), .text("second"), .text("new")])
+        #expect(Set(h.items.map(\.id)).count == 3)
+    }
+
+    @Test func contentSurvivesARoundTripThroughJSON() throws {
+        let contents: [ClipboardContent] = [.text("hello\nworld"), .image(Data([1, 2, 3]), type: "public.png")]
+        let data = try JSONEncoder().encode(contents)
+        #expect(try JSONDecoder().decode([ClipboardContent].self, from: data) == contents)
+    }
+}

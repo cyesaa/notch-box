@@ -75,6 +75,7 @@ final class NotchViewModel {
     @ObservationIgnored private var volumeHUDTimer: Timer?
     @ObservationIgnored private let now: () -> Date
     @ObservationIgnored private let clipboardWatcher: ClipboardWatching?
+    @ObservationIgnored private let pinnedStore: PinnedClipboardStoring?
     @ObservationIgnored private let calendarProvider: CalendarProviding?
     @ObservationIgnored private var agendaTimer: Timer?
     @ObservationIgnored private let thumbnails = ClipboardThumbnails()
@@ -92,12 +93,14 @@ final class NotchViewModel {
         audioMeter: AudioLevelMeter? = nil,
         tabReader: BrowserTabReading? = nil,
         clipboardWatcher: ClipboardWatching? = nil,
+        pinnedStore: PinnedClipboardStoring? = nil,
         calendarProvider: CalendarProviding? = nil,
         makePlayer: @escaping @MainActor (String, TimeInterval) -> YouTubePlayer? = { YouTubePlayer(videoID: $0, start: $1) },
         now: @escaping () -> Date = Date.init
     ) {
         self.tabReader = tabReader
         self.clipboardWatcher = clipboardWatcher
+        self.pinnedStore = pinnedStore
         self.calendarProvider = calendarProvider
         self.makePlayer = makePlayer
         self.nowPlayingService = nowPlayingService
@@ -119,6 +122,9 @@ final class NotchViewModel {
     func start() {
         nowPlayingService?.onChange = { [weak self] state in self?.nowPlayingChanged(state) }
         volumeControl?.onChange = { [weak self] in self?.volumeChanged() }
+        if let saved = pinnedStore?.load(), !saved.isEmpty {
+            clipboard.restorePinned(saved, at: now())
+        }
         clipboardWatcher?.onCopy = { [weak self] content in self?.copied(content) }
         clipboardWatcher?.start()
         calendarProvider?.onChange = { [weak self] in self?.refreshAgenda() }
@@ -234,12 +240,30 @@ final class NotchViewModel {
         clipboard.remove(id: item.id)
         thumbnails.keep(clipboard.items)
         if previewedClipboardItem?.id == item.id { previewedClipboardItem = nil }
+        if item.isPinned { savePins() }
     }
 
+    /// Pins an item (kept on top and across restarts) or unpins it.
+    func togglePin(_ item: ClipboardItem) {
+        if item.isPinned {
+            clipboard.unpin(id: item.id)
+        } else {
+            guard clipboard.pin(id: item.id) else { return }
+        }
+        savePins()
+    }
+
+    private func savePins() {
+        pinnedStore?.save(clipboard.pinned.map(\.content))
+    }
+
+    /// Clears the recent items; pinned ones stay.
     func clearClipboard() {
         clipboard.clear()
-        thumbnails.keep([])
-        previewedClipboardItem = nil
+        thumbnails.keep(clipboard.items)
+        if let previewed = previewedClipboardItem, !clipboard.items.contains(where: { $0.id == previewed.id }) {
+            previewedClipboardItem = nil
+        }
     }
 
     func thumbnail(for item: ClipboardItem) -> ClipboardThumbnails.Thumbnail? {
