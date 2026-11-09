@@ -355,8 +355,8 @@ private final class SnapshotOpenVPN: OpenVPNControlling {
     let since: Date
     let isInstalled = true
     let profiles = [
-        OpenVPNProfile(id: "1", name: "212.64.199.51 [fatmavpn]", host: "212.64.199.51", lastConnected: nil),
-        OpenVPNProfile(id: "2", name: "173.212.194.24 [Eren1]", host: "173.212.194.24", lastConnected: nil),
+        OpenVPNProfile(id: "1", name: "203.0.113.10 [office]", host: "203.0.113.10", lastConnected: nil),
+        OpenVPNProfile(id: "2", name: "198.51.100.20 [home]", host: "198.51.100.20", lastConnected: nil),
     ]
 
     init(status: VPNStatus, since: Date) {

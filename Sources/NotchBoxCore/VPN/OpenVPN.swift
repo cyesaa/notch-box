@@ -84,7 +84,7 @@ public struct OpenVPNProfile: Equatable, Identifiable, Sendable {
         self.lastConnected = lastConnected
     }
 
-    /// "fatmavpn" for "212.64.199.51 [fatmavpn]"; the whole name otherwise.
+    /// "office" for "203.0.113.10 [office]"; the whole name otherwise.
     public var shortName: String {
         guard let open = name.lastIndex(of: "["), let close = name.lastIndex(of: "]"), open < close else { return name }
         let inner = name[name.index(after: open)..<close].trimmingCharacters(in: .whitespaces)

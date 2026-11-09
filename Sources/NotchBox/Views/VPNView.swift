@@ -188,7 +188,7 @@ private enum VPNText {
         }
     }
 
-    /// "FortiClient VPN · 1:05:12" / "OpenVPN · fatmavpn · 0:12:04" while connected, the name otherwise.
+    /// "FortiClient VPN · 1:05:12" / "OpenVPN · office · 0:12:04" while connected, the name otherwise.
     static func detail(_ entry: NotchViewModel.VPNEntry, now: Date) -> String {
         var parts = [entry.name]
         if let profile = entry.activeProfile { parts.append(profile.shortName) }
@@ -198,7 +198,7 @@ private enum VPNText {
         return parts.joined(separator: " · ")
     }
 
-    /// In a row, under the name: "fatmavpn · 0:12:04" while connected (the green lock says connected),
+    /// In a row, under the name: "office · 0:12:04" while connected (the green lock says connected),
     /// the state otherwise.
     static func rowDetail(_ entry: NotchViewModel.VPNEntry, now: Date) -> String {
         guard entry.status == .connected else { return status(entry.status) }
