@@ -82,6 +82,7 @@
 "vpn_open_settings" = "VPN ayarlarını aç";
 "vpn_none" = "Bu Mac'te bir VPN bulunamadı. FortiClient ya da OpenVPN Connect kurduğunda burada görünür.";
 "vpn_connect" = "Bağlan";
+"vpn_accessibility_needed" = "Gizlilik ve Güvenlik → Erişilebilirlik altında NotchBox'a izin ver";
 "vpn_choose_profile" = "Bağlanılacak profili seç";
 "vpn_open_openvpn" = "OpenVPN Connect'i aç";
 "vpn_open_short" = "Aç";

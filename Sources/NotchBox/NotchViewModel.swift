@@ -1,4 +1,5 @@
 import AppKit
+import ApplicationServices
 import NotchBoxCore
 import Observation
 
@@ -86,6 +87,13 @@ final class NotchViewModel {
     @ObservationIgnored private var vpnTimer: Timer?
     @ObservationIgnored private var hasReadVPN = false
     @ObservationIgnored private let openVPN: OpenVPNControlling?
+    @ObservationIgnored private let fortiTray: FortiTrayConnecting?
+    /// What NotchBox asked FortiClient to do, shown as "connecting" or "disconnecting" until it happens.
+    @ObservationIgnored private var fortiPending = VPNPendingAction()
+    /// VPN apps that NotchBox asked to connect: hidden again when they bring their window forward.
+    @ObservationIgnored private var vpnAppHiding = VPNAppHiding()
+    @ObservationIgnored private var activationObserver: NSObjectProtocol?
+    @ObservationIgnored private var fortiWasConnected = false
     /// The OpenVPN profile NotchBox last connected, to tell profiles on the same server apart.
     @ObservationIgnored private var requestedOpenVPNProfile: String?
     @ObservationIgnored private let calendarProvider: CalendarProviding?
@@ -108,6 +116,7 @@ final class NotchViewModel {
         pinnedStore: PinnedClipboardStoring? = nil,
         vpnControl: VPNControlling? = nil,
         openVPN: OpenVPNControlling? = nil,
+        fortiTray: FortiTrayConnecting? = nil,
         calendarProvider: CalendarProviding? = nil,
         makePlayer: @escaping @MainActor (String, TimeInterval) -> YouTubePlayer? = { YouTubePlayer(videoID: $0, start: $1) },
         now: @escaping () -> Date = Date.init
@@ -117,6 +126,7 @@ final class NotchViewModel {
         self.pinnedStore = pinnedStore
         self.vpnControl = vpnControl
         self.openVPN = openVPN
+        self.fortiTray = fortiTray
         self.calendarProvider = calendarProvider
         self.makePlayer = makePlayer
         self.nowPlayingService = nowPlayingService
@@ -166,6 +176,15 @@ final class NotchViewModel {
         clipboardWatcher?.onCopy = { [weak self] content in self?.copied(content) }
         updateClipboardWatching()
         updateVPNWatching()
+        if vpnControl != nil || openVPN != nil {
+            activationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+                forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
+            ) { [weak self] note in
+                let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+                let bundleID = app?.bundleIdentifier
+                MainActor.assumeIsolated { self?.appActivated(bundleID) }
+            }
+        }
         calendarProvider?.onChange = { [weak self] in self?.refreshAgenda() }
         calendarProvider?.start()
         refreshAgenda()
@@ -187,6 +206,8 @@ final class NotchViewModel {
         copiedWork?.cancel()
         agendaTimer?.invalidate()
         vpnTimer?.invalidate()
+        if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
+        activationObserver = nil
     }
 
     // MARK: VPN
@@ -206,6 +227,8 @@ final class NotchViewModel {
         let profiles: [OpenVPNProfile]
         /// OpenVPN's profile in use.
         let activeProfile: OpenVPNProfile?
+        /// NotchBox asked FortiClient for this status and macOS has not reported it yet: no button to press.
+        var isWaiting = false
 
         var id: String {
             switch kind {
@@ -237,7 +260,10 @@ final class NotchViewModel {
     /// Disconnects a VPN.
     func disconnect(_ entry: VPNEntry) {
         switch entry.kind {
-        case .system(let service): vpnControl?.disconnect(service.id)
+        case .system(let service):
+            vpnControl?.disconnect(service.id)
+            // Hold "disconnecting" for a moment, so Connect is not pressed while FortiClient tidies up.
+            if entry.isFortiClient { fortiPending.pressed(toward: .disconnected, at: now()) }
         case .openVPN: openVPN?.disconnect()
         }
         refreshVPN()
@@ -247,7 +273,71 @@ final class NotchViewModel {
     func connect(_ profile: OpenVPNProfile) {
         requestedOpenVPNProfile = profile.id
         openVPN?.connect(profileID: profile.id)
+        // OpenVPN Connect comes forward as soon as it is asked to connect.
+        let bundleID = OpenVPNConnectService.bundleIdentifier
+        vpnAppHiding.expect(bundleID, until: now().addingTimeInterval(Self.openVPNHidingWindow))
+        for delay in [0.5, 1.5] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                MainActor.assumeIsolated {
+                    guard let self, self.vpnAppHiding.shouldHide(bundleID, at: self.now()) else { return }
+                    self.hideApp(bundleID)
+                }
+            }
+        }
         refreshVPN()
+    }
+
+    static let fortiClientBundleID = FortiTrayItem.consoleBundleID
+    /// How long OpenVPN Connect is kept in the background after it was asked to connect.
+    static let openVPNHidingWindow: TimeInterval = 15
+
+    /// Connecting makes OpenVPN Connect or FortiClient bring its own window forward (FortiClient at the
+    /// moment the VPN is up). While NotchBox waits for a connection it asked for, the app is hidden again as
+    /// soon as it comes forward; its menu bar icon stays.
+    private func appActivated(_ bundleID: String?) {
+        guard let bundleID, vpnAppHiding.shouldHide(bundleID, at: now()) else { return }
+        hideApp(bundleID)
+    }
+
+    private func hideApp(_ bundleID: String) {
+        let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+        guard !apps.isEmpty else { return }
+        // hide() is enough for a plain app, but an Electron app (FortiClient) ignores it; when NotchBox may
+        // control the UI, hide it through System Events instead.
+        let hidden = apps.map { $0.hide() }.allSatisfy { $0 }
+        guard !hidden, AXIsProcessTrusted() else { return }
+        let source = """
+        tell application "System Events"
+          repeat with p in (processes whose bundle identifier is "\(bundleID)")
+            set visible of p to false
+          end repeat
+        end tell
+        """
+        NSAppleScript(source: source)?.executeAndReturnError(nil)
+    }
+
+    /// Connects FortiClient like its menu bar icon: clicks FortiTray's connect, which uses the saved
+    /// credentials (no password). Falls back to opening FortiClient when NotchBox cannot — it needs the
+    /// Accessibility permission, which it asks for, or FortiTray is not running.
+    func connectFortiClient() {
+        // A second press while FortiClient signs in would cancel the connection, so presses close together
+        // are ignored and the notch shows "connecting" until the VPN is up (`VPNPendingAction`).
+        let time = now()
+        guard fortiPending.canPress(at: time) else { return }
+        // Try the press first: the Accessibility grant can lag behind `isTrusted` right after it is given,
+        // so attempting is more reliable than gating on it. Only when the press fails do we ask for the
+        // permission (if it is missing) and open FortiClient so the user can connect now.
+        if let fortiTray, fortiTray.connect() {
+            fortiPending.pressed(toward: .connected, at: time)
+            vpnAppHiding.expect(Self.fortiClientBundleID, until: time.addingTimeInterval(VPNPendingAction.connectTimeout))
+            refreshVPN()
+            return
+        }
+        if let fortiTray, !fortiTray.isTrusted {
+            fortiTray.requestTrust()
+            show(message: L10n.vpnAccessibilityNeeded)
+        }
+        AppIconProvider.open(bundleIdentifier: Self.fortiClientBundleID)
     }
 
     /// Opens the VPN's own app: FortiClient (which connects its VPN only itself), OpenVPN Connect, or the
@@ -256,11 +346,13 @@ final class NotchViewModel {
         switch entry.kind {
         case .system(let service):
             if service.isFortiClient {
-                AppIconProvider.open(bundleIdentifier: "com.fortinet.FortiClient")
+                vpnAppHiding.stop(Self.fortiClientBundleID)
+                AppIconProvider.open(bundleIdentifier: Self.fortiClientBundleID)
             } else if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
                 NSWorkspace.shared.open(url)
             }
         case .openVPN:
+            vpnAppHiding.stop(OpenVPNConnectService.bundleIdentifier)
             openVPN?.openApp()
         }
     }
@@ -298,7 +390,20 @@ final class NotchViewModel {
             if let service {
                 vpnClock.update(status, at: time, isFirstReading: !hasReadVPN)
                 hasReadVPN = true
-                entries.append(VPNEntry(kind: .system(service), status: status, connectedSince: vpnClock.connectedSince, profiles: [], activeProfile: nil))
+                // macOS reports FortiClient's VPN as disconnected while it signs in; show what was asked for.
+                if service.isFortiClient {
+                    if status == .connected, !fortiWasConnected, vpnAppHiding.shouldHide(Self.fortiClientBundleID, at: time) {
+                        hideApp(Self.fortiClientBundleID)
+                        vpnAppHiding.connected(Self.fortiClientBundleID, at: time)
+                    }
+                    fortiWasConnected = status == .connected
+                }
+                let waiting = service.isFortiClient && fortiPending.isWaiting(real: status, at: time)
+                let shown = service.isFortiClient ? fortiPending.displayStatus(real: status, at: time) : status
+                entries.append(VPNEntry(
+                    kind: .system(service), status: shown, connectedSince: vpnClock.connectedSince,
+                    profiles: [], activeProfile: nil, isWaiting: waiting
+                ))
             }
         }
         if let openVPN, openVPN.isInstalled {

@@ -196,11 +196,17 @@ defaults write com.notchbox.NotchBox UpdateInstallCommand "NOTCHBOX_ZIP=$PWD/dis
 ## VPN
 
 - [ ] Settings → choose VPN for a side: the column shows "Not connected" and "FortiClient VPN" (with FortiClient
-  installed), and "Connect in FortiClient" brings FortiClient forward.
-- [ ] Connect in FortiClient: within a second the column turns green, says "Connected" and counts up the time.
-  (FortiClient replaces its VPN configuration with a new ID on each connection; the column must keep up.)
-- [ ] "Disconnect" in the column disconnects (FortiClient shows it disconnected too).
-- [ ] Quit NotchBox while connected and reopen: it says "Connected" without a time (it did not see it come up).
+  installed) and a "Connect" button.
+- [ ] Without Accessibility permission, "Connect" shows the permission prompt, says which permission to allow
+  and brings FortiClient forward. After allowing NotchBox under Accessibility, "Connect" works without a restart.
+- [ ] "Connect": the column says "Connecting…" with no button, turns green within a few seconds, says
+  "Connected" and counts up the time, without a password and without FortiClient's window appearing (with
+  FortiClient's console open in the background, it is quit first). FortiClient's menu bar item says
+  "Disconnect <name>". (FortiClient replaces its VPN configuration with a new ID on each connection; the column
+  must keep up.)
+- [ ] "Disconnect" in the column disconnects; it says "Disconnecting…" for a few seconds, then offers
+  "Connect" again, and FortiClient's menu bar item says "Connect to <name>" (not a nameless "Disconnect ").
+- [ ] Connect, disconnect and connect again right away: every connection comes up.
 - [ ] Without any VPN configured, the column says none was found.
 - [ ] With OpenVPN Connect installed too, the column shows a row for each. OpenVPN's "Connect ▾" lists the
   profiles by their bracketed name; picking one connects it (OpenVPN Connect starts if needed) and the row turns

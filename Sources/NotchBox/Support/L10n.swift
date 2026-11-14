@@ -47,6 +47,7 @@ enum L10n {
     static var vpnOpenSettings: String { string("vpn_open_settings") }
     static var vpnNone: String { string("vpn_none") }
     static var vpnConnect: String { string("vpn_connect") }
+    static var vpnAccessibilityNeeded: String { string("vpn_accessibility_needed") }
     static var vpnDisconnectShort: String { string("vpn_disconnect_short") }
     static var vpnChooseProfile: String { string("vpn_choose_profile") }
     static var vpnOpenOpenVPN: String { string("vpn_open_openvpn") }

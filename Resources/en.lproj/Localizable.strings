@@ -82,6 +82,7 @@
 "vpn_open_settings" = "Open VPN settings";
 "vpn_none" = "No VPN is set up on this Mac. Once FortiClient or OpenVPN Connect is installed it shows up here.";
 "vpn_connect" = "Connect";
+"vpn_accessibility_needed" = "Allow NotchBox under Privacy & Security → Accessibility";
 "vpn_choose_profile" = "Choose a profile to connect";
 "vpn_open_openvpn" = "Open OpenVPN Connect";
 "vpn_open_short" = "Open";

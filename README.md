@@ -49,8 +49,12 @@ nothing; more widgets will follow), and holds the notch, launch-at-login and upd
 
 **VPN** shows whether your VPNs are connected and for how long, with a Disconnect button: FortiClient's VPN (or
 otherwise one from System Settings) and OpenVPN Connect, a row each when both are installed. OpenVPN profiles
-connect right from the notch (a menu picks the profile when there are several). FortiClient's VPN connects only
-from FortiClient (it asks for your password or single sign-on), so its button opens FortiClient.
+connect right from the notch (a menu picks the profile when there are several). FortiClient's VPN connects from
+the notch too, the way FortiClient's own menu bar icon does: with the credentials FortiClient has saved, so
+without a password. For that NotchBox presses that icon's menu item, which needs **Accessibility** permission
+(macOS asks the first time; until you allow it, the button opens FortiClient instead). While connecting, NotchBox
+keeps FortiClient's and OpenVPN Connect's windows out of the way: it quits FortiClient's window app first (its
+menu bar icon and services stay) and hides a window that comes forward anyway.
 
 **Updating:** NotchBox looks for a new release soon after it starts and twice a day. When there is one, a dot
 appears on the music note and the menu starts with "Update available"; click it, then Update, and NotchBox
@@ -129,7 +133,8 @@ to read. It may flash in Control Center or other "Now Playing" widgets; NotchBox
 - While music plays, the area right beside the notch (about the notch height + 12 pt on each side) opens the
   panel on hover, so menu bar items right next to the notch are harder to reach.
 - After installing a new version, System Audio Recording permission (for the waveform) and Accessibility
-  permission (only used in limited mode) must be granted again.
+  permission (for connecting FortiClient's VPN, and in limited mode) must be granted again. If NotchBox is
+  already listed under Accessibility, turn it off and on again.
 
 ## Development
 
@@ -224,7 +229,12 @@ VPN ya da boş; zamanla yeni bileşenler eklenecek).
 **VPN** bileşeni VPN'lerinin bağlı olup olmadığını ve ne kadar süredir bağlı olduklarını gösterir; "Bağlantıyı kes"
 düğmesi vardır: FortiClient'ın VPN'i (yoksa Sistem Ayarları'ndaki bir VPN) ve OpenVPN Connect; ikisi de kuruluysa
 her biri bir satırda. OpenVPN profillerine doğrudan notch'tan bağlanılır (birden fazla profil varsa menüden seçilir).
-FortiClient'ın VPN'i yalnızca FortiClient'tan bağlanır (şifre ya da SSO ister); bu yüzden onun düğmesi FortiClient'ı açar. Çentik, açılışta başlatma ve güncelleme seçenekleri de buradadır.
+FortiClient'ın VPN'ine de notch'tan bağlanılır; FortiClient'ın menü çubuğundaki kendi ikonu gibi, FortiClient'ın
+kayıtlı kimlik bilgileriyle, yani şifre sormadan. Bunun için NotchBox o ikonun menü öğesine basar; bu da
+**Erişilebilirlik** izni gerektirir (macOS ilk seferde sorar; izin verene kadar düğme FortiClient'ı açar).
+Bağlanırken NotchBox, FortiClient'ın ve OpenVPN Connect'in pencerelerini ekrana getirmez: önce FortiClient'ın
+pencere uygulamasını kapatır (menü çubuğu ikonu ve servisleri çalışmaya devam eder), yine de öne gelen bir
+pencereyi gizler. Çentik, açılışta başlatma ve güncelleme seçenekleri de buradadır.
 
 **Güncelleme:** NotchBox açıldıktan kısa süre sonra ve günde iki kez yeni sürüm olup olmadığına bakar. Yeni sürüm
 varsa müzik notasının yanında bir nokta çıkar ve menünün en üstünde "Güncelleme var" yazar; tıklayıp Güncelle'ye
@@ -302,7 +312,8 @@ Bu parça Denetim Merkezi'nde ya da başka "Şu An Çalıyor" araçlarında bir 
 - Yalnızca macOS 27.2'de test edildi.
 - Müzik çalarken notch'un hemen yanındaki alan (her yanda yaklaşık notch yüksekliği + 12 pt) fareyle üzerine gelince
   paneli açar; bu yüzden notch'un hemen yanındaki menü çubuğu öğelerine ulaşmak zorlaşır.
-- Yeni sürüm kurulduktan sonra Sistem Sesi Kaydı izni (ses dalgası için) ve Erişilebilirlik izni (yalnızca kısıtlı
-  modda kullanılır) yeniden verilmelidir.
+- Yeni sürüm kurulduktan sonra Sistem Sesi Kaydı izni (ses dalgası için) ve Erişilebilirlik izni (FortiClient
+  VPN'ine bağlanmak için ve kısıtlı modda kullanılır) yeniden verilmelidir. NotchBox Erişilebilirlik listesinde
+  zaten görünüyorsa kapatıp yeniden aç.
 
 Geliştirme ve lisans bilgileri için yukarıdaki İngilizce "Development" ve "License" bölümlerine bakın.

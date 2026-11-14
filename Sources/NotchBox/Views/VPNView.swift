@@ -121,6 +121,16 @@ private struct VPNAction: View {
     let compact: Bool
 
     var body: some View {
+        if entry.isWaiting {
+            // FortiClient is signing in (or tidying up): a press now would cancel or confuse it.
+            EmptyView()
+        } else {
+            action
+        }
+    }
+
+    @ViewBuilder
+    private var action: some View {
         switch entry.status {
         case .connected, .connecting:
             capsule(compact ? L10n.vpnDisconnectShort : L10n.vpnDisconnect, fill: Color(red: 1, green: 0.36, blue: 0.36), text: .white) { model.disconnect(entry) }
@@ -143,6 +153,10 @@ private struct VPNAction: View {
                     .menuIndicator(.hidden)
                     .fixedSize()
                     .help(L10n.vpnChooseProfile)
+                }
+            } else if entry.isFortiClient {
+                capsule(L10n.vpnConnect, fill: Color.white.opacity(0.16), text: NotchTheme.primaryText) {
+                    model.connectFortiClient()
                 }
             } else {
                 capsule(compact ? L10n.vpnOpenShort : VPNText.connectLabel(entry), fill: Color.white.opacity(0.16), text: NotchTheme.primaryText) {

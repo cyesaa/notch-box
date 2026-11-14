@@ -29,6 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             pinnedStore: PinnedClipboardStore(),
             vpnControl: VPNService(),
             openVPN: OpenVPNConnectService(),
+            fortiTray: FortiTrayConnector(),
             calendarProvider: CalendarService()
         )
         model.setSideWidgets(settings.sideWidgets)
