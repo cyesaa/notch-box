@@ -19,7 +19,9 @@ enum L10n {
     static var closeVideo: String { string("close_video") }
     static var noYouTubeVideo: String { string("no_youtube_video") }
     static var browserAccessNeeded: String { string("browser_access_needed") }
-    static var videoNotEmbeddable: String { string("video_not_embeddable") }
+    static var videoUnavailable: String { string("video_unavailable") }
+    static var signInToYouTube: String { string("sign_in_to_youtube") }
+    static var signInTitle: String { string("sign_in_title") }
     static var clipboardTitle: String { string("clipboard_title") }
     static var clipboardEmpty: String { string("clipboard_empty") }
     static var clipboardDenied: String { string("clipboard_denied") }

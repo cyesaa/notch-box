@@ -39,6 +39,10 @@ struct VideoView: View {
                     .accessibilityHidden(true)
             }
             Spacer(minLength: 0)
+            if model.videoNeedsSignIn {
+                SignInButton(label: L10n.signInToYouTube, action: model.signInToYouTube)
+                    .opacity(fade)
+            }
             CloseButton(label: L10n.closeVideo, action: model.closeVideo)
         }
     }
@@ -74,6 +78,33 @@ private struct CloseButton: View {
                 .background(Circle().fill(Color(white: 0.16)))
                 .overlay(Circle().strokeBorder(Color.white.opacity(0.18), lineWidth: 1))
                 .contentShape(Circle())
+        }
+        .buttonStyle(PressableButtonStyle())
+        .help(label)
+        .accessibilityLabel(label)
+    }
+}
+
+/// Offered beside the close button while the notch's YouTube page is signed out. Signing in uses the
+/// user's own account, so a YouTube Premium account plays without ads.
+private struct SignInButton: View {
+    let label: String
+    let action: @MainActor () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 5) {
+                Image(systemName: "person.crop.circle")
+                    .font(.system(size: 11, weight: .semibold))
+                Text(label)
+                    .font(.system(size: 11, weight: .medium))
+            }
+            .foregroundStyle(NotchTheme.primaryText)
+            .padding(.horizontal, 9)
+            .frame(height: NotchLayout.videoCloseButtonSide)
+            .background(Capsule().fill(Color(white: 0.16)))
+            .overlay(Capsule().strokeBorder(Color.white.opacity(0.18), lineWidth: 1))
+            .contentShape(Capsule())
         }
         .buttonStyle(PressableButtonStyle())
         .help(label)

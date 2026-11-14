@@ -94,9 +94,13 @@ or the list stays empty.
 with EventKit; it never changes them and they stay on your Mac.
 
 **Watching in the notch** reads the open tabs of your browser (macOS asks once for **Automation** permission) to
-find the YouTube video, then plays it with YouTube's own embedded player. Some videos can only be watched on
-YouTube; NotchBox then says so. The notch player is a second copy of the video, so it starts where the browser was
-and the browser is moved to where you stopped when you close it.
+find the YouTube video, then plays it with YouTube's own embedded player. When the video's owner has turned
+embedding off, the notch opens the video's YouTube page instead and shows only its player, with YouTube's ads as
+in any browser that is not signed in. A "Sign in" button beside the close button opens a window where you can sign in
+to your own YouTube account once; with YouTube Premium the notch then plays without ads. You type your password on
+YouTube's own sign-in pages; NotchBox never sees it, and the session is kept in NotchBox's own web storage, not shared
+with your browser. Videos start with captions off; YouTube's CC button turns them on. The notch player is a second
+copy of the video, so it starts where the browser was and the browser is moved to where you stopped when you close it.
 
 To move the waveform with the music, NotchBox asks for **System Audio Recording** permission the first time
 music plays (macOS 14.2 or later). It only measures how loud each frequency range is, many times a second;
@@ -265,9 +269,13 @@ vermeyeceğini sorabilir; İzin Ver demezsen liste boş kalır.
 ile yalnızca okur; hiçbir şeyi değiştirmez ve bilgiler Mac'inde kalır.
 
 **Notch'ta izleme**, YouTube videosunu bulmak için tarayıcındaki açık sekmeleri okur (macOS bir kez **Otomasyon**
-izni ister) ve videoyu YouTube'un kendi gömülü oynatıcısıyla oynatır. Bazı videolar yalnızca YouTube'da
-izlenebilir; NotchBox bunu söyler. Notch'taki oynatıcı videonun ikinci bir kopyasıdır: tarayıcının kaldığı yerden
-başlar, kapatınca tarayıcı senin durduğun yere alınır.
+izni ister) ve videoyu YouTube'un kendi gömülü oynatıcısıyla oynatır. Video sahibi gömmeyi kapatmışsa notch
+videonun YouTube sayfasını açar ve yalnızca oynatıcısını gösterir; reklamlar, YouTube'a giriş yapılmamış her
+tarayıcıdaki gibi gelir. Kapatma düğmesinin yanındaki "Giriş yap" düğmesi, kendi YouTube hesabına bir kez giriş
+yapabileceğin bir pencere açar; YouTube Premium'un varsa notch artık reklamsız oynatır. Şifreni YouTube'un kendi
+giriş sayfalarına yazarsın; NotchBox onu hiç görmez ve oturum tarayıcınla paylaşılmadan NotchBox'ın kendi web
+deposunda saklanır. Videolar altyazı kapalı başlar; YouTube'un CC düğmesi altyazıyı açar. Notch'taki oynatıcı
+videonun ikinci bir kopyasıdır: tarayıcının kaldığı yerden başlar, kapatınca tarayıcı senin durduğun yere alınır.
 
 Ses dalgasının müziğe göre oynaması için NotchBox, ilk kez müzik çaldığında **Sistem Sesi Kaydı** izni ister
 (macOS 14.2 ve sonrası). Yalnızca her frekans aralığının ne kadar yüksek çaldığını saniyede birçok kez ölçer;

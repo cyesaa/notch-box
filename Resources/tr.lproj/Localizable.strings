@@ -14,7 +14,9 @@
 "close_video" = "Videoyu kapat";
 "no_youtube_video" = "Tarayıcıda açık bir YouTube videosu yok";
 "browser_access_needed" = "Gizlilik ve Güvenlik → Otomasyon altında NotchBox'a izin ver";
-"video_not_embeddable" = "Bu video yalnızca YouTube'da izlenebilir";
+"video_unavailable" = "Bu video notch'ta oynatılamıyor";
+"sign_in_to_youtube" = "Giriş yap";
+"sign_in_title" = "YouTube'a giriş";
 "clipboard_title" = "Pano";
 "clipboard_empty" = "Kopyaladığın yazı ve görseller burada görünür";
 "clipboard_denied" = "Pano erişimi kapalı. Sistem Ayarları → Gizlilik ve Güvenlik'ten açabilirsin";

@@ -34,6 +34,28 @@ struct YouTubeLinkTests {
         #expect(id("https://www.youtube.com/watch?v=short") == nil)
         #expect(id("https://www.youtube.com/watch?v=dQw4w9WgXc%22") == nil)
     }
+
+    @Test func watchPageStartsWhereTheBrowserWas() {
+        #expect(YouTubeLink.watchPageURL(videoID: "dQw4w9WgXcQ", start: 42.7).absoluteString
+            == "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s")
+    }
+
+    @Test func watchPageFromTheBeginningHasNoStartTime() {
+        #expect(YouTubeLink.watchPageURL(videoID: "dQw4w9WgXcQ", start: 0).absoluteString
+            == "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+        #expect(YouTubeLink.watchPageURL(videoID: "dQw4w9WgXcQ", start: -3).absoluteString
+            == "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+    }
+
+    @Test func embeddingRefusalsAreTheErrorsTheWatchPageGetsAround() {
+        for code in [101, 150, 152, 153] {
+            #expect(YouTubeLink.isEmbeddingRefused(errorCode: code))
+        }
+        // Bad request, HTML5 player failure, removed or private: the watch page cannot help.
+        for code in [2, 5, 100] {
+            #expect(!YouTubeLink.isEmbeddingRefused(errorCode: code))
+        }
+    }
 }
 
 struct BrowserTabsTests {

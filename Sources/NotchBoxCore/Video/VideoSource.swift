@@ -23,6 +23,21 @@ public enum YouTubeLink {
     static func isValidID(_ id: String) -> Bool {
         id.count == 11 && id.allSatisfy { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-" || $0 == "_") }
     }
+
+    /// The video's own page on youtube.com, starting `start` seconds in.
+    public static func watchPageURL(videoID: String, start: TimeInterval) -> URL {
+        var components = URLComponents(string: "https://www.youtube.com/watch")!
+        components.queryItems = [URLQueryItem(name: "v", value: videoID)]
+        let seconds = Int(start)
+        if seconds > 0 { components.queryItems?.append(URLQueryItem(name: "t", value: "\(seconds)s")) }
+        return components.url!
+    }
+
+    /// Embedded-player errors that only refuse the embed: 101 and 150 (the owner turned embedding off) and
+    /// 152/153 (refused without a referrer). The video's own YouTube page still plays it.
+    public static func isEmbeddingRefused(errorCode: Int) -> Bool {
+        [101, 150, 152, 153].contains(errorCode)
+    }
 }
 
 public struct BrowserTab: Equatable, Sendable {

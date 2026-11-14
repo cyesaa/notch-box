@@ -8,6 +8,8 @@ struct VideoSession: Equatable {
     let title: String
     /// The browser it came from, to hand playback back to.
     let sourceBundleIdentifier: String
+    /// NotchBox paused the browser to open it; the browser plays on if the video cannot play in the notch.
+    var pausedSource = false
 }
 
 /// Single source of truth for the views. Combines the state machine with the services.
@@ -36,6 +38,8 @@ final class NotchViewModel {
     private(set) var isOverNotchButton = false
     /// Looking for the video in the browser's tabs.
     private(set) var isFindingVideo = false
+    /// The notch's YouTube page is signed out, so a "Sign in" button is offered (see `signInToYouTube`).
+    private(set) var videoNeedsSignIn = false
     /// A short note shown in the player for a few seconds (no video found, no permission, ...).
     private(set) var videoMessage: String?
     @ObservationIgnored private(set) var videoPlayer: YouTubePlayer?
@@ -70,6 +74,7 @@ final class NotchViewModel {
     @ObservationIgnored let audioMeter: AudioLevelMeter?
     @ObservationIgnored private let tabReader: BrowserTabReading?
     @ObservationIgnored private let makePlayer: @MainActor (String, TimeInterval) -> YouTubePlayer?
+    @ObservationIgnored private var signInWindow: SignInWindowController?
     @ObservationIgnored private var messageWork: DispatchWorkItem?
     @ObservationIgnored private var volumeHUD = VolumeHUD()
     @ObservationIgnored private var volumeHUDTimer: Timer?
@@ -558,9 +563,10 @@ final class NotchViewModel {
                     return
                 }
                 let current = self.info ?? info
-                if current.clock.isPlaying { self.nowPlayingService?.send(.togglePlayPause) }
+                let pause = current.clock.isPlaying
+                if pause { self.nowPlayingService?.send(.togglePlayPause) }
                 self.showVideo(
-                    VideoSession(videoID: videoID, title: current.title, sourceBundleIdentifier: browser),
+                    VideoSession(videoID: videoID, title: current.title, sourceBundleIdentifier: browser, pausedSource: pause),
                     start: current.clock.elapsed(at: self.now())
                 )
             }
@@ -570,14 +576,26 @@ final class NotchViewModel {
     /// Opens the video panel. Also used by the snapshot renderer, which passes no player.
     func showVideo(_ session: VideoSession, start: TimeInterval) {
         videoPlayer?.stop()
+        videoNeedsSignIn = false
         let player = makePlayer(session.videoID, start)
         player?.onError = { [weak self] _ in
-            self?.closeVideo()
-            self?.show(message: L10n.videoNotEmbeddable)
+            self?.videoFailed()
+        }
+        player?.onNeedsSignIn = { [weak self] needsSignIn in
+            self?.videoNeedsSignIn = needsSignIn
         }
         videoPlayer = player
         video = session
         apply()
+    }
+
+    /// Opens a window where the user signs into their own YouTube account; when it closes, the notch
+    /// reloads the page with the new session (a YouTube Premium account then plays without ads).
+    func signInToYouTube() {
+        guard let player = videoPlayer else { return }
+        let controller = signInWindow ?? SignInWindowController()
+        signInWindow = controller
+        controller.show { [weak player] in player?.reloadWatchPage() }
     }
 
     /// Closes the video panel and moves the browser (paused) to where the notch player stopped.
@@ -589,6 +607,7 @@ final class NotchViewModel {
             player?.stop()
             self.videoPlayer = nil
             self.video = nil
+            self.videoNeedsSignIn = false
             self.apply()
             // Best effort: the seek goes to whichever player macOS considers active, normally the browser again.
             DispatchQueue.main.asyncAfter(deadline: .now() + Self.handBackDelay) { [weak self] in
@@ -601,6 +620,22 @@ final class NotchViewModel {
             player.currentTime(completion: finish)
         } else {
             finish(nil)
+        }
+    }
+
+    /// The video cannot play in the notch: close it and leave the browser where it was (a failed player
+    /// reports 0 s, so handing its position back would rewind the browser), playing again if NotchBox paused it.
+    private func videoFailed() {
+        guard let session = video else { return }
+        videoPlayer?.stop()
+        videoPlayer = nil
+        video = nil
+        videoNeedsSignIn = false
+        apply()
+        show(message: L10n.videoUnavailable)
+        guard session.pausedSource else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.handBackDelay) { [weak self] in
+            MainActor.assumeIsolated { self?.nowPlayingService?.send(.togglePlayPause) }
         }
     }
 
