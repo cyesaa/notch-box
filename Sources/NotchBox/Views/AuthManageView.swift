@@ -2,6 +2,7 @@ import AVFoundation
 import NotchBoxCore
 import Observation
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// What the accounts window is showing. (A class rather than `@State`: the SwiftUI macros are not in
 /// the Command Line Tools this project builds with.)
@@ -157,18 +158,49 @@ final class AuthScanSession {
     private(set) var camera = Camera.starting
     /// The last QR code in view was not an authenticator's.
     private(set) var sawOtherCode = false
+    /// The camera has been looking for a while and has read nothing: it probably cannot make the code out.
+    private(set) var isSlow = false
+    /// Why the picture the user chose gave nothing; nil when it gave something or none was chosen.
+    private(set) var pictureNote: String?
     @ObservationIgnored let scanner = QRScanner()
+    @ObservationIgnored private var slowWork: DispatchWorkItem?
+
+    /// How long the camera gets before the other ways in are pointed out.
+    static let patience: TimeInterval = 12
 
     func start() {
         scanner.onPayload = { [weak self] payload in self?.read(payload) }
         scanner.start { [weak self] failure in
             self?.camera = failure.map(Camera.failed) ?? .running
         }
+        let work = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self, self.found.accounts.isEmpty else { return }
+                self.isSlow = true
+            }
+        }
+        slowWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.patience, execute: work)
     }
 
     func stop() {
+        slowWork?.cancel()
         scanner.onPayload = nil
         scanner.stop()
+    }
+
+    /// Reads the QR codes in a picture file: a screenshot of the export, for when the camera cannot
+    /// make the code out.
+    func importPicture(at url: URL) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let payloads = QRScanner.payloads(inPictureAt: url) ?? []
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    self.pictureNote = payloads.isEmpty ? L10n.authScanPictureNone : nil
+                    payloads.forEach { self.read($0) }
+                }
+            }
+        }
     }
 
     private func read(_ payload: String) {
@@ -197,14 +229,21 @@ struct AuthScanView: View {
             }
             camera
                 .frame(maxWidth: .infinity)
-                .frame(height: 236)
+                .frame(height: 212)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                // A picture of the code can be dropped here as well.
+                .dropDestination(for: URL.self) { urls, _ in
+                    urls.forEach { session.importPicture(at: $0) }
+                    return !urls.isEmpty
+                }
             status
                 .frame(maxWidth: .infinity, minHeight: 54, alignment: .topLeading)
             Spacer(minLength: 0)
             HStack {
                 Button(L10n.cancel) { state.stopScanning() }
                     .keyboardShortcut(.cancelAction)
+                Button(L10n.authScanPictureButton) { choosePicture() }
+                    .help(L10n.authScanPictureHelp)
                 Spacer()
                 Button(L10n.authScanAdd(session.found.accounts.count)) { save() }
                     .buttonStyle(.borderedProminent)
@@ -264,11 +303,17 @@ struct AuthScanView: View {
         let found = session.found
         VStack(alignment: .leading, spacing: 4) {
             if found.accounts.isEmpty {
-                Label(session.sawOtherCode ? L10n.authScanNotACode : L10n.authScanLooking, systemImage: session.sawOtherCode ? "exclamationmark.triangle" : "qrcode.viewfinder")
-                    .foregroundStyle(.secondary)
-                Text(L10n.authScanHint)
+                if let note = session.pictureNote {
+                    Label(note, systemImage: "exclamationmark.triangle")
+                        .foregroundStyle(.orange)
+                } else {
+                    Label(session.sawOtherCode ? L10n.authScanNotACode : L10n.authScanLooking, systemImage: session.sawOtherCode ? "exclamationmark.triangle" : "qrcode.viewfinder")
+                        .foregroundStyle(.secondary)
+                }
+                // After a while without a code, the camera is the likely reason: say what to do instead.
+                Text(session.isSlow ? L10n.authScanSlow : L10n.authScanHint)
                     .font(.footnote)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(session.isSlow ? .secondary : .tertiary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 Label(L10n.authScanFound(found.accounts.count), systemImage: "checkmark.circle.fill")
@@ -290,6 +335,19 @@ struct AuthScanView: View {
             }
         }
         .font(.callout)
+    }
+
+    /// Lets the user pick a picture of the code (a screenshot sent over from the phone).
+    private func choosePicture() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.image]
+        panel.allowsMultipleSelection = true
+        panel.canChooseDirectories = false
+        panel.message = L10n.authScanPictureHelp
+        panel.begin { response in
+            guard response == .OK else { return }
+            panel.urls.forEach { session.importPicture(at: $0) }
+        }
     }
 
     private func save() {

@@ -89,7 +89,10 @@ from Google Authenticator once: Settings → Sign-in codes → Manage Accounts�
 password) → Import from Google Authenticator…. On the phone, open Google Authenticator's menu, choose Transfer
 accounts → Export accounts, and hold the QR code up to the Mac's camera. A large export is split over several QR
 codes; NotchBox says how many are still to come. If a code is not picked up, move the phone closer, turn its
-brightness up, or export fewer accounts at a time. The accounts stay in Google Authenticator as well: keep them
+brightness up, or export fewer accounts at a time: the 720p camera of older laptops (the M1 MacBooks, for one)
+cannot make out a code that holds many accounts. Or leave the camera out of it: take a screenshot of the code on
+the phone, send it to the Mac and choose Import a Picture… (or drop the picture on the camera view). That picture
+holds your accounts' keys, so delete it once it is imported. The accounts stay in Google Authenticator as well: keep them
 there, so that you are not locked out if something happens to the Mac.
 
 From then on, when Safari, Chrome, Brave, Edge, Vivaldi or Arc is in front on a sign-in page of one of those
@@ -163,7 +166,7 @@ tab in view in the front browser window every second or two (macOS asks once for
 and only while you have accounts stored. Addresses are compared in memory and never saved or logged (only the
 name of a site you pin an account to is kept, in NotchBox's preferences), and the contents of pages are never
 read. The **camera** is on only while you import accounts: each picture is searched
-for a QR code and thrown away. A copied code is marked the way password managers mark passwords, so clipboard
+for a QR code and thrown away. A picture file you import instead is read once and not copied or kept. A copied code is marked the way password managers mark passwords, so clipboard
 histories, NotchBox's own included, do not keep it.
 
 To move the waveform with the music, NotchBox asks for **System Audio Recording** permission the first time
@@ -336,7 +339,10 @@ Google Authenticator'dan bir kez aktarırsın: Ayarlar → Giriş kodları → H
 şifreni sorar) → Google Authenticator'dan Aktar…. Telefonda Google Authenticator'ın menüsünden Hesapları aktar →
 Hesapları dışa aktar'ı seç ve çıkan QR kodunu Mac'in kamerasına göster. Çok hesap varsa dışa aktarma birkaç QR
 koduna bölünür; NotchBox kaç tane kaldığını söyler. Kod okunmuyorsa telefonu yaklaştır, ekran parlaklığını artır
-ya da daha az hesabı birlikte dışa aktar. Hesaplar Google Authenticator'da da durmaya devam eder: orada
+ya da daha az hesabı birlikte dışa aktar: eski dizüstülerin 720p kamerası (örneğin M1 MacBook'lar) çok hesap
+içeren bir kodu seçemez. Ya da kamerayı hiç kullanma: telefonda kodun ekran görüntüsünü al, Mac'e gönder ve
+Görselden İçe Aktar…'ı seç (görseli kamera görüntüsünün üzerine de bırakabilirsin). Bu görsel hesaplarının
+anahtarlarını içerir; içe aktardıktan sonra sil. Hesaplar Google Authenticator'da da durmaya devam eder: orada
 kalsınlar ki Mac'ine bir şey olursa hesaplarına girebilesin.
 
 Bundan sonra Safari, Chrome, Brave, Edge, Vivaldi ya da Arc önde ve bu hesaplardan birinin giriş sayfasındayken
@@ -411,7 +417,8 @@ göstereceğini bilmek için öndeki tarayıcı penceresinde görüntülenen sek
 (macOS bir kez **Otomasyon** izni ister), bunu da yalnızca kayıtlı hesabın varken yapar. Adresler bellekte
 karşılaştırılır, kaydedilmez ve günlüğe yazılmaz (yalnızca bir hesabı sabitlediğin sitenin adı NotchBox'ın
 tercihlerinde tutulur); sayfaların içeriği hiç okunmaz. **Kamera** yalnızca hesap
-aktarırken açıktır: her görüntüde QR kodu aranır ve görüntü atılır. Kopyalanan kod, şifre yöneticilerinin
+aktarırken açıktır: her görüntüde QR kodu aranır ve görüntü atılır. Onun yerine içe aktardığın bir görsel dosyası
+bir kez okunur; kopyalanmaz ve saklanmaz. Kopyalanan kod, şifre yöneticilerinin
 şifreleri işaretlediği gibi işaretlenir; böylece pano geçmişleri (NotchBox'ınki dahil) onu tutmaz.
 
 Ses dalgasının müziğe göre oynaması için NotchBox, ilk kez müzik çaldığında **Sistem Sesi Kaydı** izni ister

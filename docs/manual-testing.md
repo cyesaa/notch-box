@@ -295,6 +295,14 @@ Needs a phone with Google Authenticator and at least one account in it. The acco
 - [ ] Google Authenticator → menu → Transfer accounts → Export accounts → the QR code held up to the camera: within
   a second or two the window says how many accounts were found and names them. Any other QR code says it is not
   from an authenticator app.
+- [ ] On a Mac with a 720p camera (an M1 MacBook): an export of one to three accounts is read; with an export
+  of ten accounts, after about twelve seconds without a code the hint changes to say the camera may not make it
+  out, and points at exporting fewer accounts and at importing a picture.
+- [ ] "Import a Picture…" with a screenshot of the export code (PNG or JPEG): the accounts are found at once,
+  with the camera pointed at nothing. Dropping the picture on the camera view does the same. A picture without
+  a QR code says so; a QR code that is not an authenticator's says that.
+- [ ] On a Mac whose owner cannot be asked for Touch ID or a password (no password set), "Manage Accounts…"
+  still opens the window.
 - [ ] An export of more than 10 accounts (several QR codes): after the first, the window says "Code 1 of N read";
   after the last, that line goes. Showing a code twice changes nothing.
 - [ ] "Add N Accounts" returns to the list with "N accounts added."; importing the same export again says they

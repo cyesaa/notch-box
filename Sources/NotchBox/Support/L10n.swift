@@ -144,6 +144,10 @@ enum L10n {
     static var authScanStep3: String { string("auth_scan_step3") }
     static var authScanLooking: String { string("auth_scan_looking") }
     static var authScanHint: String { string("auth_scan_hint") }
+    static var authScanSlow: String { string("auth_scan_slow") }
+    static var authScanPictureButton: String { string("auth_scan_picture_button") }
+    static var authScanPictureHelp: String { string("auth_scan_picture_help") }
+    static var authScanPictureNone: String { string("auth_scan_picture_none") }
     static func authScanFound(_ count: Int) -> String { counted("auth_scan_found", count) }
     static func authScanMore(_ done: Int, _ total: Int) -> String { String(format: string("auth_scan_more"), done, total) }
     static var authScanNotACode: String { string("auth_scan_not_a_code") }

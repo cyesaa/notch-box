@@ -82,8 +82,12 @@ enum DeviceOwnerCheck {
         let context = LAContext()
         var error: NSError?
         guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
-            // A Mac without a password has nothing to ask for; anything else is a refusal.
-            completion((error as? LAError)?.code == .passcodeNotSet)
+            // The Mac cannot ask at all (no password set, say). Refusing would leave a button that does
+            // nothing and accounts that can never be added, and whoever sits at the Mac can read the
+            // codes anyway, so the question is skipped.
+            Logger(subsystem: AppConstants.logSubsystem, category: "auth")
+                .notice("The Mac cannot ask for Touch ID or its password (\(error?.code ?? 0, privacy: .public)); opening the accounts without asking")
+            completion(true)
             return
         }
         // The closure holds the context: letting go of it would cancel the question.

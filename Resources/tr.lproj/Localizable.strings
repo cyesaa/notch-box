@@ -170,3 +170,7 @@
 "color_violet" = "Eflatun";
 "appearance_transparency" = "Saydamlık";
 "appearance_glass" = "Liquid Glass";
+"auth_scan_slow" = "Bu Mac'in kamerası çok hesap içeren bir kodu seçemeyebilir. Daha az hesabı birlikte dışa aktar ya da telefonda kodun ekran görüntüsünü alıp o görseli içe aktar.";
+"auth_scan_picture_button" = "Görselden İçe Aktar…";
+"auth_scan_picture_help" = "QR kodunun ekran görüntüsünü seç. Görsel hesaplarının anahtarlarını içerir; içe aktardıktan sonra sil.";
+"auth_scan_picture_none" = "Bu görselde QR kodu bulunamadı.";

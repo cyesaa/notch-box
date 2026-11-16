@@ -170,3 +170,7 @@
 "color_violet" = "Violet";
 "appearance_transparency" = "Transparency";
 "appearance_glass" = "Liquid Glass";
+"auth_scan_slow" = "This Mac's camera may not make out a code that holds many accounts. Export fewer accounts at a time, or take a screenshot of the code on your phone and import that picture.";
+"auth_scan_picture_button" = "Import a Picture…";
+"auth_scan_picture_help" = "Choose a screenshot of the QR code. It holds your accounts' keys: delete it once it is imported.";
+"auth_scan_picture_none" = "No QR code was found in that picture.";

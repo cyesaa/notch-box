@@ -1,4 +1,6 @@
 import AVFoundation
+import CoreImage
+import os
 import SwiftUI
 import Vision
 
@@ -24,6 +26,9 @@ final class QRScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @
     private var lastLook = Date.distantPast
     /// Gap between two looks at the picture; reading a dense code is slower than the camera is fast.
     private static let lookInterval: TimeInterval = 0.12
+    private static let logger = Logger(subsystem: "com.notchbox.NotchBox", category: "auth")
+    /// Said once, not for every frame.
+    private nonisolated(unsafe) static var hasLoggedFailure = false
 
     /// Asks for the camera when needed, then starts it. Completes on the main thread with why it could
     /// not start, or nil.
@@ -56,15 +61,45 @@ final class QRScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @
     static func payloads(in handler: VNImageRequestHandler) -> [String] {
         let request = VNDetectBarcodesRequest()
         request.symbologies = [.qr]
-        guard (try? handler.perform([request])) != nil else { return [] }
+        do {
+            try handler.perform([request])
+        } catch {
+            if !hasLoggedFailure {
+                hasLoggedFailure = true
+                logger.error("Looking for a QR code failed: \(error.localizedDescription, privacy: .public)")
+            }
+            return []
+        }
         return (request.results ?? []).compactMap(\.payloadStringValue)
+    }
+
+    /// Pictures narrower than this get a second look, enlarged: a 720p camera (the one in M1 laptops)
+    /// shows an export of many accounts with modules only a pixel or two wide.
+    private static let smallPictureWidth: CGFloat = 1_700
+
+    /// The text of every QR code in a picture. When nothing is found in a small picture it is looked at
+    /// again, enlarged and sharpened, which reads codes that are a little too fine or soft as they are.
+    static func payloads(in image: CIImage) -> [String] {
+        let found = payloads(in: VNImageRequestHandler(ciImage: image, options: [:]))
+        guard found.isEmpty, image.extent.width < smallPictureWidth, image.extent.width > 0 else { return found }
+        let enlarged = image
+            .applyingFilter("CILanczosScaleTransform", parameters: [kCIInputScaleKey: 2.0, kCIInputAspectRatioKey: 1.0])
+            .applyingFilter("CIUnsharpMask", parameters: [kCIInputRadiusKey: 2.5, kCIInputIntensityKey: 1.2])
+        return payloads(in: VNImageRequestHandler(ciImage: enlarged, options: [:]))
+    }
+
+    /// The text of every QR code in a picture file (a screenshot of the code, say); nil when the file
+    /// is not a picture.
+    static func payloads(inPictureAt url: URL) -> [String]? {
+        guard let image = CIImage(contentsOf: url, options: [.applyOrientationProperty: true]) else { return nil }
+        return payloads(in: image)
     }
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         let time = Date()
         guard time.timeIntervalSince(lastLook) >= Self.lookInterval, let image = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         lastLook = time
-        let payloads = Self.payloads(in: VNImageRequestHandler(cvPixelBuffer: image, options: [:]))
+        let payloads = Self.payloads(in: CIImage(cvPixelBuffer: image))
         guard !payloads.isEmpty else { return }
         DispatchQueue.main.async {
             MainActor.assumeIsolated { payloads.forEach { self.onPayload?($0) } }
@@ -83,6 +118,11 @@ final class QRScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @
             if session.canSetSessionPreset(.hd1920x1080) { session.sessionPreset = .hd1920x1080 }
             session.addInput(input)
             let output = AVCaptureVideoDataOutput()
+            // Frames in a format every reader takes. Left to the camera, an older one hands over its own
+            // format (the 720p camera's is not the newer cameras'), and the code might never be found.
+            if output.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_32BGRA) {
+                output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
+            }
             output.alwaysDiscardsLateVideoFrames = true
             output.setSampleBufferDelegate(self, queue: queue)
             if session.canAddOutput(output) { session.addOutput(output) }
