@@ -73,7 +73,7 @@ private struct CloseButton: View {
         Button(action: action) {
             Image(systemName: "xmark")
                 .font(.system(size: 10, weight: .bold))
-                .foregroundStyle(NotchTheme.primaryText)
+                .foregroundStyle(Color.white)
                 .frame(width: NotchLayout.videoCloseButtonSide, height: NotchLayout.videoCloseButtonSide)
                 .background(Circle().fill(Color(white: 0.16)))
                 .overlay(Circle().strokeBorder(Color.white.opacity(0.18), lineWidth: 1))
@@ -99,7 +99,7 @@ private struct SignInButton: View {
                 Text(label)
                     .font(.system(size: 11, weight: .medium))
             }
-            .foregroundStyle(NotchTheme.primaryText)
+            .foregroundStyle(Color.white)
             .padding(.horizontal, 9)
             .frame(height: NotchLayout.videoCloseButtonSide)
             .background(Capsule().fill(Color(white: 0.16)))

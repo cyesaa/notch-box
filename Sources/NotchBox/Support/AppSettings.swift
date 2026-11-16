@@ -10,20 +10,24 @@ import ServiceManagement
 @Observable
 final class AppSettings {
     private static let sideWidgetsKey = "SideWidgets"
+    private static let appearanceKey = "NotchAppearance"
 
     private(set) var sideWidgets: SideWidgets
+    private(set) var appearance: NotchAppearance
     private(set) var showsWithoutNotch: Bool
     private(set) var hidesIdleVirtualNotch: Bool
     private(set) var launchesAtLogin: Bool
     private(set) var checksForUpdates: Bool
 
     @ObservationIgnored var onSideWidgetsChange: ((SideWidgets) -> Void)?
+    @ObservationIgnored var onAppearanceChange: ((NotchAppearance) -> Void)?
     @ObservationIgnored let updates: UpdateService
     @ObservationIgnored private let logger = Logger(subsystem: AppConstants.logSubsystem, category: "settings")
 
     init(updates: UpdateService) {
         self.updates = updates
         sideWidgets = UserDefaults.standard.data(forKey: Self.sideWidgetsKey).flatMap(SideWidgets.decode) ?? .default
+        appearance = UserDefaults.standard.data(forKey: Self.appearanceKey).flatMap(NotchAppearance.decode) ?? .default
         showsWithoutNotch = ScreenWatcher.showsWithoutNotch
         hidesIdleVirtualNotch = ScreenWatcher.hidesIdleVirtualNotch
         launchesAtLogin = SMAppService.mainApp.status == .enabled
@@ -45,6 +49,18 @@ final class AppSettings {
             UserDefaults.standard.set(data, forKey: Self.sideWidgetsKey)
         }
         onSideWidgetsChange?(sides)
+    }
+
+    /// The panel's background and neon. The default look is not saved at all.
+    func setAppearance(_ new: NotchAppearance) {
+        guard new != appearance else { return }
+        appearance = new
+        if new == .default {
+            UserDefaults.standard.removeObject(forKey: Self.appearanceKey)
+        } else if let data = try? JSONEncoder().encode(new) {
+            UserDefaults.standard.set(data, forKey: Self.appearanceKey)
+        }
+        onAppearanceChange?(new)
     }
 
     func setShowsWithoutNotch(_ value: Bool) {

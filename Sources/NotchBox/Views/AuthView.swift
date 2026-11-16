@@ -105,7 +105,7 @@ struct AuthHUDView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(isCopied ? Color.white.opacity(0.16) : NotchTheme.tile)
+                .fill(isCopied ? NotchTheme.ink.opacity(0.16) : NotchTheme.tile)
         )
         .contextMenu {
             Button(L10n.authCopy) { auth.copyCode(of: entry) }
@@ -201,7 +201,7 @@ struct AuthView: View {
                     .foregroundStyle(NotchTheme.primaryText)
                     .padding(.horizontal, 14)
                     .frame(height: 26)
-                    .background(Capsule().fill(Color.white.opacity(0.16)))
+                    .background(Capsule().fill(NotchTheme.ink.opacity(0.16)))
                     .contentShape(Capsule())
             }
             .buttonStyle(PressableButtonStyle())
@@ -268,7 +268,7 @@ private struct AuthRow: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(isCopied || isForSite ? Color.white.opacity(0.16) : NotchTheme.tile)
+                .fill(isCopied || isForSite ? NotchTheme.ink.opacity(0.16) : NotchTheme.tile)
         )
         .contextMenu {
             Button(L10n.authCopy, action: onCopy)

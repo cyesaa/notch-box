@@ -14,11 +14,11 @@ struct ControlsRow: View {
             Button(action: onTogglePlayPause) {
                 Image(systemName: playPauseSymbol)
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(Color.black)
+                    .foregroundStyle(NotchTheme.paper)
                     // The play triangle looks off-centre when centred by its bounds.
                     .offset(x: isPlaying == false ? 1.5 : 0)
                     .frame(width: 36, height: 36)
-                    .background(Circle().fill(Color.white))
+                    .background(Circle().fill(NotchTheme.ink))
                     .contentShape(Circle())
             }
             .buttonStyle(PressableButtonStyle())

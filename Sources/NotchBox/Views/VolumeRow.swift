@@ -15,7 +15,7 @@ struct VolumeRow: View {
                 .accessibilityHidden(true)
             ScrubBar(
                 fraction: Double(volume),
-                tint: Color.white.opacity(0.85),
+                tint: NotchTheme.ink.opacity(0.85),
                 isEnabled: isEnabled,
                 accessibilityLabel: L10n.volume,
                 accessibilityValue: "\(Int((volume * 100).rounded())) %",

@@ -38,6 +38,8 @@ enum SnapshotRenderer {
         var page: String?
         /// No sign-in accounts stored.
         var noAccounts = false
+        /// The panel's background and neon.
+        var appearance = NotchAppearance.default
     }
 
     static func render(to directory: URL) throws {
@@ -87,6 +89,15 @@ enum SnapshotRenderer {
             Scene(name: "15c-only-the-diagonals", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: nil, right: nil, bottomLeft: .calendar, bottomRight: .clipboard)),
             Scene(name: "15d-nothing-playing-with-bottom-row", state: .nothing, hovering: true, sides: SideWidgets(left: .clipboard, right: nil, bottom: .calendar, bottomRight: .vpn), vpn: .disconnected),
             Scene(name: "15e-virtual-notch-bottom-row", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, virtualNotch: true, sides: SideWidgets(left: .clipboard, right: .calendar, bottomLeft: .auth, bottomRight: .vpn), vpn: .connected),
+            Scene(name: "16a-neon-my-colour", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, appearance: NotchAppearance(glow: .custom)),
+            Scene(name: "16b-neon-cover-colour-mini", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, appearance: NotchAppearance(glow: .artwork)),
+            Scene(name: "16c-neon-around-the-closed-notch", state: .nothing, hovering: false, appearance: NotchAppearance(glow: .custom, glowColor: ArtworkColor(red: 1, green: 0.2, blue: 0.8), glowsWhenIdle: true)),
+            Scene(name: "16d-navy-background-pink-neon", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: cool)), hovering: true, appearance: NotchAppearance(background: ArtworkColor(red: 0.06, green: 0.09, blue: 0.3), glow: .custom, glowColor: ArtworkColor(red: 1, green: 0.2, blue: 0.8))),
+            Scene(name: "16e-light-background-every-widget", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: .calendar, bottomLeft: .vpn, bottom: .auth), vpn: .connected, page: "https://github.com/login", appearance: NotchAppearance(background: ArtworkColor(red: 0.96, green: 0.94, blue: 0.88))),
+            Scene(name: "16f-light-background-mini-and-code", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, page: "https://github.com/login", appearance: NotchAppearance(background: .white, glow: .artwork)),
+            Scene(name: "16g-light-background-nothing-playing", state: .nothing, hovering: true, sides: SideWidgets(left: .vpn, right: .calendar), vpn: .disconnected, appearance: NotchAppearance(background: ArtworkColor(red: 1, green: 0.85, blue: 0.2))),
+            Scene(name: "16h-red-background-volume", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, volumeChange: true, appearance: NotchAppearance(background: ArtworkColor(red: 0.8, green: 0.1, blue: 0.1))),
+            Scene(name: "16i-virtual-notch-idle-coloured", state: .nothing, hovering: false, virtualNotch: true, appearance: NotchAppearance(background: ArtworkColor(red: 0.3, green: 0.1, blue: 0.5), glow: .custom, glowsWhenIdle: true)),
             Scene(name: "12c-only-left-column", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: nil)),
             Scene(name: "10-clipboard-image-preview", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, previewImage: true),
             Scene(name: "6-unavailable", state: .unavailable, hovering: true),
@@ -142,6 +153,8 @@ enum SnapshotRenderer {
         )
         model.setNotchSize(notch, isVirtual: scene.virtualNotch)
         model.setSideWidgets(scene.sides)
+        // Always, so that one scene's text colour does not carry over into the next.
+        model.setAppearance(scene.appearance)
         model.setHidesIdleVirtualNotch(scene.hideIdle)
         model.start()
         // A pinned row in every scene with a clipboard: the oldest sample item.

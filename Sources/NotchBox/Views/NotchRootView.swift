@@ -13,10 +13,15 @@ struct NotchRootView: View {
         let offset = NotchLayout.horizontalOffset(for: state, sides: model.sideWidgets)
         // A virtual notch can be hidden while idle (menu setting).
         let hidden = state == .idle && model.hidesIdleShape
+        let appearance = model.appearance
+        // Around a real notch the closed shape stays black, whatever colour was chosen: it sits behind
+        // the cut-out in the screen, and any edge of it that showed would show as a coloured sliver.
+        let background = state == .idle && !model.isVirtualNotch ? ArtworkColor.black : appearance.background
+        let glow = hidden ? nil : model.glowColor
         ZStack(alignment: .top) {
             // The silhouette is wider than the content by the flared top corners on each side.
             NotchShape(topRadius: flare, bottomRadius: bottomRadius)
-                .fill(Color.black)
+                .fill(Color(background))
                 .frame(width: size.width + 2 * flare, height: size.height)
                 .shadow(color: Color.black.opacity(state == .idle ? 0 : 0.45), radius: state.isOpen ? 16 : 8, y: state.isOpen ? 8 : 3)
                 .opacity(hidden ? 0 : model.isSeeThrough ? 0.12 : 1)
@@ -25,10 +30,23 @@ struct NotchRootView: View {
                 .frame(width: size.width, height: size.height, alignment: .top)
                 .clipShape(NotchShape(topRadius: 0, bottomRadius: bottomRadius))
                 .offset(x: offset)
+                // The views take their text colour from `NotchTheme` as they are drawn; when it flips
+                // between white and black they are all drawn again.
+                .id(appearance.isLight)
+            if let glow {
+                NeonOutline(color: Color(glow), topRadius: flare, bottomRadius: bottomRadius)
+                    .frame(width: size.width + 2 * flare, height: size.height)
+                    .opacity(model.isSeeThrough ? 0.12 : 1)
+                    .offset(x: offset)
+                    .allowsHitTesting(false)
+                    .transition(.opacity)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: model.displayState)
         .animation(NotchTheme.accentAnimation, value: model.accent)
+        .animation(NotchTheme.accentAnimation, value: model.glowColor)
+        .animation(.easeInOut(duration: 0.25), value: appearance)
         .animation(.easeOut(duration: 0.18), value: model.isSeeThrough)
     }
 
@@ -96,7 +114,7 @@ extension NotchRootView {
                 // A hairline between the two rows.
                 .overlay(alignment: .top) {
                     Rectangle()
-                        .fill(Color.white.opacity(0.08))
+                        .fill(NotchTheme.ink.opacity(0.08))
                         .frame(height: 1)
                         .padding(.horizontal, 16)
                 }
@@ -113,6 +131,22 @@ extension NotchRootView {
         } else {
             Color.clear.frame(width: NotchLayout.sideColumnWidth)
         }
+    }
+}
+
+/// The neon: a thin bright line along the panel's sides and bottom with a soft halo around it. The top
+/// edge is left out, since it is the edge of the screen.
+private struct NeonOutline: View {
+    let color: Color
+    let topRadius: CGFloat
+    let bottomRadius: CGFloat
+
+    var body: some View {
+        NotchShape(topRadius: topRadius, bottomRadius: bottomRadius, isClosed: false)
+            .stroke(color, style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round))
+            .shadow(color: color.opacity(0.9), radius: 3)
+            .shadow(color: color.opacity(0.6), radius: 8)
+            .accessibilityHidden(true)
     }
 }
 

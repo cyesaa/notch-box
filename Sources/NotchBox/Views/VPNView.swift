@@ -85,7 +85,7 @@ struct VPNView: View {
                     .frame(height: 50)
                     .background(
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(entry.status == .connected ? Color.white.opacity(0.14) : NotchTheme.tile)
+                            .fill(entry.status == .connected ? NotchTheme.ink.opacity(0.14) : NotchTheme.tile)
                     )
                 }
             }
@@ -139,14 +139,14 @@ private struct VPNAction: View {
         case .disconnected, .unavailable:
             if case .openVPN = entry.kind, !entry.profiles.isEmpty {
                 if entry.profiles.count == 1, let profile = entry.profiles.first {
-                    capsule(L10n.vpnConnect, fill: Color.white.opacity(0.16), text: NotchTheme.primaryText) { model.connect(profile) }
+                    capsule(L10n.vpnConnect, fill: NotchTheme.ink.opacity(0.16), text: NotchTheme.primaryText) { model.connect(profile) }
                 } else {
                     Menu {
                         ForEach(entry.profiles) { profile in
                             Button(profile.shortName) { model.connect(profile) }
                         }
                     } label: {
-                        capsuleLabel(L10n.vpnConnect + " ▾", fill: Color.white.opacity(0.16), text: NotchTheme.primaryText)
+                        capsuleLabel(L10n.vpnConnect + " ▾", fill: NotchTheme.ink.opacity(0.16), text: NotchTheme.primaryText)
                     }
                     .menuStyle(.button)
                     .buttonStyle(.plain)
@@ -155,11 +155,11 @@ private struct VPNAction: View {
                     .help(L10n.vpnChooseProfile)
                 }
             } else if entry.isFortiClient {
-                capsule(L10n.vpnConnect, fill: Color.white.opacity(0.16), text: NotchTheme.primaryText) {
+                capsule(L10n.vpnConnect, fill: NotchTheme.ink.opacity(0.16), text: NotchTheme.primaryText) {
                     model.connectFortiClient()
                 }
             } else {
-                capsule(compact ? L10n.vpnOpenShort : VPNText.connectLabel(entry), fill: Color.white.opacity(0.16), text: NotchTheme.primaryText) {
+                capsule(compact ? L10n.vpnOpenShort : VPNText.connectLabel(entry), fill: NotchTheme.ink.opacity(0.16), text: NotchTheme.primaryText) {
                     model.openApp(for: entry)
                 }
             }

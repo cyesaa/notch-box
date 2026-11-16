@@ -56,7 +56,7 @@ struct CalendarView: View {
                         .foregroundStyle(NotchTheme.primaryText)
                         .padding(.horizontal, 12)
                         .frame(height: 26)
-                        .background(Capsule().fill(Color.white.opacity(0.16)))
+                        .background(Capsule().fill(NotchTheme.ink.opacity(0.16)))
                         .contentShape(Capsule())
                 }
                 .buttonStyle(PressableButtonStyle())
@@ -149,10 +149,10 @@ private struct WeekStrip: View {
             Text(Self.dayNumber.string(from: day))
                 .font(.system(size: 12, weight: isToday || selected ? .bold : .medium))
                 .monospacedDigit()
-                .foregroundStyle(isToday ? Color.black : NotchTheme.primaryText.opacity(selected ? 1 : 0.8))
+                .foregroundStyle(isToday ? NotchTheme.paper : NotchTheme.primaryText.opacity(selected ? 1 : 0.8))
                 .frame(width: 22, height: 22)
                 .background(
-                    Circle().fill(isToday ? Color.white : selected ? Color.white.opacity(0.18) : Color.clear)
+                    Circle().fill(isToday ? NotchTheme.ink : selected ? NotchTheme.ink.opacity(0.18) : Color.clear)
                 )
             Circle()
                 .fill(busyDays.contains(day) ? NotchTheme.secondaryText : Color.clear)
@@ -238,7 +238,7 @@ private struct EventRow: View {
         .padding(.trailing, event.meetingURL == nil ? 0 : 6)
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(status == .ongoing ? Color.white.opacity(0.16) : NotchTheme.tile)
+                .fill(status == .ongoing ? NotchTheme.ink.opacity(0.16) : NotchTheme.tile)
         )
     }
 

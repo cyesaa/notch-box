@@ -64,6 +64,16 @@ enum L10n {
     static var settingsNone: String { string("settings_none") }
     static var settingsPlayer: String { string("settings_player") }
     static var settingsNotchHeader: String { string("settings_notch_header") }
+    static var settingsAppearanceHeader: String { string("settings_appearance_header") }
+    static var settingsAppearanceFooter: String { string("settings_appearance_footer") }
+    static var appearanceBackground: String { string("appearance_background") }
+    static var appearanceGlow: String { string("appearance_glow") }
+    static var appearanceGlowOff: String { string("appearance_glow_off") }
+    static var appearanceGlowArtwork: String { string("appearance_glow_artwork") }
+    static var appearanceGlowCustom: String { string("appearance_glow_custom") }
+    static var appearanceGlowColor: String { string("appearance_glow_color") }
+    static var appearanceGlowWhenIdle: String { string("appearance_glow_when_idle") }
+    static var appearanceReset: String { string("appearance_reset") }
     static var settingsGeneralHeader: String { string("settings_general_header") }
     static func settingsVersion(_ version: String) -> String { String(format: string("settings_version"), version) }
     static var showWithoutNotch: String { string("show_without_notch") }

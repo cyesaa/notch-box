@@ -1,14 +1,28 @@
+import AppKit
 import NotchBoxCore
 import SwiftUI
 
-/// Shared colours and type for the notch views. The panel itself is always pure black so it merges
-/// with the hardware notch; colour comes only from the cover (`NotchViewModel.accent`).
+/// Shared colours and type for the notch views. Out of the box the panel is pure black, so it merges
+/// with the hardware notch, and colour comes only from the cover (`NotchViewModel.accent`). The user can
+/// pick another background (`NotchAppearance`); text and symbols are then drawn in `ink`, white or black,
+/// whichever reads on it.
 enum NotchTheme {
-    static let primaryText = Color.white
-    static let secondaryText = Color.white.opacity(0.6)
-    static let tertiaryText = Color.white.opacity(0.4)
-    static let track = Color.white.opacity(0.16)
-    static let tile = Color.white.opacity(0.08)
+    /// The colour of text and symbols. Changed only through `use(_:)`; the views read it as they are
+    /// drawn, and `NotchRootView` draws them all again when it flips between white and black.
+    nonisolated(unsafe) private(set) static var ink = Color.white
+    /// What is drawn on a shape filled with `ink` (the play button's symbol, today's number).
+    nonisolated(unsafe) private(set) static var paper = Color.black
+
+    static func use(_ appearance: NotchAppearance) {
+        ink = Color(appearance.ink)
+        paper = Color(appearance.paper)
+    }
+
+    static var primaryText: Color { ink }
+    static var secondaryText: Color { ink.opacity(0.6) }
+    static var tertiaryText: Color { ink.opacity(0.4) }
+    static var track: Color { ink.opacity(0.16) }
+    static var tile: Color { ink.opacity(0.08) }
 
     static let titleFont = Font.system(size: 15, weight: .semibold)
     static let subtitleFont = Font.system(size: 12.5, weight: .regular)
@@ -22,6 +36,16 @@ enum NotchTheme {
 extension Color {
     init(_ rgb: ArtworkColor) {
         self.init(.sRGB, red: rgb.red, green: rgb.green, blue: rgb.blue, opacity: 1)
+    }
+}
+
+extension ArtworkColor {
+    /// A colour from a colour picker, brought into sRGB.
+    init(_ color: Color) {
+        let srgb = NSColor(color).usingColorSpace(.sRGB)
+        self = ArtworkColor(
+            red: Double(srgb?.redComponent ?? 0), green: Double(srgb?.greenComponent ?? 0), blue: Double(srgb?.blueComponent ?? 0)
+        ).clamped
     }
 }
 

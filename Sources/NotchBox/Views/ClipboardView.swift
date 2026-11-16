@@ -65,7 +65,7 @@ struct ClipboardView: View {
             ForEach(model.clipboard.pinned) { row($0) }
             if !model.clipboard.pinned.isEmpty, !model.clipboard.recent.isEmpty {
                 Rectangle()
-                    .fill(Color.white.opacity(0.1))
+                    .fill(NotchTheme.ink.opacity(0.1))
                     .frame(height: 1)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -142,7 +142,7 @@ private struct ClipboardRow: View {
         .padding(.trailing, 4)
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(isCopied || isPreviewed ? Color.white.opacity(0.16) : NotchTheme.tile)
+                .fill(isCopied || isPreviewed ? NotchTheme.ink.opacity(0.16) : NotchTheme.tile)
         )
         .contextMenu {
             Button(L10n.clipboardCopy, action: onCopy)

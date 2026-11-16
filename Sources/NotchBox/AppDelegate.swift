@@ -42,6 +42,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         model.setSideWidgets(settings.sideWidgets)
         settings.onSideWidgetsChange = { [weak model] sides in model?.setSideWidgets(sides) }
+        model.setAppearance(settings.appearance)
+        settings.onAppearanceChange = { [weak model] appearance in model?.setAppearance(appearance) }
         let windowController = NotchWindowController(model: model)
         windowController.start()
         model.start()

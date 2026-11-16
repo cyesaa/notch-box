@@ -6,6 +6,9 @@ import SwiftUI
 struct NotchShape: Shape {
     var topRadius: CGFloat
     var bottomRadius: CGFloat
+    /// False leaves the top edge out: the outline the neon follows, which must not run along the edge of
+    /// the screen.
+    var isClosed = true
 
     var animatableData: AnimatablePair<CGFloat, CGFloat> {
         get { AnimatablePair(topRadius, bottomRadius) }
@@ -28,7 +31,7 @@ struct NotchShape: Shape {
         path.addQuadCurve(to: CGPoint(x: body.maxX, y: body.maxY - radius), control: CGPoint(x: body.maxX, y: body.maxY))
         path.addLine(to: CGPoint(x: body.maxX, y: rect.minY + flare))
         path.addQuadCurve(to: CGPoint(x: rect.maxX, y: rect.minY), control: CGPoint(x: body.maxX, y: rect.minY))
-        path.closeSubpath()
+        if isClosed { path.closeSubpath() }
         return path
     }
 }

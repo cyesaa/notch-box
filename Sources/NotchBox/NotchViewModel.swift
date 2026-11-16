@@ -22,8 +22,13 @@ final class NotchViewModel {
     private(set) var nowPlaying: NowPlayingState = .nothing
     private(set) var artworkImage: NSImage?
     private(set) var artworkVersion = 0
-    /// Tint picked from the cover (`ArtworkAccent`); a neutral light colour without one.
+    /// Tint picked from the cover (`ArtworkAccent`), made to stand out on the panel's background; a
+    /// neutral light colour without a cover.
     private(set) var accent = ArtworkAccent.fallback
+    /// The cover's colour as it was picked; the neon line uses it.
+    private(set) var coverColor = ArtworkAccent.fallback
+    /// The panel's background and neon, chosen in Settings.
+    private(set) var appearance = NotchAppearance.default
     private(set) var sourceAppIcon: NSImage?
     private(set) var volume: Float = 0
     private(set) var isVolumeSettable = false
@@ -149,6 +154,18 @@ final class NotchViewModel {
     var isUnavailable: Bool { nowPlaying == .unavailable }
 
     var contentSize: CGSize { NotchLayout.size(for: displayState, notch: notchSize, sides: sideWidgets) }
+
+    func setAppearance(_ new: NotchAppearance) {
+        NotchTheme.use(new)
+        guard new != appearance else { return }
+        appearance = new
+        accent = new.readable(coverColor)
+    }
+
+    /// The neon's colour in the state on screen; nil while there is none.
+    var glowColor: ArtworkColor? {
+        appearance.showsGlow(in: displayState) ? appearance.glowColor(cover: coverColor) : nil
+    }
 
     /// What sits left and right of the open player (chosen in Settings).
     private(set) var sideWidgets = SideWidgets.default
@@ -796,7 +813,8 @@ final class NotchViewModel {
         if artwork.version != artworkVersion {
             artworkImage = artwork.image
             artworkVersion = artwork.version
-            accent = ArtworkSampler.accent(for: artwork.image)
+            coverColor = ArtworkSampler.accent(for: artwork.image)
+            accent = appearance.readable(coverColor)
         }
         artworkTimer?.invalidate()
         artworkTimer = nil

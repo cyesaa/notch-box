@@ -5,7 +5,7 @@ import SwiftUI
 /// actually playing; without them they bounce on their own. With Reduce Motion on, playing bars hold still.
 struct WaveformView: View {
     let isPlaying: Bool
-    var tint: Color = .white
+    var tint: Color = NotchTheme.ink
     var barCount = 5
     var meter: AudioLevelMeter?
 

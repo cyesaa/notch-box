@@ -93,6 +93,27 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 - [ ] "Quit NotchBox" quits the app; `pgrep -f mediaremote-adapter` then prints nothing.
 - [ ] `pkill -x NotchBox` also quits cleanly; `pgrep -f mediaremote-adapter` then prints nothing.
 
+## Appearance
+
+- [ ] Out of the box Settings → Appearance shows a black background, Neon: Off and a disabled "Back to Black";
+  the notch looks as it always did.
+- [ ] Background colour: with the colour panel open, hover the notch and drag in the panel: the open panel changes
+  colour as you drag. A dark colour (navy, burgundy) keeps white text.
+- [ ] A light background (white, yellow): text, symbols, the play button and today's circle in the calendar turn
+  dark. Every widget stays readable: clipboard, calendar, VPN, sign-in codes, the volume row and the code row.
+- [ ] A background the same colour as the cover (a red cover on red): the progress bar and waveform still stand out.
+- [ ] On a MacBook with a notch, the closed notch looks unchanged whatever the colour (no coloured edge around the
+  cut-out); while music plays, the two wings beside the notch have the colour. On a screen without a notch the
+  closed virtual notch has the colour too.
+- [ ] Neon: My colour: a thin bright line with a soft halo runs down the sides and along the bottom of the mini
+  notch and of the open panel, not along the top edge of the screen. The colour well under it changes it live.
+- [ ] Neon: Colour of the cover: the line has the colour of the cover and changes with the track; with nothing
+  playing it is a soft white.
+- [ ] "Keep it on around the closed notch": the neon surrounds the closed notch; off, it shows only while the
+  notch shows something. With a hidden idle virtual notch there is no neon while idle.
+- [ ] A video in the notch, passed over from the side, fades together with its neon.
+- [ ] "Back to Black" restores the black panel without neon. The choice survives quitting and reopening NotchBox.
+
 ## Mini notch buttons and volume
 
 - [ ] While playing, pointing at the mini waveform shows a pause button and does not open the panel; clicking it pauses.

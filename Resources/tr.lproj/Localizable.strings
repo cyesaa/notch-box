@@ -142,3 +142,13 @@
 "auth_added_none" = "Bu hesaplar zaten ekliydi.";
 "auth_save_failed" = "Değişiklik Anahtar Zinciri'ne kaydedilemedi.";
 "auth_unlock_reason" = "giriş kodlarını yönetmek";
+"settings_appearance_header" = "Görünüm";
+"settings_appearance_footer" = "MacBook'ta çentiğin kendisi siyah kalır; ekrandaki bir oyuktur. Açık bir arka planda yazılar ve simgeler koyulaşır.";
+"appearance_background" = "Arka plan rengi";
+"appearance_glow" = "Neon";
+"appearance_glow_off" = "Kapalı";
+"appearance_glow_artwork" = "Kapağın rengi";
+"appearance_glow_custom" = "Kendi rengim";
+"appearance_glow_color" = "Neon rengi";
+"appearance_glow_when_idle" = "Notch kapalıyken de yansın";
+"appearance_reset" = "Siyaha Dön";

@@ -57,7 +57,7 @@ extension View {
             .overlay(alignment: isLeft ? .trailing : .leading) {
                 if isLeft || isRight {
                     Rectangle()
-                        .fill(Color.white.opacity(0.08))
+                        .fill(NotchTheme.ink.opacity(0.08))
                         .frame(width: 1)
                         .padding(.top, notchHeight + 8)
                         .padding(.bottom, 18)

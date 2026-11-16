@@ -13,7 +13,7 @@ struct VolumeHUDView: View {
             } else {
                 Color.clear.frame(height: model.notchSize.height)
             }
-            VolumeLevelRow(volume: model.volume, tint: model.info != nil ? Color(model.accent) : .white)
+            VolumeLevelRow(volume: model.volume, tint: model.info != nil ? Color(model.accent) : NotchTheme.ink)
                 .frame(height: NotchLayout.volumeRowHeight - 6)
                 .padding(.horizontal, 14)
             Spacer(minLength: 0)

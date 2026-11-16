@@ -20,6 +20,8 @@ Control whatever is playing on your Mac from the MacBook notch.
   Pass over the video and it fades away so you can see and click what is behind it; only its close button stays.
   Come down onto it from the menu bar instead and it stays solid, so YouTube's own controls work.
 - Want more at a glance? Settings adds a second row under the player, with room for three more widgets.
+- Make it yours: give the panel any background colour, and a neon line around the notch in a colour you pick or
+  in the colour of the cover that is playing.
 - Signing in somewhere with a six-digit code from Google Authenticator? Bring your accounts over once, and when
   your browser is on that site's sign-in page the code slides out under the notch. Click it to copy it; the
   phone stays in your pocket.
@@ -53,6 +55,13 @@ and up to three more in a second row under it (bottom left, below and bottom rig
 Calendar, VPN, Sign-in codes or nothing (more widgets will follow). A widget sits in one place at a time: picking
 one that is already placed swaps the two. With the bottom row empty the panel is as it always was; with a widget
 in it the panel is twice as tall. Settings also holds the sign-in code, notch, launch-at-login and update options.
+
+**Appearance** (in Settings) changes how the notch looks. The background can be any colour; on a light one, text
+and symbols turn dark so they stay readable, and the colour taken from the cover is adjusted until it stands out.
+Neon is a thin glowing line along the edge of the notch: off, in the colour of the cover that is playing, or in a
+colour of your own, and it can stay on around the closed notch too. "Back to Black" brings back the look NotchBox
+comes with. On a MacBook the notch itself stays black whatever you choose (it is a cut-out in the screen), so with
+another background the panel hangs from a black notch.
 
 **VPN** shows whether your VPNs are connected and for how long, with a Disconnect button: FortiClient's VPN (or
 otherwise one from System Settings) and OpenVPN Connect, a row each when both are installed. OpenVPN profiles
@@ -249,6 +258,8 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
   ve FaceTime görüşmelerinde yeşil bir Katıl düğmesi çıkar; etkinliğe tıklayınca Takvim açılır.
 - Bir bakışta daha fazlasını mı görmek istiyorsun? Ayarlar'dan oynatıcının altına ikinci bir satır eklenir; üç
   bileşen daha sığar.
+- Kendine göre ayarla: panele istediğin arka plan rengini ver, notch'un çevresine de seçtiğin renkte ya da çalan
+  şarkının kapağının renginde bir neon çizgi ekle.
 - Bir yere Google Authenticator'daki altı haneli kodla mı giriyorsun? Hesaplarını bir kez aktar; tarayıcın o sitenin
   giriş sayfasındayken kod notch'un altından iner. Tıklayınca kopyalanır; telefonu eline alman gerekmez.
 - Apple Music ve Safari/Chrome'da YouTube ile test edildi. macOS'a "Şu An Çalıyor" bilgisi veren diğer uygulamalar
@@ -282,6 +293,13 @@ VPN, Giriş kodları konabilir ya da yer boş bırakılabilir (zamanla yeni bile
 anda tek yerde durur: başka bir yerde duran bileşeni seçersen ikisi yer değiştirir. Alt satır boşken panel eskisi
 gibidir; alt satıra bir bileşen koyunca panel iki katı yüksekliğe çıkar. Giriş kodu, çentik, açılışta başlatma ve
 güncelleme seçenekleri de buradadır.
+
+**Görünüm** (Ayarlar'da) notch'un nasıl göründüğünü değiştirir. Arka plan her renk olabilir; açık bir renkte yazılar
+ve simgeler okunaklı kalsın diye koyulaşır, kapaktan alınan renk de arka plandan ayrışacak şekilde ayarlanır. Neon,
+notch'un kenarı boyunca parlayan ince bir çizgidir: kapalı, çalan şarkının kapağının renginde ya da senin
+seçtiğin renkte olabilir; istersen notch kapalıyken de yanar. "Siyaha Dön", NotchBox'ın ilk halini geri getirir.
+MacBook'ta çentiğin kendisi ne seçersen seç siyah kalır (ekrandaki bir oyuktur); bu yüzden başka bir arka planda
+panel siyah bir çentikten sarkar.
 
 **VPN** bileşeni VPN'lerinin bağlı olup olmadığını ve ne kadar süredir bağlı olduklarını gösterir; "Bağlantıyı kes"
 düğmesi vardır: FortiClient'ın VPN'i (yoksa Sistem Ayarları'ndaki bir VPN) ve OpenVPN Connect; ikisi de kuruluysa

@@ -25,6 +25,38 @@ struct SettingsView: View {
             }
 
             Section {
+                ColorPicker(L10n.appearanceBackground, selection: color(\.background), supportsOpacity: false)
+                Picker(L10n.appearanceGlow, selection: Binding(
+                    get: { settings.appearance.glow },
+                    set: { glow in change { $0.glow = glow } }
+                )) {
+                    Text(L10n.appearanceGlowOff).tag(NotchAppearance.Glow.off)
+                    Text(L10n.appearanceGlowArtwork).tag(NotchAppearance.Glow.artwork)
+                    Text(L10n.appearanceGlowCustom).tag(NotchAppearance.Glow.custom)
+                }
+                if settings.appearance.glow == .custom {
+                    ColorPicker(L10n.appearanceGlowColor, selection: color(\.glowColor), supportsOpacity: false)
+                }
+                if settings.appearance.glow != .off {
+                    Toggle(L10n.appearanceGlowWhenIdle, isOn: Binding(
+                        get: { settings.appearance.glowsWhenIdle },
+                        set: { on in change { $0.glowsWhenIdle = on } }
+                    ))
+                }
+                HStack {
+                    Spacer()
+                    Button(L10n.appearanceReset) { settings.setAppearance(.default) }
+                        .disabled(settings.appearance == .default)
+                }
+            } header: {
+                Text(L10n.settingsAppearanceHeader)
+            } footer: {
+                Text(L10n.settingsAppearanceFooter)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
                 Toggle(L10n.authShowOnSignIn, isOn: Binding(
                     get: { auth.showsOnSignIn },
                     set: { auth.setShowsOnSignIn($0) }
@@ -75,6 +107,20 @@ struct SettingsView: View {
         .formStyle(.grouped)
         .frame(width: 460)
         .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func change(_ edit: (inout NotchAppearance) -> Void) {
+        var appearance = settings.appearance
+        edit(&appearance)
+        settings.setAppearance(appearance)
+    }
+
+    /// One of the appearance's colours, for a colour picker.
+    private func color(_ keyPath: WritableKeyPath<NotchAppearance, ArtworkColor>) -> Binding<Color> {
+        Binding(
+            get: { Color(settings.appearance[keyPath: keyPath]) },
+            set: { picked in change { $0[keyPath: keyPath] = ArtworkColor(picked) } }
+        )
     }
 
     private func widgetPicker(_ title: String, side: SideWidgets.Side) -> some View {
