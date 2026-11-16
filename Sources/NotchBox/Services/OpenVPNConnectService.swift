@@ -25,12 +25,15 @@ protocol OpenVPNControlling: AnyObject {
 
 /// Talks to OpenVPN Connect 3: its state comes from its log and config (it has no API), and it connects and
 /// disconnects through its own command-line switches `--connect-shortcut=<profile id>` and
-/// `--disconnect-shortcut` (the ones its Siri shortcuts use), which hand the request to the running app.
+/// `--disconnect-shortcut` (the ones its Siri shortcuts use). A running app brings its window forward for
+/// any of them, so NotchBox starts it minimized to connect and quits it to disconnect (see `OpenVPNApp`).
 @MainActor
 final class OpenVPNConnectService: OpenVPNControlling {
     static let bundleIdentifier = "org.openvpn.client.app"
     /// The end of the log that is read: the last event is always near the end.
     static let logTailBytes = 256 * 1024
+    /// How long to wait for the app to quit before asking the running app instead (it takes under a second).
+    static let quitTimeout: TimeInterval = 5
 
     private let dataDirectory = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Application Support/OpenVPN Connect", isDirectory: true)
@@ -47,7 +50,7 @@ final class OpenVPNConnectService: OpenVPNControlling {
     func read(preferring profileID: String?) -> OpenVPNReading {
         let profiles = loadProfiles()
         let state = loadLogState()
-        let running = !NSRunningApplication.runningApplications(withBundleIdentifier: Self.bundleIdentifier).isEmpty
+        let running = !runningApps.isEmpty
         let status = OpenVPNLog.status(of: state, appRunning: running, interfaceUp: Self.hasIPv4Address)
         let active = state?.server.flatMap { OpenVPNProfiles.profile(forServer: $0, in: profiles, preferring: profileID) }
         return OpenVPNReading(
@@ -59,18 +62,73 @@ final class OpenVPNConnectService: OpenVPNControlling {
     }
 
     func connect(profileID: String) {
-        run(["--connect-shortcut=\(profileID)"])
+        let apps = runningApps
+        switch OpenVPNApp.connectStep(isRunning: !apps.isEmpty, isFrontmost: apps.contains(where: \.isActive)) {
+        case .launchMinimized:
+            launchInBackground(OpenVPNApp.launchArguments(connecting: profileID))
+        case .sendToRunningApp:
+            run([OpenVPNApp.connectShortcut(profileID)])
+        case .quitThenLaunchMinimized:
+            apps.forEach { $0.terminate() }
+            waitForExit(of: apps, until: Date().addingTimeInterval(Self.quitTimeout)) { [weak self] exited in
+                guard let self else { return }
+                if exited {
+                    self.launchInBackground(OpenVPNApp.launchArguments(connecting: profileID))
+                } else {
+                    // It would not quit: ask the running app, as before (its window comes forward).
+                    self.run([OpenVPNApp.connectShortcut(profileID)])
+                }
+            }
+        }
     }
 
     func disconnect() {
-        run(["--disconnect-shortcut"])
+        let apps = runningApps
+        switch OpenVPNApp.disconnectStep(isRunning: !apps.isEmpty, isFrontmost: apps.contains(where: \.isActive)) {
+        case .nothing:
+            break
+        case .quit:
+            apps.forEach { $0.terminate() }
+        case .sendToRunningApp:
+            run([OpenVPNApp.disconnectShortcut])
+        }
+    }
+
+    private var runningApps: [NSRunningApplication] {
+        NSRunningApplication.runningApplications(withBundleIdentifier: Self.bundleIdentifier)
+    }
+
+    /// Starts the app without bringing it forward; with `--minimize` its window does not show either.
+    private func launchInBackground(_ arguments: [String]) {
+        guard let appURL else { return }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = false
+        configuration.addsToRecentItems = false
+        configuration.arguments = arguments
+        let logger = self.logger
+        NSWorkspace.shared.openApplication(at: appURL, configuration: configuration) { _, error in
+            if let error {
+                logger.error("Could not start OpenVPN Connect: \(error.localizedDescription, privacy: .public)")
+            }
+        }
+    }
+
+    private func waitForExit(of apps: [NSRunningApplication], until deadline: Date, then action: @escaping @MainActor (Bool) -> Void) {
+        let exited = apps.allSatisfy(\.isTerminated)
+        if exited || Date() >= deadline {
+            action(exited)
+            return
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            MainActor.assumeIsolated { self?.waitForExit(of: apps, until: deadline, then: action) }
+        }
     }
 
     func openApp() {
         AppIconProvider.open(bundleIdentifier: Self.bundleIdentifier)
     }
 
-    /// Starting the app's binary with a switch passes it to the running app (or starts the app with it).
+    /// Starting the app's binary with a switch passes it to the running app, which comes forward for it.
     private func run(_ arguments: [String]) {
         guard let executable = appURL.flatMap({ Bundle(url: $0)?.executableURL }) else { return }
         let process = Process()

@@ -124,3 +124,44 @@ public enum OpenVPNProfiles {
         return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
     }
 }
+
+/// How NotchBox drives OpenVPN Connect 3 without its window coming up. The app brings its window forward
+/// for every command it gets while it is running (`--minimize` makes no difference then); only an app that
+/// is just starting stays in the background. So to connect, a running app is quit and started again
+/// minimized with the profile, and to disconnect it is quit, which ends the connection at once. It is not
+/// started again after that: with "connect on launch" on (the default) it connects whenever it starts.
+/// An app the user has in front is left alone and gets the command as before.
+public enum OpenVPNApp {
+    public enum ConnectStep: Equatable, Sendable {
+        case launchMinimized
+        case quitThenLaunchMinimized
+        case sendToRunningApp
+    }
+
+    public enum DisconnectStep: Equatable, Sendable {
+        case nothing
+        case quit
+        case sendToRunningApp
+    }
+
+    public static let disconnectShortcut = "--disconnect-shortcut"
+
+    public static func connectShortcut(_ profileID: String) -> String {
+        "--connect-shortcut=\(profileID)"
+    }
+
+    /// Arguments for starting the app in the background, connecting `profileID`.
+    public static func launchArguments(connecting profileID: String) -> [String] {
+        ["--minimize", connectShortcut(profileID)]
+    }
+
+    public static func connectStep(isRunning: Bool, isFrontmost: Bool) -> ConnectStep {
+        guard isRunning else { return .launchMinimized }
+        return isFrontmost ? .sendToRunningApp : .quitThenLaunchMinimized
+    }
+
+    public static func disconnectStep(isRunning: Bool, isFrontmost: Bool) -> DisconnectStep {
+        guard isRunning else { return .nothing }
+        return isFrontmost ? .sendToRunningApp : .quit
+    }
+}

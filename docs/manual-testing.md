@@ -209,9 +209,13 @@ defaults write com.notchbox.NotchBox UpdateInstallCommand "NOTCHBOX_ZIP=$PWD/dis
 - [ ] Connect, disconnect and connect again right away: every connection comes up.
 - [ ] Without any VPN configured, the column says none was found.
 - [ ] With OpenVPN Connect installed too, the column shows a row for each. OpenVPN's "Connect ▾" lists the
-  profiles by their bracketed name; picking one connects it (OpenVPN Connect starts if needed) and the row turns
-  green with the profile and the time since it came up (taken from OpenVPN Connect's log).
-- [ ] "End" on the OpenVPN row disconnects it. Quitting OpenVPN Connect while connected shows it disconnected.
+  profiles by their bracketed name; picking one says "Connecting…" with no button, and within a few seconds
+  the row turns green with the profile and the time since it came up (taken from OpenVPN Connect's log).
+  OpenVPN Connect's window never appears: with the app running in the background it is quit and started
+  again minimized; with the app closed it is started minimized.
+- [ ] "End" on the OpenVPN row disconnects it by quitting OpenVPN Connect, without its window appearing; the
+  row says "Disconnecting…" for a few seconds, then offers "Connect ▾" again.
+- [ ] With OpenVPN Connect's window in front, "Connect ▾" and "End" leave the app open and act in it.
 - [ ] Only OpenVPN Connect installed: the whole column is OpenVPN's, with "Connect ▾".
 
 ## Health check

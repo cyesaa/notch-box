@@ -99,3 +99,28 @@ struct OpenVPNProfileTests {
         #expect(OpenVPNProfiles.parse(Data("junk".utf8)).isEmpty)
     }
 }
+
+struct OpenVPNAppTests {
+    /// Only an app that is just starting stays in the background, so a running one is quit first.
+    @Test func connectsByStartingTheAppMinimized() {
+        #expect(OpenVPNApp.connectStep(isRunning: false, isFrontmost: false) == .launchMinimized)
+        #expect(OpenVPNApp.connectStep(isRunning: true, isFrontmost: false) == .quitThenLaunchMinimized)
+    }
+
+    @Test func leavesAnAppTheUserIsInAlone() {
+        #expect(OpenVPNApp.connectStep(isRunning: true, isFrontmost: true) == .sendToRunningApp)
+        #expect(OpenVPNApp.disconnectStep(isRunning: true, isFrontmost: true) == .sendToRunningApp)
+    }
+
+    /// Quitting ends the connection at once and shows nothing; a command would bring the window forward.
+    @Test func disconnectsByQuittingTheApp() {
+        #expect(OpenVPNApp.disconnectStep(isRunning: true, isFrontmost: false) == .quit)
+        #expect(OpenVPNApp.disconnectStep(isRunning: false, isFrontmost: false) == .nothing)
+    }
+
+    @Test func launchArgumentsKeepTheWindowAwayAndPickTheProfile() {
+        #expect(OpenVPNApp.launchArguments(connecting: "1700000000000") == ["--minimize", "--connect-shortcut=1700000000000"])
+        #expect(OpenVPNApp.connectShortcut("1700000000000") == "--connect-shortcut=1700000000000")
+        #expect(OpenVPNApp.disconnectShortcut == "--disconnect-shortcut")
+    }
+}

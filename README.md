@@ -52,9 +52,13 @@ otherwise one from System Settings) and OpenVPN Connect, a row each when both ar
 connect right from the notch (a menu picks the profile when there are several). FortiClient's VPN connects from
 the notch too, the way FortiClient's own menu bar icon does: with the credentials FortiClient has saved, so
 without a password. For that NotchBox presses that icon's menu item, which needs **Accessibility** permission
-(macOS asks the first time; until you allow it, the button opens FortiClient instead). While connecting, NotchBox
-keeps FortiClient's and OpenVPN Connect's windows out of the way: it quits FortiClient's window app first (its
-menu bar icon and services stay) and hides a window that comes forward anyway.
+(macOS asks the first time; until you allow it, the button opens FortiClient instead).
+
+NotchBox keeps the VPN apps' windows off your screen. FortiClient brings its window forward when the VPN comes
+up, so NotchBox quits FortiClient's window app before connecting (its menu bar icon and services stay). OpenVPN
+Connect brings its window forward for every command it gets while it is running, so NotchBox starts it in the
+background to connect (quitting it first when it is running) and quits it to disconnect; it then stays closed
+until the next connection. An app whose window you have in front is left alone.
 
 **Updating:** NotchBox looks for a new release soon after it starts and twice a day. When there is one, a dot
 appears on the music note and the menu starts with "Update available"; click it, then Update, and NotchBox
@@ -224,7 +228,8 @@ Bu komut son sürümü indirir, `NotchBox.app`'i `/Applications` klasörüne (y�
 koyar ve açar. Menü çubuğunda bir müzik notası ikonu çıkar; Ayarlar (⌘,), Güncellemeleri denetle ve Çık oradadır.
 
 **Ayarlar**, notch'un üzerine geldiğinde oynatıcının solunda ve sağında ne duracağını seçtiğin yerdir (Pano, Takvim,
-VPN ya da boş; zamanla yeni bileşenler eklenecek).
+VPN ya da boş; zamanla yeni bileşenler eklenecek). Çentik, açılışta başlatma ve güncelleme seçenekleri de
+buradadır.
 
 **VPN** bileşeni VPN'lerinin bağlı olup olmadığını ve ne kadar süredir bağlı olduklarını gösterir; "Bağlantıyı kes"
 düğmesi vardır: FortiClient'ın VPN'i (yoksa Sistem Ayarları'ndaki bir VPN) ve OpenVPN Connect; ikisi de kuruluysa
@@ -232,9 +237,12 @@ her biri bir satırda. OpenVPN profillerine doğrudan notch'tan bağlanılır (b
 FortiClient'ın VPN'ine de notch'tan bağlanılır; FortiClient'ın menü çubuğundaki kendi ikonu gibi, FortiClient'ın
 kayıtlı kimlik bilgileriyle, yani şifre sormadan. Bunun için NotchBox o ikonun menü öğesine basar; bu da
 **Erişilebilirlik** izni gerektirir (macOS ilk seferde sorar; izin verene kadar düğme FortiClient'ı açar).
-Bağlanırken NotchBox, FortiClient'ın ve OpenVPN Connect'in pencerelerini ekrana getirmez: önce FortiClient'ın
-pencere uygulamasını kapatır (menü çubuğu ikonu ve servisleri çalışmaya devam eder), yine de öne gelen bir
-pencereyi gizler. Çentik, açılışta başlatma ve güncelleme seçenekleri de buradadır.
+
+NotchBox, VPN uygulamalarının pencerelerini ekranına getirmez. FortiClient, VPN bağlandığı anda penceresini öne
+getirir; bu yüzden NotchBox bağlanmadan önce FortiClient'ın pencere uygulamasını kapatır (menü çubuğu ikonu ve
+servisleri çalışmaya devam eder). OpenVPN Connect ise çalışırken aldığı her komutta penceresini öne getirir; bu
+yüzden NotchBox bağlanmak için onu arka planda başlatır (çalışıyorsa önce kapatır), kesmek için de kapatır;
+uygulama bir sonraki bağlantıya kadar kapalı kalır. Penceresi o an önünde açık olan uygulamaya dokunulmaz.
 
 **Güncelleme:** NotchBox açıldıktan kısa süre sonra ve günde iki kez yeni sürüm olup olmadığına bakar. Yeni sürüm
 varsa müzik notasının yanında bir nokta çıkar ve menünün en üstünde "Güncelleme var" yazar; tıklayıp Güncelle'ye

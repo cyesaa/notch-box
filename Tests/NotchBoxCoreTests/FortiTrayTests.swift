@@ -100,6 +100,14 @@ struct VPNPendingActionTests {
         #expect(pending.canPress(at: at(VPNPendingAction.pressCooldown + 0.1)))
     }
 
+    /// OpenVPN connects in a couple of seconds, so its wait is much shorter than FortiClient's.
+    @Test func theConnectionWaitCanBeShorter() {
+        var pending = VPNPendingAction(connectTimeout: 30)
+        pending.pressed(toward: .connected, at: t0)
+        #expect(pending.displayStatus(real: .disconnected, at: at(29)) == .connecting)
+        #expect(pending.displayStatus(real: .disconnected, at: at(31)) == .disconnected)
+    }
+
     @Test func timeoutsAndCooldown() {
         #expect(VPNPendingAction.connectTimeout == 90)
         #expect(VPNPendingAction.disconnectTimeout == 15)

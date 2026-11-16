@@ -45,9 +45,10 @@ public enum FortiTrayItem {
     }
 }
 
-/// What NotchBox asked FortiClient to do and has not seen happen yet. macOS keeps reporting the VPN as
-/// disconnected while FortiClient signs in (a few seconds, sometimes most of a minute), so without this
-/// the notch would go on offering "Connect", and a second press cancels the connection that is coming up.
+/// What NotchBox asked a VPN app to do and has not seen happen yet. The VPN still reads as disconnected
+/// while FortiClient signs in (a few seconds, sometimes most of a minute) or OpenVPN Connect starts, so
+/// without this the notch would go on offering "Connect", and a second press cancels the connection that
+/// is coming up.
 public struct VPNPendingAction: Equatable, Sendable {
     public enum Target: Equatable, Sendable {
         case connected
@@ -62,11 +63,15 @@ public struct VPNPendingAction: Equatable, Sendable {
     /// Presses closer together than this are ignored: they cancelled connections and left FortiTray stuck.
     public static let pressCooldown: TimeInterval = 4
 
+    private let connectLimit: TimeInterval
     private var target: Target?
     private var since: Date?
     private var lastPress: Date?
 
-    public init() {}
+    /// `connectTimeout`: how long "connecting" is shown before giving up on a connection.
+    public init(connectTimeout: TimeInterval = VPNPendingAction.connectTimeout) {
+        connectLimit = connectTimeout
+    }
 
     public func canPress(at date: Date) -> Bool {
         guard let lastPress else { return true }
@@ -86,7 +91,7 @@ public struct VPNPendingAction: Equatable, Sendable {
         let waited = date.timeIntervalSince(since)
         switch target {
         case .connected:
-            if real == .connected || waited > Self.connectTimeout {
+            if real == .connected || waited > connectLimit {
                 clear()
                 return real
             }

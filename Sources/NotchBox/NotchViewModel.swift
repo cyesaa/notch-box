@@ -90,6 +90,7 @@ final class NotchViewModel {
     @ObservationIgnored private let fortiTray: FortiTrayConnecting?
     /// What NotchBox asked FortiClient to do, shown as "connecting" or "disconnecting" until it happens.
     @ObservationIgnored private var fortiPending = VPNPendingAction()
+    @ObservationIgnored private var openVPNPending = VPNPendingAction(connectTimeout: NotchViewModel.openVPNConnectTimeout)
     /// VPN apps that NotchBox asked to connect: hidden again when they bring their window forward.
     @ObservationIgnored private var vpnAppHiding = VPNAppHiding()
     @ObservationIgnored private var activationObserver: NSObjectProtocol?
@@ -264,28 +265,29 @@ final class NotchViewModel {
             vpnControl?.disconnect(service.id)
             // Hold "disconnecting" for a moment, so Connect is not pressed while FortiClient tidies up.
             if entry.isFortiClient { fortiPending.pressed(toward: .disconnected, at: now()) }
-        case .openVPN: openVPN?.disconnect()
+        case .openVPN:
+            openVPN?.disconnect()
+            openVPNPending.pressed(toward: .disconnected, at: now())
         }
         refreshVPN()
     }
 
-    /// Connects an OpenVPN profile.
+    /// Connects an OpenVPN profile. OpenVPN Connect is started in the background for it (see `OpenVPNApp`),
+    /// which takes a couple of seconds; until the connection is up the notch says "connecting" and offers
+    /// no button, so a second press cannot restart the app again.
     func connect(_ profile: OpenVPNProfile) {
+        let time = now()
+        guard openVPNPending.canPress(at: time) else { return }
         requestedOpenVPNProfile = profile.id
         openVPN?.connect(profileID: profile.id)
-        // OpenVPN Connect comes forward as soon as it is asked to connect.
-        let bundleID = OpenVPNConnectService.bundleIdentifier
-        vpnAppHiding.expect(bundleID, until: now().addingTimeInterval(Self.openVPNHidingWindow))
-        for delay in [0.5, 1.5] {
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-                MainActor.assumeIsolated {
-                    guard let self, self.vpnAppHiding.shouldHide(bundleID, at: self.now()) else { return }
-                    self.hideApp(bundleID)
-                }
-            }
-        }
+        openVPNPending.pressed(toward: .connected, at: time)
+        // Should the app come forward anyway, hide it again.
+        vpnAppHiding.expect(OpenVPNConnectService.bundleIdentifier, until: time.addingTimeInterval(Self.openVPNHidingWindow))
         refreshVPN()
     }
+
+    /// How long the notch waits for an OpenVPN connection before offering "Connect" again.
+    static let openVPNConnectTimeout: TimeInterval = 30
 
     static let fortiClientBundleID = FortiTrayItem.consoleBundleID
     /// How long OpenVPN Connect is kept in the background after it was asked to connect.
@@ -408,9 +410,11 @@ final class NotchViewModel {
         }
         if let openVPN, openVPN.isInstalled {
             let reading = openVPN.read(preferring: requestedOpenVPNProfile)
+            let waiting = openVPNPending.isWaiting(real: reading.status, at: time)
             entries.append(VPNEntry(
-                kind: .openVPN, status: reading.status, connectedSince: reading.connectedSince,
-                profiles: reading.profiles, activeProfile: reading.activeProfile
+                kind: .openVPN, status: openVPNPending.displayStatus(real: reading.status, at: time),
+                connectedSince: reading.connectedSince,
+                profiles: reading.profiles, activeProfile: reading.activeProfile, isWaiting: waiting
             ))
         }
         if entries != vpns { vpns = entries }
