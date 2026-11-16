@@ -136,16 +136,18 @@ extension NotchRootView {
 
 /// The neon: a thin bright line along the panel's sides and bottom with a soft halo around it. The top
 /// edge is left out, since it is the edge of the screen.
-private struct NeonOutline: View {
+struct NeonOutline: View {
     let color: Color
     let topRadius: CGFloat
     let bottomRadius: CGFloat
+    /// Thinner in the small drawing in Settings; the halo shrinks with it.
+    var lineWidth: CGFloat = 1.5
 
     var body: some View {
         NotchShape(topRadius: topRadius, bottomRadius: bottomRadius, isClosed: false)
-            .stroke(color, style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round))
-            .shadow(color: color.opacity(0.9), radius: 3)
-            .shadow(color: color.opacity(0.6), radius: 8)
+            .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+            .shadow(color: color.opacity(0.9), radius: lineWidth * 2)
+            .shadow(color: color.opacity(0.6), radius: lineWidth * 5.5)
             .accessibilityHidden(true)
     }
 }

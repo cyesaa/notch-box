@@ -124,9 +124,9 @@ enum SnapshotRenderer {
         for scene in scenes {
             try render(scene, to: directory.appendingPathComponent(scene.name + ".png"))
         }
-        try renderSettings(to: directory.appendingPathComponent("11-settings.png"))
+        try renderSettings(to: directory)
         try renderAccounts(to: directory.appendingPathComponent("14-auth-accounts.png"))
-        print("Wrote \(scenes.count + 2) snapshots to \(directory.path)")
+        print("Wrote \(scenes.count + 8) snapshots to \(directory.path)")
     }
 
     /// Newest first.
@@ -224,11 +224,57 @@ enum SnapshotRenderer {
 
     /// The Settings window's content, drawn through AppKit (its controls are AppKit views, which
     /// ImageRenderer leaves blank).
-    private static func renderSettings(to url: URL) throws {
-        let settings = AppSettings(updates: UpdateService())
+    private static func renderSettings(to directory: URL) throws {
         let auth = AuthModel(store: SnapshotAuthStore(entries: sampleAccounts))
         auth.start()
-        try draw(NSHostingView(rootView: AnyView(SettingsView(settings: settings, auth: auth).environment(\.colorScheme, .dark))), to: url)
+        func settings(_ sides: SideWidgets, _ appearance: NotchAppearance) -> AppSettings {
+            // Not saved: the user's own choices are left alone.
+            let settings = AppSettings(updates: UpdateService(), persists: false)
+            for side in SideWidgets.Side.allCases { settings.setWidget(nil, on: side) }
+            for side in SideWidgets.Side.allCases { settings.setWidget(sides[side], on: side) }
+            settings.setAppearance(appearance)
+            return settings
+        }
+        func view(_ settings: AppSettings, _ pane: SettingsPane, dark: Bool) -> NSHostingView<AnyView> {
+            let navigation = SettingsNavigation()
+            navigation.pane = pane
+            let view = SettingsView(settings: settings, auth: auth, navigation: navigation)
+                .background(Color(nsColor: .windowBackgroundColor))
+                .environment(\.colorScheme, dark ? .dark : .light)
+            return NSHostingView(rootView: AnyView(view))
+        }
+        let plain = settings(.default, .default)
+        let full = settings(
+            SideWidgets(left: .clipboard, right: .calendar, bottom: .vpn),
+            NotchAppearance(background: ArtworkColor(red: 0.06, green: 0.09, blue: 0.30), glow: .custom, glowColor: ArtworkColor(red: 1, green: 0.2, blue: 0.8), glowsWhenIdle: true)
+        )
+        let light = settings(
+            SideWidgets(left: nil, right: .auth, bottomLeft: .calendar),
+            NotchAppearance(background: ArtworkColor(red: 0.96, green: 0.94, blue: 0.88), glow: .artwork)
+        )
+        try draw(view(plain, .widgets, dark: true), to: directory.appendingPathComponent("11a-settings-widgets.png"), dark: true)
+        try draw(view(full, .appearance, dark: true), to: directory.appendingPathComponent("11b-settings-appearance.png"), dark: true)
+        try draw(view(full, .codes, dark: true), to: directory.appendingPathComponent("11c-settings-codes.png"), dark: true)
+        try draw(view(plain, .general, dark: true), to: directory.appendingPathComponent("11d-settings-general.png"), dark: true)
+        try draw(view(light, .appearance, dark: false), to: directory.appendingPathComponent("11e-settings-appearance-light-mode.png"), dark: false)
+        try draw(view(light, .widgets, dark: false), to: directory.appendingPathComponent("11f-settings-widgets-light-mode.png"), dark: false)
+
+        // The window as it is made for real, to see the stage run under the title bar.
+        let navigation = SettingsNavigation()
+        let window = SettingsWindowController.makeWindow(settings: full, auth: auth, navigation: navigation)
+        window.appearance = NSAppearance(named: .darkAqua)
+        // Far off any screen: it has to be on screen to be laid out and drawn with its title bar.
+        window.setFrameOrigin(NSPoint(x: -20_000, y: -20_000))
+        window.orderFrontRegardless()
+        // The window takes its size from the view a moment later, on the run loop.
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        window.layoutIfNeeded()
+        window.displayIfNeeded()
+        if let frame = window.contentView?.superview, let bitmap = frame.bitmapImageRepForCachingDisplay(in: frame.bounds) {
+            frame.cacheDisplay(in: frame.bounds, to: bitmap)
+            try bitmap.representation(using: .png, properties: [:])?.write(to: directory.appendingPathComponent("11g-settings-window.png"))
+        }
+        window.orderOut(nil)
     }
 
     /// The accounts window, drawn the same way.
@@ -238,11 +284,12 @@ enum SnapshotRenderer {
         try draw(NSHostingView(rootView: AnyView(AuthManageView(auth: auth, state: AuthManageState()).background(Color(nsColor: .windowBackgroundColor)).environment(\.colorScheme, .dark))), to: url)
     }
 
-    private static func draw(_ view: NSHostingView<AnyView>, to url: URL) throws {
-        view.appearance = NSAppearance(named: .darkAqua)
+    private static func draw(_ view: NSHostingView<AnyView>, to url: URL, dark: Bool = true) throws {
+        let appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
+        view.appearance = appearance
         let size = view.fittingSize
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.borderless], backing: .buffered, defer: false)
-        window.appearance = NSAppearance(named: .darkAqua)
+        window.appearance = appearance
         window.contentView = view
         view.frame = NSRect(origin: .zero, size: size)
         view.layoutSubtreeIfNeeded()

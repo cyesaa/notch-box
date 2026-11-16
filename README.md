@@ -50,13 +50,18 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 This downloads the latest release, puts `NotchBox.app` in `/Applications` (or `~/Applications` without admin
 rights) and opens it. A music note icon appears in the menu bar with Settings (⌘,), Check for Updates and Quit.
 
-**Settings** decides what sits around the player when you hover the notch: a widget on its left and on its right,
+**Settings** opens with a drawing of your notch as it is set up right now: its colours, its neon and its widgets.
+Click a place in the drawing to choose its widget; the places that are still free are dashed. Under the drawing
+are four parts: Widgets, Appearance, Sign-in codes and General.
+
+Widgets decides what sits around the player when you hover the notch: a widget on its left and on its right,
 and up to three more in a second row under it (bottom left, below and bottom right). Each place takes Clipboard,
 Calendar, VPN, Sign-in codes or nothing (more widgets will follow). A widget sits in one place at a time: picking
 one that is already placed swaps the two. With the bottom row empty the panel is as it always was; with a widget
-in it the panel is twice as tall. Settings also holds the sign-in code, notch, launch-at-login and update options.
+in it the panel is twice as tall. General holds the notch, launch-at-login and update options.
 
-**Appearance** (in Settings) changes how the notch looks. The background can be any colour; on a light one, text
+**Appearance** (in Settings) changes how the notch looks, with ready-made colours to click and a colour well for
+any other. The background can be any colour; on a light one, text
 and symbols turn dark so they stay readable, and the colour taken from the cover is adjusted until it stands out.
 Neon is a thin glowing line along the edge of the notch: off, in the colour of the cover that is playing, or in a
 colour of your own, and it can stay on around the closed notch too. "Back to Black" brings back the look NotchBox
@@ -287,14 +292,19 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 Bu komut son sürümü indirir, `NotchBox.app`'i `/Applications` klasörüne (yönetici izni yoksa `~/Applications`)
 koyar ve açar. Menü çubuğunda bir müzik notası ikonu çıkar; Ayarlar (⌘,), Güncellemeleri denetle ve Çık oradadır.
 
-**Ayarlar**, notch'un üzerine geldiğinde oynatıcının çevresinde ne duracağını seçtiğin yerdir: solunda ve sağında
+**Ayarlar**, notch'unun o anki halinin çizimiyle açılır: renkleri, neonu ve bileşenleri. Çizimde bir yere tıklayıp
+oranın bileşenini seçersin; boş yerler kesik çizgiyle gösterilir. Çizimin altında dört bölüm var: Bileşenler,
+Görünüm, Giriş kodları ve Genel.
+
+Bileşenler, notch'un üzerine geldiğinde oynatıcının çevresinde ne duracağını belirler: solunda ve sağında
 birer bileşen, altındaki ikinci satırda da üç bileşen daha (sol altta, altta ve sağ altta). Her yere Pano, Takvim,
 VPN, Giriş kodları konabilir ya da yer boş bırakılabilir (zamanla yeni bileşenler eklenecek). Bir bileşen aynı
 anda tek yerde durur: başka bir yerde duran bileşeni seçersen ikisi yer değiştirir. Alt satır boşken panel eskisi
-gibidir; alt satıra bir bileşen koyunca panel iki katı yüksekliğe çıkar. Giriş kodu, çentik, açılışta başlatma ve
-güncelleme seçenekleri de buradadır.
+gibidir; alt satıra bir bileşen koyunca panel iki katı yüksekliğe çıkar. Çentik, açılışta başlatma ve güncelleme
+seçenekleri Genel bölümündedir.
 
-**Görünüm** (Ayarlar'da) notch'un nasıl göründüğünü değiştirir. Arka plan her renk olabilir; açık bir renkte yazılar
+**Görünüm** (Ayarlar'da) notch'un nasıl göründüğünü değiştirir; tıklayıp seçebileceğin hazır renkler ve başka
+her renk için bir renk kutusu vardır. Arka plan her renk olabilir; açık bir renkte yazılar
 ve simgeler okunaklı kalsın diye koyulaşır, kapaktan alınan renk de arka plandan ayrışacak şekilde ayarlanır. Neon,
 notch'un kenarı boyunca parlayan ince bir çizgidir: kapalı, çalan şarkının kapağının renginde ya da senin
 seçtiğin renkte olabilir; istersen notch kapalıyken de yanar. "Siyaha Dön", NotchBox'ın ilk halini geri getirir.

@@ -65,7 +65,19 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 ## Settings
 
 - [ ] Settings… opens the "NotchBox Settings" window in front, even from another app; ⌘, opens it too.
-- [ ] The drawing at the top shows the chosen left and right widgets around the player.
+- [ ] The window's top is a drawing of the notch hanging from the window's top edge, beside the close button,
+  with the chosen widgets around a small player. Under it are four parts: Widgets, Appearance, Sign-in codes and
+  General. The window is as tall as the part that is showing (no empty band at the bottom) and keeps its top
+  edge where it was when the part changes; every part fits on a 13-inch screen.
+- [ ] Clicking a place in the drawing opens a menu named after the place, with Empty and the widgets, the
+  current one ticked. Choosing one changes the drawing, the picker under it and the notch at once.
+- [ ] Places that are free are dashed: on the desk outside the panel, or inside the panel when their column or
+  row is in use. Taking a bottom place makes the drawn panel grow to two rows; emptying them shrinks it again.
+- [ ] The drawing follows Appearance as it changes: background, neon, dark text on a light background. The notch
+  in the drawing stays black.
+- [ ] Appearance: clicking a swatch sets that colour and rings it; the colour well beside the swatches sets any
+  other colour (then no swatch is ringed). Each swatch has its name as a tooltip.
+- [ ] The window reads well in both light and dark mode, in English and Turkish.
 - [ ] Left: Calendar while the right is Calendar swaps them; hovering the notch shows the calendar on the left
   and the clipboard on the right at once.
 - [ ] Left: Empty: the open player grows only to the right and the player stays centred under the notch; moving
@@ -73,8 +85,7 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 - [ ] With the clipboard on neither side, copying no longer adds items (the pasteboard is not read); choosing
   it again resumes.
 - [ ] The choice survives quitting and reopening NotchBox.
-- [ ] The drawing shows the player with a place on each side and three places under it, and there are five
-  pickers: Left, Right, Bottom left, Below, Bottom right.
+- [ ] Widgets has five pickers: Left, Right, Bottom left, Below, Bottom right.
 - [ ] Below: Calendar (bottom row otherwise empty): the open panel is twice as tall, with the calendar under the
   player and as wide as it. Moving the cursor from the player down onto the calendar keeps the panel open; leaving
   it closes the panel. The calendar works as it does beside the player (days, Join, opening Calendar).

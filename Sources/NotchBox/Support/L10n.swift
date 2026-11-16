@@ -64,6 +64,10 @@ enum L10n {
     static var settingsNone: String { string("settings_none") }
     static var settingsPlayer: String { string("settings_player") }
     static var settingsNotchHeader: String { string("settings_notch_header") }
+    static var settingsPaneWidgets: String { string("settings_pane_widgets") }
+    static var settingsStageHint: String { string("settings_stage_hint") }
+    static var appearanceOtherColor: String { string("appearance_other_color") }
+    static func colorName(_ id: String) -> String { string("color_" + id) }
     static var settingsAppearanceHeader: String { string("settings_appearance_header") }
     static var settingsAppearanceFooter: String { string("settings_appearance_footer") }
     static var appearanceBackground: String { string("appearance_background") }

@@ -22,10 +22,13 @@ final class AppSettings {
     @ObservationIgnored var onSideWidgetsChange: ((SideWidgets) -> Void)?
     @ObservationIgnored var onAppearanceChange: ((NotchAppearance) -> Void)?
     @ObservationIgnored let updates: UpdateService
+    /// False for settings that are only drawn (snapshots): choices are then kept in memory, not saved.
+    @ObservationIgnored private let persists: Bool
     @ObservationIgnored private let logger = Logger(subsystem: AppConstants.logSubsystem, category: "settings")
 
-    init(updates: UpdateService) {
+    init(updates: UpdateService, persists: Bool = true) {
         self.updates = updates
+        self.persists = persists
         sideWidgets = UserDefaults.standard.data(forKey: Self.sideWidgetsKey).flatMap(SideWidgets.decode) ?? .default
         appearance = UserDefaults.standard.data(forKey: Self.appearanceKey).flatMap(NotchAppearance.decode) ?? .default
         showsWithoutNotch = ScreenWatcher.showsWithoutNotch
@@ -45,7 +48,7 @@ final class AppSettings {
         sides.set(widget, on: side)
         guard sides != sideWidgets else { return }
         sideWidgets = sides
-        if let data = try? JSONEncoder().encode(sides) {
+        if persists, let data = try? JSONEncoder().encode(sides) {
             UserDefaults.standard.set(data, forKey: Self.sideWidgetsKey)
         }
         onSideWidgetsChange?(sides)
@@ -55,7 +58,9 @@ final class AppSettings {
     func setAppearance(_ new: NotchAppearance) {
         guard new != appearance else { return }
         appearance = new
-        if new == .default {
+        if !persists {
+            // Kept in memory only.
+        } else if new == .default {
             UserDefaults.standard.removeObject(forKey: Self.appearanceKey)
         } else if let data = try? JSONEncoder().encode(new) {
             UserDefaults.standard.set(data, forKey: Self.appearanceKey)
