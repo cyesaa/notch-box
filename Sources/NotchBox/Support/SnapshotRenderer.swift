@@ -45,12 +45,12 @@ enum SnapshotRenderer {
     static func render(to directory: URL) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         sampleClipboard = [
-            .text("brew install --cask notchbox"),
+            .text(sample("Kargo takip no: 4829 1730 55", "Tracking number: 4829 1730 55")),
             makeCover(colors: [NSColor(srgbRed: 0.3, green: 0.8, blue: 0.5, alpha: 1), NSColor(srgbRed: 0.1, green: 0.3, blue: 0.7, alpha: 1)], width: 1280, height: 720)
                 .map { .image($0, type: "public.png") },
-            .text("Toplantı yarın 10:30'da, Zoom bağlantısı takvimde.\nGündem: sürüm 0.3 planı"),
+            .text(sample("Toplantı yarın 10:30'da, Zoom bağlantısı takvimde.\nGündem: sürüm 0.3 planı", "Meeting tomorrow at 10:30, the Zoom link is in the calendar.\nAgenda: the 0.3 release")),
             .text("https://github.com/cyesaa/notch-box/releases/latest"),
-            .text("sunucu-adresi.local"),
+            .text(sample("sunucu-adresi.local", "server-address.local")),
         ].compactMap { $0 }
         let warm = makeCover(colors: [NSColor(srgbRed: 1, green: 0.62, blue: 0.3, alpha: 1), NSColor(srgbRed: 0.85, green: 0.2, blue: 0.45, alpha: 1)])
         let video = makeCover(
@@ -306,6 +306,12 @@ enum SnapshotRenderer {
         try data.write(to: url)
     }
 
+    /// Sample text in the language the snapshots are drawn in (`-AppleLanguages '(tr)'`), so that the
+    /// pictures of each language show that language throughout.
+    fileprivate static func sample(_ turkish: String, _ english: String) -> String {
+        Bundle.main.preferredLocalizations.first?.hasPrefix("tr") == true ? turkish : english
+    }
+
     /// Made-up accounts; the secrets are only bytes to make codes from.
     private static let sampleAccounts: [AuthEntry] = [
         AuthEntry(id: "1", account: OTPAccount(secret: Data("notchbox-sample-1".utf8), issuer: "Google", name: "deniz@example.com")),
@@ -444,12 +450,12 @@ private final class SnapshotCalendar: CalendarProviding {
         let orange = ArtworkColor(red: 1, green: 0.6, blue: 0.2)
         let green = ArtworkColor(red: 0.3, green: 0.8, blue: 0.45)
         sample = [
-            CalendarEvent(id: "1", title: "Sprint planlama", start: at(now, minutes: -20), end: at(now, minutes: 25), isAllDay: false, color: blue, meetingURL: URL(string: "https://meet.google.com/abc-defg-hij")),
-            CalendarEvent(id: "2", title: "Tasarım incelemesi", start: at(now, minutes: 40), end: at(now, minutes: 70), isAllDay: false, color: orange, meetingURL: URL(string: "https://zoom.us/j/1")),
-            CalendarEvent(id: "3", title: "Spor salonu", start: at(now, minutes: 300), end: at(now, minutes: 360), isAllDay: false, color: green, meetingURL: nil),
-            CalendarEvent(id: "4", title: "Annemin doğum günü", start: today, end: tomorrow, isAllDay: true, color: orange, meetingURL: nil),
-            CalendarEvent(id: "6", title: "Diş hekimi", start: at(today, minutes: -1440 * 2 + 900), end: at(today, minutes: -1440 * 2 + 960), isAllDay: false, color: green, meetingURL: nil),
-            CalendarEvent(id: "5", title: "Haftalık 1:1", start: at(tomorrow, minutes: 600), end: at(tomorrow, minutes: 630), isAllDay: false, color: blue, meetingURL: URL(string: "https://teams.microsoft.com/l/meetup-join/x")),
+            CalendarEvent(id: "1", title: SnapshotRenderer.sample("Sprint planlama", "Sprint planning"), start: at(now, minutes: -20), end: at(now, minutes: 25), isAllDay: false, color: blue, meetingURL: URL(string: "https://meet.google.com/abc-defg-hij")),
+            CalendarEvent(id: "2", title: SnapshotRenderer.sample("Tasarım incelemesi", "Design review"), start: at(now, minutes: 40), end: at(now, minutes: 70), isAllDay: false, color: orange, meetingURL: URL(string: "https://zoom.us/j/1")),
+            CalendarEvent(id: "3", title: SnapshotRenderer.sample("Spor salonu", "Gym"), start: at(now, minutes: 300), end: at(now, minutes: 360), isAllDay: false, color: green, meetingURL: nil),
+            CalendarEvent(id: "4", title: SnapshotRenderer.sample("Annemin doğum günü", "Mum's birthday"), start: today, end: tomorrow, isAllDay: true, color: orange, meetingURL: nil),
+            CalendarEvent(id: "6", title: SnapshotRenderer.sample("Diş hekimi", "Dentist"), start: at(today, minutes: -1440 * 2 + 900), end: at(today, minutes: -1440 * 2 + 960), isAllDay: false, color: green, meetingURL: nil),
+            CalendarEvent(id: "5", title: SnapshotRenderer.sample("Haftalık 1:1", "Weekly 1:1"), start: at(tomorrow, minutes: 600), end: at(tomorrow, minutes: 630), isAllDay: false, color: blue, meetingURL: URL(string: "https://teams.microsoft.com/l/meetup-join/x")),
         ]
     }
 
