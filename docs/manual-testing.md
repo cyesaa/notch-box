@@ -295,6 +295,11 @@ Needs a phone with Google Authenticator and at least one account in it. The acco
 - [ ] Google Authenticator → menu → Transfer accounts → Export accounts → the QR code held up to the camera: within
   a second or two the window says how many accounts were found and names them. Any other QR code says it is not
   from an authenticator app.
+- [ ] On a Mac with a 720p camera (an M1 MacBook), allowing the camera the first time shows the camera's
+  picture; NotchBox does not quit. (It used to: the camera was asked for 1080p before it was added.) The same when
+  the camera was already allowed.
+- [ ] If the camera cannot be started for a reason of the system's, the camera view says so and points at
+  importing a picture; NotchBox keeps running, and Import a Picture… still works.
 - [ ] On a Mac with a 720p camera (an M1 MacBook): an export of one to three accounts is read; with an export
   of ten accounts, after about twelve seconds without a code the hint changes to say the camera may not make it
   out, and points at exporting fewer accounts and at importing a picture.

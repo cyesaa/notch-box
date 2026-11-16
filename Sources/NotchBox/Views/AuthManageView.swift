@@ -271,7 +271,7 @@ struct AuthScanView: View {
     private var camera: some View {
         switch session.camera {
         case .starting, .running:
-            CameraPreview(session: session.scanner.session, isRunning: session.camera == .running)
+            CameraPreview(session: session.scanner.session)
                 .overlay {
                     if session.camera == .starting { ProgressView().controlSize(.small) }
                 }
@@ -280,7 +280,7 @@ struct AuthScanView: View {
                 Image(systemName: "video.slash")
                     .font(.system(size: 28, weight: .light))
                     .foregroundStyle(.secondary)
-                Text(failure == .denied ? L10n.authCameraDenied : L10n.authCameraMissing)
+                Text(failure == .denied ? L10n.authCameraDenied : failure == .failed ? L10n.authCameraFailed : L10n.authCameraMissing)
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

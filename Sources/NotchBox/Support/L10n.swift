@@ -156,6 +156,7 @@ enum L10n {
     static var authCameraDenied: String { string("auth_camera_denied") }
     static var authCameraOpenSettings: String { string("auth_camera_open_settings") }
     static var authCameraMissing: String { string("auth_camera_missing") }
+    static var authCameraFailed: String { string("auth_camera_failed") }
     static func authAdded(_ count: Int) -> String { counted("auth_added", count) }
     static var authAddedNone: String { string("auth_added_none") }
     static var authSaveFailed: String { string("auth_save_failed") }

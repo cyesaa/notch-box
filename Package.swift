@@ -6,7 +6,9 @@ let package = Package(
     platforms: [.macOS(.v14)],
     targets: [
         .target(name: "NotchBoxCore"),
-        .executableTarget(name: "NotchBox", dependencies: ["NotchBoxCore"]),
+        // One Objective-C function: catching the exceptions that system frameworks raise.
+        .target(name: "NotchBoxObjC"),
+        .executableTarget(name: "NotchBox", dependencies: ["NotchBoxCore", "NotchBoxObjC"]),
         .testTarget(name: "NotchBoxCoreTests", dependencies: ["NotchBoxCore"]),
     ],
     swiftLanguageModes: [.v5]

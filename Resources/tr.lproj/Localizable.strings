@@ -137,6 +137,7 @@
 "auth_camera_denied" = "NotchBox kamerayı kullanamıyor. Gizlilik ve Güvenlik → Kamera altında izin ver.";
 "auth_camera_open_settings" = "Kamera Ayarlarını Aç";
 "auth_camera_missing" = "Bu Mac'te kamera bulunamadı.";
+"auth_camera_failed" = "Kamera başlatılamadı. Bunun yerine kodun görselini içe aktar.";
 "auth_added_one" = "1 hesap eklendi.";
 "auth_added_other" = "%d hesap eklendi.";
 "auth_added_none" = "Bu hesaplar zaten ekliydi.";
