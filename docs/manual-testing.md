@@ -116,6 +116,21 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 - [ ] On a MacBook with a notch, the closed notch looks unchanged whatever the colour (no coloured edge around the
   cut-out); while music plays, the two wings beside the notch have the colour. On a screen without a notch the
   closed virtual notch has the colour too.
+- [ ] Transparency above 0 %: what lies behind the open panel (a window, the desktop) shows through it, blurred,
+  tinted with the background colour, and keeps up with the panel as it opens, closes and changes size, with no
+  flat grey panel, no square corners and no blur left behind outside the panel. Text stays readable over a
+  bright window and over a dark one; the shadow is only around the panel, not inside it. The same in the mini
+  notch, the volume row and the code row.
+- [ ] Transparency from 75 % to 100 %: the panel's edge and shadow dissolve; at 100 % nothing of the colour is
+  left, and behind the widgets there is a blur that fades out towards its sides and bottom (crisp only along the
+  top of the screen), so the widgets can still be read. With Liquid Glass on, the glass gives way to the same blur.
+- [ ] Liquid Glass (offered on macOS 26 and later only): turning it on with a solid colour sets Transparency to
+  65 %. The open panel is then separate glass cards, one for the player and one for each widget, with rounded
+  corners, the desktop showing between them, no card for an empty place, and no hairlines. The cards are the
+  system's glass, tinted with the colour through the glass itself. The neon, when on, outlines each card. The
+  mini notch, the volume row, the code row and a video stay one piece of glass. Off again, the blurred panel is
+  back. The drawing in Settings shows cards too.
+- [ ] On a MacBook with a notch the closed notch stays solid black with any transparency.
 - [ ] Neon: My colour: a thin bright line with a soft halo runs down the sides and along the bottom of the mini
   notch and of the open panel, not along the top edge of the screen. The colour well under it changes it live.
 - [ ] Neon: Colour of the cover: the line has the colour of the cover and changes with the track; with nothing

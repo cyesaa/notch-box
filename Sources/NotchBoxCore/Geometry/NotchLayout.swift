@@ -158,8 +158,10 @@ public enum NotchLayout {
         }
     }
 
-    /// Transparent room around the shape for its drop shadow.
-    public static let shadowMargin: CGFloat = 24
+    /// Transparent room around the shape for its drop shadow: the open panel's shadow is blurred by 16
+    /// and hangs 8 lower, so it reaches about 40 below even the tallest panel. With less, the window's
+    /// edge cut it off in a faint line.
+    public static let shadowMargin: CGFloat = 40
 
     /// The panel window, centred on the notch: every state plus the flared corners on both sides and
     /// the shadow below.

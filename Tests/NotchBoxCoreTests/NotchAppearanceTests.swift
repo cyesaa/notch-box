@@ -126,3 +126,63 @@ struct NotchAppearanceTests {
         #expect(NotchAppearance.decode(wild)?.background == ArtworkColor(red: 1, green: 0, blue: 0.5))
     }
 }
+
+struct NotchTranslucencyTests {
+    let navy = ArtworkColor(red: 0.05, green: 0.08, blue: 0.3)
+
+    @Test func theNotchStartsSolidAndWithoutGlass() {
+        #expect(NotchAppearance.default.backgroundOpacity == 1)
+        #expect(!NotchAppearance.default.usesGlass)
+        #expect(!NotchAppearance.default.isTranslucent)
+    }
+
+    @Test func aSeeThroughColourOrGlassMakesThePanelTranslucent() {
+        #expect(NotchAppearance(backgroundOpacity: 0.6).isTranslucent)
+        #expect(NotchAppearance(usesGlass: true).isTranslucent)
+        // Close enough to solid to draw it solid.
+        #expect(!NotchAppearance(backgroundOpacity: 0.999).isTranslucent)
+    }
+
+    @Test func opacityStaysBetweenNoneAndFull() {
+        #expect(NotchAppearance(backgroundOpacity: 1.7).backgroundOpacity == 1)
+        #expect(NotchAppearance(backgroundOpacity: -0.2).backgroundOpacity == 0)
+        #expect(NotchAppearance(backgroundOpacity: .nan).backgroundOpacity == 1)
+    }
+
+    @Test func thePanelKeepsItsOwnEdgeUntilTheLastQuarterOfTheSlider() {
+        #expect(NotchAppearance(backgroundOpacity: 1).feathering == 0)
+        #expect(NotchAppearance(backgroundOpacity: 0.6).feathering == 0)
+        #expect(NotchAppearance(backgroundOpacity: 0.25).feathering == 0)
+    }
+
+    @Test func overTheLastQuarterTheEdgeDissolvesIntoASoftBlur() {
+        // At full transparency the colour and the panel's edge are gone, and what is left behind the
+        // widgets is a blur that fades out at its rim, so that they can still be read.
+        #expect(NotchAppearance(backgroundOpacity: 0.125).feathering == 0.5)
+        #expect(NotchAppearance(backgroundOpacity: 0).feathering == 1)
+        #expect(NotchAppearance(backgroundOpacity: 0, usesGlass: true).feathering == 1)
+    }
+
+    @Test func textColourStillFollowsTheChosenColour() {
+        // What shows through is blurred dark or light to match, so the colour alone decides.
+        #expect(NotchAppearance(background: .white, backgroundOpacity: 0.2).ink == .black)
+        #expect(NotchAppearance(background: navy, backgroundOpacity: 0.2).ink == .white)
+    }
+
+    @Test func savesAndRestoresTranslucency() throws {
+        let appearance = NotchAppearance(background: navy, backgroundOpacity: 0.45, usesGlass: true)
+        let data = try JSONEncoder().encode(appearance)
+        #expect(NotchAppearance.decode(data) == appearance)
+    }
+
+    @Test func aChoiceSavedBeforeTranslucencyExistedIsSolid() {
+        let old = Data(#"{"background":{"red":0.1,"green":0.2,"blue":0.3},"glow":"artwork","glowColor":{"red":1,"green":0,"blue":0},"glowsWhenIdle":true}"#.utf8)
+        let decoded = NotchAppearance.decode(old)
+        #expect(decoded?.backgroundOpacity == 1)
+        #expect(decoded?.usesGlass == false)
+        #expect(decoded?.glow == .artwork)
+        let wild = Data(#"{"backgroundOpacity":9,"usesGlass":"yes"}"#.utf8)
+        #expect(NotchAppearance.decode(wild)?.backgroundOpacity == 1)
+        #expect(NotchAppearance.decode(wild)?.usesGlass == false)
+    }
+}

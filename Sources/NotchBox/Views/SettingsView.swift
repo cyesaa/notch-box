@@ -107,6 +107,31 @@ struct SettingsView: View {
                 custom: color(\.background),
                 select: { picked in change { $0.background = picked } }
             )
+            LabeledContent(L10n.appearanceTransparency) {
+                HStack(spacing: 10) {
+                    Slider(value: Binding(
+                        get: { 1 - settings.appearance.backgroundOpacity },
+                        set: { transparency in change { $0.backgroundOpacity = min(max(1 - transparency, 0), 1) } }
+                    ), in: 0...1)
+                    .frame(width: 220)
+                    Text(verbatim: "\(Int(((1 - settings.appearance.backgroundOpacity) * 100).rounded())) %")
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                        .frame(width: 46, alignment: .trailing)
+                }
+            }
+            if Self.hasLiquidGlass {
+                Toggle(L10n.appearanceGlass, isOn: Binding(
+                    get: { settings.appearance.usesGlass },
+                    set: { on in
+                        change {
+                            $0.usesGlass = on
+                            // Glass under a solid colour could not be seen.
+                            if on, $0.backgroundOpacity > 0.9 { $0.backgroundOpacity = 0.35 }
+                        }
+                    }
+                ))
+            }
         }
         Section {
             Picker(L10n.appearanceGlow, selection: Binding(
@@ -143,6 +168,12 @@ struct SettingsView: View {
                     .disabled(settings.appearance == .default)
             }
         }
+    }
+
+    /// Liquid Glass came with macOS 26; on earlier systems the switch is not offered.
+    private static var hasLiquidGlass: Bool {
+        if #available(macOS 26.0, *) { return true }
+        return false
     }
 
     private func change(_ edit: (inout NotchAppearance) -> Void) {
@@ -310,16 +341,27 @@ struct SettingsStage: View {
             Rectangle()
                 .fill(Color.white.opacity(0.16))
                 .frame(height: Self.band)
-            NotchShape(topRadius: Self.flare, bottomRadius: 12)
-                .fill(Color(appearance.background))
-                .frame(width: width + 2 * Self.flare, height: height)
-                .shadow(color: Color.black.opacity(0.35), radius: 10, y: 5)
-                .offset(x: offset)
-            if let glow = appearance.glowColor(cover: Self.cover) {
-                NeonOutline(color: Color(glow), topRadius: Self.flare, bottomRadius: 12, lineWidth: 1.2)
-                    .frame(width: width + 2 * Self.flare, height: height)
+            // With Liquid Glass there is no panel: the player and each widget are cards of their own.
+            if !appearance.usesGlass {
+                // A see-through panel is drawn over a wash of black or white, standing in for the blur of
+                // what lies behind it; a solid one hides the wash.
+                NotchShape(topRadius: Self.flare, bottomRadius: 12)
+                    .fill((appearance.isLight ? Color.white : Color.black).opacity(appearance.isTranslucent ? 0.38 : 0))
+                    .frame(width: width + 2 * Self.flare - 10 * appearance.feathering, height: height - 5 * appearance.feathering)
+                    // Near full transparency the panel is a blur with a soft rim.
+                    .blur(radius: 5 * appearance.feathering)
                     .offset(x: offset)
-                    .allowsHitTesting(false)
+                NotchShape(topRadius: Self.flare, bottomRadius: 12)
+                    .fill(Color(appearance.background).opacity(appearance.isTranslucent ? appearance.backgroundOpacity : 1))
+                    .frame(width: width + 2 * Self.flare, height: height)
+                    .shadow(color: Color.black.opacity(appearance.isTranslucent ? 0 : 0.35), radius: 10, y: 5)
+                    .offset(x: offset)
+                if let glow = appearance.glowColor(cover: Self.cover) {
+                    NeonOutline(color: Color(glow), topRadius: Self.flare, bottomRadius: 12, lineWidth: 1.2)
+                        .frame(width: width + 2 * Self.flare, height: height)
+                        .offset(x: offset)
+                        .allowsHitTesting(false)
+                }
             }
             UnevenRoundedRectangle(bottomLeadingRadius: 6, bottomTrailingRadius: 6, style: .continuous)
                 .fill(Color.black)
@@ -374,12 +416,36 @@ struct SettingsStage: View {
         .padding(.horizontal, 16)
         .padding(.top, Self.band)
         .frame(width: Self.center, height: Self.row)
+        .background {
+            if appearance.usesGlass {
+                card(appearance).padding(.horizontal, 3).padding(.top, 2).padding(.bottom, 3)
+            }
+        }
         .accessibilityHidden(true)
+    }
+
+    /// A glass card in the drawing: a wash standing in for the glass, the colour, and a bright rim.
+    private func card(_ appearance: NotchAppearance) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 9, style: .continuous)
+        return ZStack {
+            shape.fill((appearance.isLight ? Color.white : Color.black).opacity(0.38))
+            shape.fill(Color(appearance.background).opacity(appearance.backgroundOpacity))
+            shape.strokeBorder(Color.white.opacity(0.4), lineWidth: 0.8)
+            // The neon outlines each card, as on the real panel.
+            if let glow = appearance.glowColor(cover: Self.cover) {
+                shape
+                    .stroke(Color(glow), lineWidth: 1.2)
+                    .shadow(color: Color(glow).opacity(0.9), radius: 2.4)
+                    .shadow(color: Color(glow).opacity(0.6), radius: 6)
+            }
+        }
     }
 
     private func place(_ side: SideWidgets.Side) -> some View {
         let widget = settings.sideWidgets[side]
-        let inside = isInsidePanel(side)
+        let glass = settings.appearance.usesGlass
+        // With glass there is no panel to be inside of: a widget sits on its own card, a free place on the desk.
+        let inside = glass ? widget != nil : isInsidePanel(side)
         let isTopRow = side == .left || side == .right
         // Inside the panel a place is drawn in the panel's text colour; outside it, on the desk, in white.
         let tint = inside ? Color(settings.appearance.ink) : Color.white
@@ -397,8 +463,12 @@ struct SettingsStage: View {
         } label: {
             ZStack {
                 if let widget {
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(tint.opacity(0.1))
+                    if glass {
+                        card(settings.appearance)
+                    } else {
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(tint.opacity(0.1))
+                    }
                     VStack(spacing: 4) {
                         Image(systemName: widget.symbol)
                             .font(.system(size: 13, weight: .semibold))
@@ -418,9 +488,9 @@ struct SettingsStage: View {
                         .foregroundStyle(tint.opacity(inside ? 0.45 : 0.9))
                 }
             }
-            .padding(.horizontal, 5)
-            .padding(.top, isTopRow ? Self.band + 4 : 6)
-            .padding(.bottom, 6)
+            .padding(.horizontal, glass ? 3 : 5)
+            .padding(.top, glass ? (isTopRow ? 2 : 3) : isTopRow ? Self.band + 4 : 6)
+            .padding(.bottom, glass ? 3 : 6)
             .frame(width: side == .bottom ? Self.center : Self.column, height: Self.row)
             .contentShape(Rectangle())
         }

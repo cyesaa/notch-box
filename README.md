@@ -61,7 +61,10 @@ one that is already placed swaps the two. With the bottom row empty the panel is
 in it the panel is twice as tall. General holds the notch, launch-at-login and update options.
 
 **Appearance** (in Settings) changes how the notch looks, with ready-made colours to click and a colour well for
-any other. The background can be any colour; on a light one, text
+any other. Transparency lets what lies behind the notch show through the background, blurred; at full
+transparency the colour and the panel's edge are gone, and a blur with a soft rim is left behind the widgets so
+that they can still be read. On macOS 26 and later, Liquid Glass turns the open panel into separate glass cards,
+one for the player and one for each widget, tinted with your colour, with the desktop showing between them. The background can be any colour; on a light one, text
 and symbols turn dark so they stay readable, and the colour taken from the cover is adjusted until it stands out.
 Neon is a thin glowing line along the edge of the notch: off, in the colour of the cover that is playing, or in a
 colour of your own, and it can stay on around the closed notch too. "Back to Black" brings back the look NotchBox
@@ -304,7 +307,11 @@ gibidir; alt satıra bir bileşen koyunca panel iki katı yüksekliğe çıkar. 
 seçenekleri Genel bölümündedir.
 
 **Görünüm** (Ayarlar'da) notch'un nasıl göründüğünü değiştirir; tıklayıp seçebileceğin hazır renkler ve başka
-her renk için bir renk kutusu vardır. Arka plan her renk olabilir; açık bir renkte yazılar
+her renk için bir renk kutusu vardır. Saydamlık, notch'un ardında kalan görüntünün arka plandan bulanık olarak
+görünmesini sağlar; tam saydamlıkta renk ve panelin kenarı kaybolur, bileşenler okunabilsin diye arkalarında
+kenarı yumuşakça sönen bir bulanıklık kalır. macOS 26 ve sonrasında Liquid Glass, açık paneli ayrı cam kartlara
+çevirir: oynatıcı ve her bileşen, seçtiğin renkle tonlanmış kendi kartında durur ve aralarından masaüstü görünür.
+Arka plan her renk olabilir; açık bir renkte yazılar
 ve simgeler okunaklı kalsın diye koyulaşır, kapaktan alınan renk de arka plandan ayrışacak şekilde ayarlanır. Neon,
 notch'un kenarı boyunca parlayan ince bir çizgidir: kapalı, çalan şarkının kapağının renginde ya da senin
 seçtiğin renkte olabilir; istersen notch kapalıyken de yanar. "Siyaha Dön", NotchBox'ın ilk halini geri getirir.

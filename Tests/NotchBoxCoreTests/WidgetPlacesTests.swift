@@ -102,7 +102,7 @@ struct WidgetGridLayoutTests {
     @Test func theWindowFitsBothColumnsAndTheBottomRow() {
         // The window never resizes when the choice changes: it is sized for every place taken.
         #expect(NotchLayout.contentReach(notch: notch) == CGSize(width: 440, height: 2 * (32 + 154)))
-        #expect(NotchLayout.windowSize(notch: notch) == CGSize(width: 2 * 440 + 2 * (12 + 24), height: 372 + 24))
+        #expect(NotchLayout.windowSize(notch: notch) == CGSize(width: 2 * 440 + 2 * (12 + 40), height: 372 + 40))
     }
 
     @Test func theMiddleOfTheBottomRowIsAsWideAsThePlayer() {

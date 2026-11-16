@@ -98,6 +98,13 @@ enum SnapshotRenderer {
             Scene(name: "16g-light-background-nothing-playing", state: .nothing, hovering: true, sides: SideWidgets(left: .vpn, right: .calendar), vpn: .disconnected, appearance: NotchAppearance(background: ArtworkColor(red: 1, green: 0.85, blue: 0.2))),
             Scene(name: "16h-red-background-volume", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, volumeChange: true, appearance: NotchAppearance(background: ArtworkColor(red: 0.8, green: 0.1, blue: 0.1))),
             Scene(name: "16i-virtual-notch-idle-coloured", state: .nothing, hovering: false, virtualNotch: true, appearance: NotchAppearance(background: ArtworkColor(red: 0.3, green: 0.1, blue: 0.5), glow: .custom, glowsWhenIdle: true)),
+            Scene(name: "18a-see-through-black", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, appearance: NotchAppearance(backgroundOpacity: 0.45)),
+            Scene(name: "18b-see-through-navy-neon-mini", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: cool)), hovering: false, appearance: NotchAppearance(background: ArtworkColor(red: 0.06, green: 0.09, blue: 0.3), backgroundOpacity: 0.5, glow: .artwork)),
+            Scene(name: "18c-glass-white", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, appearance: NotchAppearance(background: .white, backgroundOpacity: 0.35, usesGlass: true)),
+            Scene(name: "18e-glass-black", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .vpn, right: .auth, bottom: .clipboard), vpn: .disconnected, appearance: NotchAppearance(backgroundOpacity: 0.35, usesGlass: true)),
+            Scene(name: "18f-glass-black-mini", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, appearance: NotchAppearance(backgroundOpacity: 0.35, usesGlass: true)),
+            Scene(name: "18g-fully-transparent", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, appearance: NotchAppearance(backgroundOpacity: 0)),
+            Scene(name: "18d-see-through-volume", state: .nothing, hovering: false, volumeChange: true, appearance: NotchAppearance(backgroundOpacity: 0.3)),
             Scene(name: "12c-only-left-column", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: nil)),
             Scene(name: "10-clipboard-image-preview", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, previewImage: true),
             Scene(name: "6-unavailable", state: .unavailable, hovering: true),
@@ -246,7 +253,7 @@ enum SnapshotRenderer {
         let plain = settings(.default, .default)
         let full = settings(
             SideWidgets(left: .clipboard, right: .calendar, bottom: .vpn),
-            NotchAppearance(background: ArtworkColor(red: 0.06, green: 0.09, blue: 0.30), glow: .custom, glowColor: ArtworkColor(red: 1, green: 0.2, blue: 0.8), glowsWhenIdle: true)
+            NotchAppearance(background: ArtworkColor(red: 0.06, green: 0.09, blue: 0.30), backgroundOpacity: 0.55, usesGlass: true, glow: .custom, glowColor: ArtworkColor(red: 1, green: 0.2, blue: 0.8), glowsWhenIdle: true)
         )
         let light = settings(
             SideWidgets(left: nil, right: .auth, bottomLeft: .calendar),

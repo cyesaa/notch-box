@@ -26,6 +26,8 @@ struct SideColumn: View {
     let widget: NotchWidget
     let side: SideWidgets.Side
     let model: NotchViewModel
+    /// The glass card the widget sits on, when the widgets are separate cards (Liquid Glass).
+    var card: WidgetCard?
 
     var body: some View {
         Group {
@@ -36,10 +38,11 @@ struct SideColumn: View {
             case .auth: AuthView(model: model)
             }
         }
-        .sideColumnFrame(side: side, notchHeight: model.notchSize.height)
+        .sideColumnFrame(side: side, notchHeight: model.notchSize.height, isCard: card != nil)
         // The place below the player is as wide as the player; the others are one column wide.
         .frame(width: side == .bottom ? nil : NotchLayout.sideColumnWidth)
         .frame(maxWidth: side == .bottom ? .infinity : nil)
+        .background { card }
     }
 }
 
@@ -47,15 +50,17 @@ extension View {
     /// Places in the left and right columns are padded 16 at the panel's edge and 12 next to the middle,
     /// with a hairline between them and the middle below their header. Mirrored for the right column.
     /// The place below the player has the middle to itself: 16 on both sides and no hairline.
-    func sideColumnFrame(side: SideWidgets.Side, notchHeight: CGFloat) -> some View {
+    /// On a card of its own a widget is padded the same on both sides, and the card's edge does what
+    /// the hairline did.
+    func sideColumnFrame(side: SideWidgets.Side, notchHeight: CGFloat, isCard: Bool = false) -> some View {
         let isLeft = side == .left || side == .bottomLeft
         let isRight = side == .right || side == .bottomRight
         return self
-            .padding(.leading, isRight ? 12 : 16)
-            .padding(.trailing, isLeft ? 12 : 16)
+            .padding(.leading, isCard ? 14 : isRight ? 12 : 16)
+            .padding(.trailing, isCard ? 14 : isLeft ? 12 : 16)
             .padding(.bottom, 14)
             .overlay(alignment: isLeft ? .trailing : .leading) {
-                if isLeft || isRight {
+                if (isLeft || isRight) && !isCard {
                     Rectangle()
                         .fill(NotchTheme.ink.opacity(0.08))
                         .frame(width: 1)

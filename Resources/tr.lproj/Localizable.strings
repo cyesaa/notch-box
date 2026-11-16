@@ -143,7 +143,7 @@
 "auth_save_failed" = "Değişiklik Anahtar Zinciri'ne kaydedilemedi.";
 "auth_unlock_reason" = "giriş kodlarını yönetmek";
 "settings_appearance_header" = "Görünüm";
-"settings_appearance_footer" = "MacBook'ta çentiğin kendisi siyah kalır; ekrandaki bir oyuktur. Açık bir arka planda yazılar ve simgeler koyulaşır.";
+"settings_appearance_footer" = "MacBook'ta çentiğin kendisi siyah kalır; ekrandaki bir oyuktur. Açık bir arka planda yazılar ve simgeler koyulaşır. Saydam bir arka planın ardında kalan görüntü bulanıklaştırılır.";
 "appearance_background" = "Arka plan rengi";
 "appearance_glow" = "Neon";
 "appearance_glow_off" = "Kapalı";
@@ -168,3 +168,5 @@
 "color_lime" = "Limon yeşili";
 "color_orange" = "Turuncu";
 "color_violet" = "Eflatun";
+"appearance_transparency" = "Saydamlık";
+"appearance_glass" = "Liquid Glass";

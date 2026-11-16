@@ -50,7 +50,8 @@ struct NotchLayoutTests {
 
     @Test func windowLeavesRoomForTheFlaredCornersAndTheShadow() {
         let margin = NotchLayout.shadowMargin
-        #expect(margin == 24)
+        // Enough for the open panel's shadow (blur 16, 8 lower) under the tallest panel.
+        #expect(margin == 40)
         #expect(NotchLayout.windowSize(notch: notch) == CGSize(width: 2 * 440 + 2 * (12 + margin), height: 372 + margin))
     }
 

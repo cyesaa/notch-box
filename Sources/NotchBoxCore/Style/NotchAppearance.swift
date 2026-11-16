@@ -48,6 +48,10 @@ public struct NotchAppearance: Equatable, Codable, Sendable {
     }
 
     public var background: ArtworkColor
+    /// How solid the background colour is, from 0 (only what lies behind the notch, blurred) to 1 (solid).
+    public var backgroundOpacity: Double
+    /// Draw the panel as Liquid Glass (macOS 26 and later), tinted with the background colour.
+    public var usesGlass: Bool
     public var glow: Glow
     /// The neon's colour while `glow` is `.custom`.
     public var glowColor: ArtworkColor
@@ -65,18 +69,39 @@ public struct NotchAppearance: Equatable, Codable, Sendable {
     public static let minimumAccentContrast = 2.0
 
     public init(
-        background: ArtworkColor = .black, glow: Glow = .off,
+        background: ArtworkColor = .black, backgroundOpacity: Double = 1, usesGlass: Bool = false, glow: Glow = .off,
         glowColor: ArtworkColor = NotchAppearance.defaultGlowColor, glowsWhenIdle: Bool = false
     ) {
         self.background = background
+        self.backgroundOpacity = Self.sensibleOpacity(backgroundOpacity)
+        self.usesGlass = usesGlass
         self.glow = glow
         self.glowColor = glowColor
         self.glowsWhenIdle = glowsWhenIdle
     }
 
+    /// Something shows through the panel: the colour is not solid, or the panel is glass.
+    public var isTranslucent: Bool { usesGlass || backgroundOpacity < 0.995 }
+
+    /// The part of the transparency slider where the panel loses its edge: below this much colour.
+    public static let featheringOpacity = 0.25
+
+    /// How far the panel has dissolved into a soft-edged blur, from 0 (its own crisp edge) to 1. It
+    /// rises over the last quarter of the transparency slider: at full transparency the colour and the
+    /// edge are gone, and what is left behind the widgets is a blur that fades out at its rim, the way
+    /// a shadow does, so that they can still be read.
+    public var feathering: Double {
+        1 - min(1, backgroundOpacity / Self.featheringOpacity)
+    }
+
+    static func sensibleOpacity(_ value: Double) -> Double {
+        value.isNaN ? 1 : min(max(value, 0), 1)
+    }
+
     public var isLight: Bool { background.luminance > Self.lightLuminance }
 
-    /// The colour of text and symbols: white on a dark background, black on a light one.
+    /// The colour of text and symbols: white on a dark background, black on a light one. A see-through
+    /// background is judged by its colour alone: what shows through it is blurred dark or light to match.
     public var ink: ArtworkColor { isLight ? .black : .white }
 
     /// What is drawn on a shape filled with `ink` (the play button's symbol, today's number).
@@ -118,6 +143,8 @@ public struct NotchAppearance: Equatable, Codable, Sendable {
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         background = (try? values.decodeIfPresent(ArtworkColor.self, forKey: .background))?.clamped ?? .black
+        backgroundOpacity = Self.sensibleOpacity((try? values.decodeIfPresent(Double.self, forKey: .backgroundOpacity)) ?? 1)
+        usesGlass = (try? values.decodeIfPresent(Bool.self, forKey: .usesGlass)) ?? false
         glow = (try? values.decodeIfPresent(String.self, forKey: .glow)).flatMap(Glow.init(rawValue:)) ?? .off
         glowColor = (try? values.decodeIfPresent(ArtworkColor.self, forKey: .glowColor))?.clamped ?? Self.defaultGlowColor
         glowsWhenIdle = (try? values.decodeIfPresent(Bool.self, forKey: .glowsWhenIdle)) ?? false

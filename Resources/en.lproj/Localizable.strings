@@ -143,7 +143,7 @@
 "auth_save_failed" = "The change could not be saved to the keychain.";
 "auth_unlock_reason" = "manage your sign-in codes";
 "settings_appearance_header" = "Appearance";
-"settings_appearance_footer" = "On a MacBook the notch itself stays black: it is a cut-out in the screen. On a light background, text and symbols turn dark.";
+"settings_appearance_footer" = "On a MacBook the notch itself stays black: it is a cut-out in the screen. On a light background, text and symbols turn dark. What shows through a see-through background is blurred.";
 "appearance_background" = "Background colour";
 "appearance_glow" = "Neon";
 "appearance_glow_off" = "Off";
@@ -168,3 +168,5 @@
 "color_lime" = "Lime";
 "color_orange" = "Orange";
 "color_violet" = "Violet";
+"appearance_transparency" = "Transparency";
+"appearance_glass" = "Liquid Glass";

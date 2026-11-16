@@ -67,6 +67,8 @@ enum L10n {
     static var settingsPaneWidgets: String { string("settings_pane_widgets") }
     static var settingsStageHint: String { string("settings_stage_hint") }
     static var appearanceOtherColor: String { string("appearance_other_color") }
+    static var appearanceTransparency: String { string("appearance_transparency") }
+    static var appearanceGlass: String { string("appearance_glass") }
     static func colorName(_ id: String) -> String { string("color_" + id) }
     static var settingsAppearanceHeader: String { string("settings_appearance_header") }
     static var settingsAppearanceFooter: String { string("settings_appearance_footer") }
