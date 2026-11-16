@@ -7,6 +7,8 @@ public enum NotchWidget: String, CaseIterable, Codable, Sendable {
     case vpn
     /// Sign-in codes (2FA).
     case auth
+    /// The Mac's camera as a mirror.
+    case mirror
 }
 
 /// Which widget sits in each place around the open player: left and right of it, and in a second row

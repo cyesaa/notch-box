@@ -340,6 +340,25 @@ Needs a phone with Google Authenticator and at least one account in it. The acco
   ("Always Allow"); refusing shows "The codes could not be read from the keychain" with "Try Again", and the
   stored accounts are still there after allowing.
 
+## Mirror
+
+- [ ] Settings → Widgets lists Mirror for every place; put it on the right. Hovering the notch shows the Mirror
+  card with "Open Mirror"; the camera light stays off.
+- [ ] "Open Mirror": the first time macOS asks for the camera; after allowing, the card shows you, mirrored (raise
+  your right hand: it rises on the right). The camera light is on.
+- [ ] Clicking the picture turns the mirror off and the camera light goes out. Opening it again works.
+- [ ] With the mirror on, move the pointer away: the panel closes and the camera light goes out. Hovering again
+  shows "Open Mirror", not the camera.
+- [ ] The corner button (⤢) fills the screen the notch is on with the mirror, above the menu bar, with an ✕ in the
+  top right. It stays when the pointer leaves the notch. Esc closes it, and so does the ✕; the app that was in
+  front before has the keyboard again, and the camera light goes out (unless the mirror is still open in the card
+  of an open panel).
+- [ ] The mirror in the bottom place (below the player) and in a bottom corner fills its card.
+- [ ] With the camera refused in System Settings, the card says NotchBox may not use the camera, and "Open Camera
+  Settings" opens the right pane. NotchBox keeps running.
+- [ ] On a Mac with a 720p camera (an M1 MacBook), the mirror opens and NotchBox keeps running.
+- [ ] The import window's camera still works while the Mirror is a widget, and the Mirror works after importing.
+
 ## Health check
 
 Watch the log in a second terminal. zsh has its own `log` command, so use the full path:

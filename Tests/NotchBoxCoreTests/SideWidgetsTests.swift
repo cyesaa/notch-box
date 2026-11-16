@@ -6,7 +6,7 @@ import Testing
 struct SideWidgetsTests {
     @Test func clipboardLeftAndCalendarRightByDefault() {
         #expect(SideWidgets.default == SideWidgets(left: .clipboard, right: .calendar))
-        #expect(NotchWidget.allCases == [.clipboard, .calendar, .vpn, .auth])
+        #expect(NotchWidget.allCases == [.clipboard, .calendar, .vpn, .auth, .mirror])
     }
 
     @Test func choosingAWidgetForASide() {
@@ -41,6 +41,13 @@ struct SideWidgetsTests {
         let sides = SideWidgets(left: nil, right: .clipboard)
         let data = try JSONEncoder().encode(sides)
         #expect(SideWidgets.decode(data) == sides)
+    }
+
+    @Test func theMirrorIsSavedLikeAnyOtherWidget() throws {
+        let sides = SideWidgets(left: .clipboard, right: .mirror, bottom: .auth)
+        let data = try JSONEncoder().encode(sides)
+        #expect(SideWidgets.decode(data) == sides)
+        #expect(SideWidgets.decode(Data(#"{"right":"mirror"}"#.utf8)) == SideWidgets(left: nil, right: .mirror))
     }
 
     @Test func aWidgetFromANewerVersionIsDroppedNotFatal() {

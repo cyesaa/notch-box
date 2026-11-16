@@ -38,7 +38,7 @@
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>NotchBox shows this week's events next to the player. It only reads them and never changes them.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>NotchBox uses the camera only while you import accounts, to read the QR code your authenticator app shows. Nothing is recorded.</string>
+	<string>NotchBox uses the camera only when you ask for it: to read the QR code your authenticator app shows while you import accounts, and to show you yourself in the Mirror. Nothing is recorded.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 </dict>

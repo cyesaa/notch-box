@@ -8,6 +8,7 @@ extension NotchWidget {
         case .calendar: return L10n.calendarTitle
         case .vpn: return L10n.vpnTitle
         case .auth: return L10n.authTitle
+        case .mirror: return L10n.mirrorTitle
         }
     }
 
@@ -17,6 +18,7 @@ extension NotchWidget {
         case .calendar: return "calendar"
         case .vpn: return "lock.shield"
         case .auth: return "key.horizontal"
+        case .mirror: return "person.crop.square"
         }
     }
 }
@@ -36,6 +38,7 @@ struct SideColumn: View {
             case .calendar: CalendarView(model: model)
             case .vpn: VPNView(model: model)
             case .auth: AuthView(model: model)
+            case .mirror: MirrorView(model: model)
             }
         }
         .sideColumnFrame(side: side, notchHeight: model.notchSize.height, isCard: card != nil)

@@ -1,4 +1,4 @@
 "NSAudioCaptureUsageDescription" = "NotchBox, notch'taki ses dalgasını oynatmak için müziğin ne kadar yüksek çaldığını okur. Hiçbir şey kaydedilmez.";
 "NSCalendarsFullAccessUsageDescription" = "NotchBox, bu haftanın etkinliklerini oynatıcının yanında gösterir. Yalnızca okur, hiçbir şeyi değiştirmez.";
 "NSAppleEventsUsageDescription" = "NotchBox, notch'ta izlemek istediğin YouTube videosunu bulmak için tarayıcındaki açık sekmeleri okur, giriş kodunu göstermek için görüntülenen sayfanın adresini okur ve VPN'e bağlanmak için FortiClient'ın menü çubuğu simgesine tıklar.";
-"NSCameraUsageDescription" = "NotchBox kamerayı yalnızca hesap aktarırken, doğrulama uygulamanın gösterdiği QR kodunu okumak için kullanır. Hiçbir şey kaydedilmez.";
+"NSCameraUsageDescription" = "NotchBox kamerayı yalnızca sen istediğinde kullanır: hesap aktarırken doğrulama uygulamanın gösterdiği QR kodunu okumak ve Ayna'da seni göstermek için. Hiçbir şey kaydedilmez.";

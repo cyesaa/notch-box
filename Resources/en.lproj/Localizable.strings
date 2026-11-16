@@ -138,6 +138,13 @@
 "auth_camera_open_settings" = "Open Camera Settings";
 "auth_camera_missing" = "No camera was found on this Mac.";
 "auth_camera_failed" = "The camera could not be started. Import a picture of the code instead.";
+"mirror_title" = "Mirror";
+"mirror_open" = "Open Mirror";
+"mirror_close" = "Turn the mirror off";
+"mirror_full_screen" = "Full Screen";
+"mirror_exit_full_screen" = "Close (Esc)";
+"mirror_denied" = "NotchBox may not use the camera.";
+"mirror_failed" = "The camera could not be started.";
 "auth_added_one" = "1 account added.";
 "auth_added_other" = "%d accounts added.";
 "auth_added_none" = "Those accounts were already here.";

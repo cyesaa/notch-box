@@ -1,3 +1,4 @@
+import AVFoundation
 import AppKit
 import ImageIO
 import NotchBoxCore
@@ -40,6 +41,8 @@ enum SnapshotRenderer {
         var noAccounts = false
         /// The panel's background and neon.
         var appearance = NotchAppearance.default
+        /// The mirror opened in its card (a picture stands in for the camera).
+        var mirrorOpen = false
     }
 
     static func render(to directory: URL) throws {
@@ -105,6 +108,10 @@ enum SnapshotRenderer {
             Scene(name: "18f-glass-black-mini", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, appearance: NotchAppearance(backgroundOpacity: 0.35, usesGlass: true)),
             Scene(name: "18g-fully-transparent", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, appearance: NotchAppearance(backgroundOpacity: 0)),
             Scene(name: "18d-see-through-volume", state: .nothing, hovering: false, volumeChange: true, appearance: NotchAppearance(backgroundOpacity: 0.3)),
+            Scene(name: "19a-mirror-closed", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: .mirror)),
+            Scene(name: "19b-mirror-open", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: .mirror), mirrorOpen: true),
+            Scene(name: "19c-mirror-below-the-player", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: .calendar, bottom: .mirror), mirrorOpen: true),
+            Scene(name: "19d-mirror-nothing-playing-light", state: .nothing, hovering: true, sides: SideWidgets(left: .mirror, right: .calendar), appearance: NotchAppearance(background: ArtworkColor(red: 0.96, green: 0.94, blue: 0.88))),
             Scene(name: "12c-only-left-column", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: nil)),
             Scene(name: "10-clipboard-image-preview", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, previewImage: true),
             Scene(name: "6-unavailable", state: .unavailable, hovering: true),
@@ -155,6 +162,7 @@ enum SnapshotRenderer {
             openVPN: openVPN,
             calendarProvider: SnapshotCalendar(access: scene.calendarAccess, now: clock.now),
             auth: AuthModel(store: SnapshotAuthStore(entries: scene.noAccounts ? [] : sampleAccounts), now: { clock.now }),
+            mirror: MirrorModel(source: SnapshotMirrorCamera()),
             makePlayer: { _, _ in nil },
             now: { clock.now }
         )
@@ -192,6 +200,9 @@ enum SnapshotRenderer {
             model.hoverChanged(true, entry: scene.entry)
             clock.now += 1
             model.hoverChanged(true, entry: scene.entry)
+        }
+        if scene.mirrorOpen {
+            model.mirror.toggle()
         }
         if scene.previewImage, let image = model.clipboard.items.first(where: { if case .image = $0.content { return true } else { return false } }) {
             model.preview(image)
@@ -507,4 +518,13 @@ private final class SnapshotOpenVPN: OpenVPNControlling {
     func connect(profileID: String) {}
     func disconnect() {}
     func openApp() {}
+}
+
+/// No camera: the mirror's card draws a stand-in picture, "started" at once.
+private final class SnapshotMirrorCamera: MirrorCameraControlling {
+    var session: AVCaptureSession? { nil }
+    func start(completion: @escaping @MainActor (CameraFailure?) -> Void) {
+        MainActor.assumeIsolated { completion(nil) }
+    }
+    func stop() {}
 }

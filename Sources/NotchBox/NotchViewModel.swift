@@ -106,6 +106,8 @@ final class NotchViewModel {
     @ObservationIgnored private var agendaTimer: Timer?
     /// The sign-in codes: accounts, the page in the browser, the code under the notch.
     @ObservationIgnored let auth: AuthModel
+    /// The camera as a mirror, in its card or over the whole screen.
+    @ObservationIgnored let mirror: MirrorModel
     @ObservationIgnored private let thumbnails = ClipboardThumbnails()
     @ObservationIgnored private var copiedWork: DispatchWorkItem?
 
@@ -127,6 +129,7 @@ final class NotchViewModel {
         fortiTray: FortiTrayConnecting? = nil,
         calendarProvider: CalendarProviding? = nil,
         auth: AuthModel? = nil,
+        mirror: MirrorModel? = nil,
         makePlayer: @escaping @MainActor (String, TimeInterval) -> YouTubePlayer? = { YouTubePlayer(videoID: $0, start: $1) },
         now: @escaping () -> Date = Date.init
     ) {
@@ -138,6 +141,7 @@ final class NotchViewModel {
         self.fortiTray = fortiTray
         self.calendarProvider = calendarProvider
         self.auth = auth ?? AuthModel(now: now)
+        self.mirror = mirror ?? MirrorModel()
         self.makePlayer = makePlayer
         self.nowPlayingService = nowPlayingService
         self.volumeControl = volumeControl
@@ -178,6 +182,7 @@ final class NotchViewModel {
         updateVPNWatching()
         refreshAgenda()
         auth.setColumnVisible(showsSideColumns && sides.shows(.auth))
+        mirror.setColumnVisible(showsSideColumns && sides.shows(.mirror))
         onDisplayStateChange?(displayState)
     }
 
@@ -863,6 +868,8 @@ final class NotchViewModel {
         }
         updateAgendaTimer()
         auth.setColumnVisible(showsSideColumns && sideWidgets.shows(.auth))
+        // The camera never stays on in a closed panel.
+        mirror.setColumnVisible(showsSideColumns && sideWidgets.shows(.mirror))
         // Listen to the audio only while a moving waveform is on screen.
         let showsWaveform = displayState == .mini || displayState == .expanded || displayState == .volume || displayState == .auth
         audioMeter?.setActive(showsWaveform && info?.clock.isPlaying == true)

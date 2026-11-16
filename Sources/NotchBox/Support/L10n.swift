@@ -157,6 +157,13 @@ enum L10n {
     static var authCameraOpenSettings: String { string("auth_camera_open_settings") }
     static var authCameraMissing: String { string("auth_camera_missing") }
     static var authCameraFailed: String { string("auth_camera_failed") }
+    static var mirrorTitle: String { string("mirror_title") }
+    static var mirrorOpen: String { string("mirror_open") }
+    static var mirrorClose: String { string("mirror_close") }
+    static var mirrorFullScreen: String { string("mirror_full_screen") }
+    static var mirrorExitFullScreen: String { string("mirror_exit_full_screen") }
+    static var mirrorDenied: String { string("mirror_denied") }
+    static var mirrorFailed: String { string("mirror_failed") }
     static func authAdded(_ count: Int) -> String { counted("auth_added", count) }
     static var authAddedNone: String { string("auth_added_none") }
     static var authSaveFailed: String { string("auth_save_failed") }

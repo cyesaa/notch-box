@@ -138,6 +138,13 @@
 "auth_camera_open_settings" = "Kamera Ayarlarını Aç";
 "auth_camera_missing" = "Bu Mac'te kamera bulunamadı.";
 "auth_camera_failed" = "Kamera başlatılamadı. Bunun yerine kodun görselini içe aktar.";
+"mirror_title" = "Ayna";
+"mirror_open" = "Aynayı Aç";
+"mirror_close" = "Aynayı kapat";
+"mirror_full_screen" = "Tam ekran";
+"mirror_exit_full_screen" = "Kapat (Esc)";
+"mirror_denied" = "NotchBox kamerayı kullanamıyor.";
+"mirror_failed" = "Kamera başlatılamadı.";
 "auth_added_one" = "1 hesap eklendi.";
 "auth_added_other" = "%d hesap eklendi.";
 "auth_added_none" = "Bu hesaplar zaten ekliydi.";

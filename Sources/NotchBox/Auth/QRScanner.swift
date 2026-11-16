@@ -5,16 +5,19 @@ import os
 import SwiftUI
 import Vision
 
+/// Why the camera could not be started.
+enum CameraFailure: Equatable {
+    case noCamera
+    /// The user (or a policy) said no to the camera.
+    case denied
+    /// The camera is there and allowed, and the system would not start it.
+    case failed
+}
+
 /// Reads QR codes with the Mac's camera, for importing accounts. Frames are looked at a few times a
 /// second and thrown away; nothing is recorded.
 final class QRScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @unchecked Sendable {
-    enum Failure: Equatable {
-        case noCamera
-        /// The user (or a policy) said no to the camera.
-        case denied
-        /// The camera is there and allowed, and the system would not start it.
-        case failed
-    }
+    typealias Failure = CameraFailure
 
     let session = AVCaptureSession()
     /// Called on the main thread with the text of each QR code in view — the same code many times while
@@ -168,8 +171,8 @@ final class QRScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @
     }
 
     /// The Mac's own camera when it has one; an iPhone offered as a camera comes last, since the phone
-    /// is what shows the code.
-    private static func camera() -> AVCaptureDevice? {
+    /// is what shows the code (and the mirror is for looking at the Mac).
+    static func camera() -> AVCaptureDevice? {
         let devices = AVCaptureDevice.DiscoverySession(
             deviceTypes: [.builtInWideAngleCamera, .external], mediaType: .video, position: .unspecified
         ).devices

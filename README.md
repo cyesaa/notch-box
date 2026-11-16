@@ -62,6 +62,7 @@ Oynatıcının çevresinde beş yer var: solunda, sağında ve altında üç tan
   görüşmelerine yeşil **Katıl** düğmesiyle tek tıkla girersin.
 - **VPN:** FortiClient ya da OpenVPN Connect bağlı mı, ne zamandır bağlı. Bağlanmak ve kesmek tek tık.
 - **Giriş kodları:** bütün 2FA kodların, kalan süreleriyle birlikte.
+- **Ayna:** Mac'in kamerasıyla kendine bir bakış, istersen tam ekran ([aşağıda](#ayna)).
 
 <p align="center">
   <img src="docs/images/tr/widgets.png" alt="Dört bileşenle açık panel: solda pano, sağda takvim, altta VPN ve giriş kodları">
@@ -130,6 +131,19 @@ Kod giriş adımları boyunca durur, sayfadan çıkınca kaybolur. Sağ tık →
 Ayarlar'daki "Giriş sayfalarında kodu göster" tamamen kapatır.
 </details>
 
+### Ayna
+
+Görüntülü görüşmeden önce saçına, yakana bir bak. Ayna bileşenini bir yere koy; paneli açıp **Aynayı Aç**'a
+bastığında kamera açılır ve kendini ayna gibi görürsün. Görüntüye tıklayınca kapanır, paneli kapattığında da
+kendiliğinden kapanır. Köşedeki ⤢ düğmesiyle ekranın tamamı ayna olur; Esc ya da ✕ ile çıkarsın.
+
+<p align="center">
+  <img src="docs/images/tr/mirror.png" alt="Açık panelin sağındaki Ayna kartında kamera görüntüsü">
+</p>
+
+Kamera yalnızca sen bastığında açılır; fareyle panele gelmek onu açmaz. Görüntü yalnızca ekranda gösterilir,
+hiçbir yere kaydedilmez ya da gönderilmez.
+
 ### YouTube'u çentikte izle
 
 Safari, Chrome, Brave, Edge, Vivaldi ya da Arc'ta YouTube izlerken oynatıcıdaki resim içinde resim düğmesine bas:
@@ -175,7 +189,7 @@ kapalı kalır.
 | Sistem Sesi Kaydı | Ses dalgası müziğe göre oynasın. Hiçbir şey kaydedilmez. | İlk müzik çaldığında |
 | Otomasyon (tarayıcın) | YouTube videosunu çentiğe taşımak ve giriş sayfasını tanımak | O özelliği ilk kullandığında |
 | Takvimler | Takvim bileşeni; yalnızca okur | **Takvimi göster**'e bastığında |
-| Kamera | Google Authenticator'dan hesap aktarmak | Aktarırken |
+| Kamera | Ayna ve Google Authenticator'dan hesap aktarmak | Aynayı ilk açtığında ya da aktarırken |
 | Erişilebilirlik | FortiClient VPN'e çentikten bağlanmak; şarkı bilgisi okunamazsa medya tuşları | Gerektiğinde |
 | Diğer uygulamalardan yapıştırma | Pano listesi | macOS sorarsa, ilk kopyalamada |
 
@@ -280,7 +294,8 @@ kapalıyken) menü çubuğunun olduğu ekranda kendi çentiğini çizer.
   günlüğe yazılmaz; sayfaların içeriği hiç okunmaz.
 - **Pano listesi** yalnızca bellekte durur ve NotchBox kapanınca silinir; sabitlediklerin dışında. Şifre
   yöneticilerinin gizli diye işaretlediği öğeler ve kopyalanan dosyalar hiç tutulmaz.
-- **Kamera** yalnızca hesap aktarırken açıktır; görüntüler okunur ve atılır, hiçbir şey kaydedilmez.
+- **Kamera** yalnızca sen aynayı açtığında ya da hesap aktarırken açıktır. Görüntüler kaydedilmez, hiçbir yere
+  gönderilmez.
 
 <details>
 <summary>Ayrıntılar</summary>
@@ -368,6 +383,7 @@ There are five places around the player: left, right and three more in a row bel
 - **VPN:** whether FortiClient or OpenVPN Connect is connected, and for how long. Connecting and disconnecting are
   one click.
 - **Sign-in codes:** all your 2FA codes, with the time they have left.
+- **Mirror:** a look at yourself through the Mac's camera, full screen if you like ([below](#mirror)).
 
 <p align="center">
   <img src="docs/images/en/widgets.png" alt="The open panel with four widgets: clipboard on the left, calendar on the right, VPN and sign-in codes below">
@@ -437,6 +453,19 @@ The code stays through the steps of signing in and goes when you leave the page.
 for five minutes; "Show the code on sign-in pages" in Settings turns it off altogether.
 </details>
 
+### Mirror
+
+Check your hair before a video call. Put the Mirror widget in a place, open the panel and press **Open Mirror**:
+the camera comes on and you see yourself, mirrored. Click the picture to turn it off; closing the panel turns it
+off too. The ⤢ button in the corner fills the whole screen with the mirror; Esc or ✕ leaves it.
+
+<p align="center">
+  <img src="docs/images/en/mirror.png" alt="The camera's picture in the Mirror card right of the open player">
+</p>
+
+The camera comes on only when you press the button; pointing at the panel never turns it on. The picture is only
+shown on screen, never recorded or sent anywhere.
+
 ### Watch YouTube in the notch
 
 Watching YouTube in Safari, Chrome, Brave, Edge, Vivaldi or Arc? Press the picture-in-picture button in the player
@@ -482,7 +511,7 @@ feature stays off.
 | System Audio Recording | The waveform moves with the music. Nothing is recorded. | The first time music plays |
 | Automation (your browser) | Moving a YouTube video into the notch and spotting sign-in pages | The first time you use them |
 | Calendars | The calendar widget; read only | When you press **Show my calendar** |
-| Camera | Importing accounts from Google Authenticator | While importing |
+| Camera | The Mirror, and importing accounts from Google Authenticator | When you first open the mirror, or while importing |
 | Accessibility | Connecting FortiClient's VPN from the notch; media keys if the track cannot be read | When needed |
 | Paste from other apps | The clipboard list | If macOS asks, on the first copy |
 
@@ -588,7 +617,8 @@ MacBook's lid closed) it draws its own notch on the display with the menu bar.
   and the contents of pages are never read.
 - **The clipboard list** lives in memory and is gone when NotchBox quits, except the items you pin. Items that
   password managers mark as private, and copied files, are never kept.
-- **The camera** is on only while you import accounts; each picture is read and thrown away, nothing is recorded.
+- **The camera** is on only while you have the mirror open or import accounts. Nothing is recorded or sent
+  anywhere.
 
 <details>
 <summary>Details</summary>
