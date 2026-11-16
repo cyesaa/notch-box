@@ -73,6 +73,23 @@ Sources: Spotify (not tested for 0.1.0), Apple Music, YouTube in Safari, YouTube
 - [ ] With the clipboard on neither side, copying no longer adds items (the pasteboard is not read); choosing
   it again resumes.
 - [ ] The choice survives quitting and reopening NotchBox.
+- [ ] The drawing shows the player with a place on each side and three places under it, and there are five
+  pickers: Left, Right, Bottom left, Below, Bottom right.
+- [ ] Below: Calendar (bottom row otherwise empty): the open panel is twice as tall, with the calendar under the
+  player and as wide as it. Moving the cursor from the player down onto the calendar keeps the panel open; leaving
+  it closes the panel. The calendar works as it does beside the player (days, Join, opening Calendar).
+- [ ] Bottom left and Bottom right: each widget sits under its column, as wide as the column, with a hairline
+  between the two rows.
+- [ ] Choosing a widget that is already placed somewhere swaps the two places (Left: Clipboard, then Below:
+  Clipboard leaves Left with what Below had, or empty).
+- [ ] Only Below taken (Left and Right empty): the panel stays as wide as the player. Only Bottom left taken: the
+  left column appears with nothing above the widget, and the player stays centred under the notch.
+- [ ] All three bottom places Empty: the panel is exactly as before, one row.
+- [ ] A widget in the bottom row is kept up to date like one beside the player: copy something with Clipboard
+  below, connect a VPN from the bottom row, see a sign-in code change there.
+- [ ] With nothing playing, the bottom row sits under the "Nothing playing" panel; the place below is as wide as
+  that panel.
+- [ ] A choice made with an earlier version (left and right only) is kept after updating, with an empty bottom row.
 - [ ] "Quit NotchBox" quits the app; `pgrep -f mediaremote-adapter` then prints nothing.
 - [ ] `pkill -x NotchBox` also quits cleanly; `pgrep -f mediaremote-adapter` then prints nothing.
 

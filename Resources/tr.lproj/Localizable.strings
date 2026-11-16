@@ -61,9 +61,12 @@
 "settings_menu_item" = "Ayarlar…";
 "settings_title" = "NotchBox Ayarları";
 "settings_sides_header" = "Notch'un üzerine geldiğinde";
-"settings_sides_footer" = "Oynatıcının solunda ve sağında ne duracağını seç. Bir bileşeni iki tarafa birden seçersen yer değiştirirler.";
+"settings_sides_footer" = "Oynatıcının çevresinde ne duracağını seç: yanlarında ve altındaki ikinci satırda. Başka bir yerde duran bir bileşeni seçersen ikisi yer değiştirir.";
 "settings_left" = "Solda";
 "settings_right" = "Sağda";
+"settings_bottom_left" = "Sol altta";
+"settings_bottom" = "Altta";
+"settings_bottom_right" = "Sağ altta";
 "settings_none" = "Boş";
 "settings_player" = "Oynatıcı";
 "settings_notch_header" = "Çentik";

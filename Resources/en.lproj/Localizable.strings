@@ -61,9 +61,12 @@
 "settings_menu_item" = "Settings…";
 "settings_title" = "NotchBox Settings";
 "settings_sides_header" = "When you hover the notch";
-"settings_sides_footer" = "Choose what sits left and right of the player. Picking the same widget for both sides swaps them.";
+"settings_sides_footer" = "Choose what sits around the player: beside it, and in a second row under it. Picking a widget that is already somewhere else swaps the two.";
 "settings_left" = "Left";
 "settings_right" = "Right";
+"settings_bottom_left" = "Bottom left";
+"settings_bottom" = "Below";
+"settings_bottom_right" = "Bottom right";
 "settings_none" = "Empty";
 "settings_player" = "Player";
 "settings_notch_header" = "Notch";

@@ -1,7 +1,7 @@
 import NotchBoxCore
 import SwiftUI
 
-/// The Settings window: what sits beside the open player, how the notch behaves, and general options.
+/// The Settings window: what sits around the open player, how the notch behaves, and general options.
 struct SettingsView: View {
     let settings: AppSettings
     let auth: AuthModel
@@ -13,6 +13,9 @@ struct SettingsView: View {
                     .listRowInsets(EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
                 widgetPicker(L10n.settingsLeft, side: .left)
                 widgetPicker(L10n.settingsRight, side: .right)
+                widgetPicker(L10n.settingsBottomLeft, side: .bottomLeft)
+                widgetPicker(L10n.settingsBottom, side: .bottom)
+                widgetPicker(L10n.settingsBottomRight, side: .bottomRight)
             } header: {
                 Text(L10n.settingsSidesHeader)
             } footer: {
@@ -88,25 +91,33 @@ struct SettingsView: View {
     }
 }
 
-/// A small drawing of the open player with the chosen columns, so the choice is easy to picture.
+/// A small drawing of the open player with the widgets chosen around it, so the choice is easy to
+/// picture: the player with a place on each side, and the row of three places under it.
 private struct SidesPreview: View {
     let sides: SideWidgets
 
     var body: some View {
-        HStack(spacing: 6) {
-            column(sides.left)
-            VStack(spacing: 4) {
-                Image(systemName: "music.note")
-                    .font(.system(size: 13, weight: .semibold))
-                Text(L10n.settingsPlayer)
-                    .font(.system(size: 10, weight: .medium))
+        VStack(spacing: 6) {
+            HStack(spacing: 6) {
+                column(sides.left)
+                VStack(spacing: 4) {
+                    Image(systemName: "music.note")
+                        .font(.system(size: 13, weight: .semibold))
+                    Text(L10n.settingsPlayer)
+                        .font(.system(size: 10, weight: .medium))
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                column(sides.right)
             }
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            column(sides.right)
+            HStack(spacing: 6) {
+                column(sides.bottomLeft)
+                column(sides.bottom)
+                column(sides.bottomRight)
+            }
         }
         .padding(8)
-        .frame(height: 76)
+        .frame(height: 136)
         .background(
             UnevenRoundedRectangle(bottomLeadingRadius: 14, bottomTrailingRadius: 14, style: .continuous)
                 .fill(Color.black)

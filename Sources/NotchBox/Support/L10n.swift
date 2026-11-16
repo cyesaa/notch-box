@@ -58,6 +58,9 @@ enum L10n {
     static var settingsSidesFooter: String { string("settings_sides_footer") }
     static var settingsLeft: String { string("settings_left") }
     static var settingsRight: String { string("settings_right") }
+    static var settingsBottomLeft: String { string("settings_bottom_left") }
+    static var settingsBottom: String { string("settings_bottom") }
+    static var settingsBottomRight: String { string("settings_bottom_right") }
     static var settingsNone: String { string("settings_none") }
     static var settingsPlayer: String { string("settings_player") }
     static var settingsNotchHeader: String { string("settings_notch_header") }

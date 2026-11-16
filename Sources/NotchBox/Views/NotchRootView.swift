@@ -9,7 +9,7 @@ struct NotchRootView: View {
         let size = model.contentSize
         let flare = NotchLayout.topCornerRadius(for: state)
         let bottomRadius = NotchLayout.bottomCornerRadius(for: state)
-        // The open player grows to the left for the clipboard, keeping the player under the notch.
+        // The open player grows sideways for its columns, keeping the player under the notch.
         let offset = NotchLayout.horizontalOffset(for: state, sides: model.sideWidgets)
         // A virtual notch can be hidden while idle (menu setting).
         let hidden = state == .idle && model.hidesIdleShape
@@ -73,16 +73,45 @@ struct NotchRootView: View {
 }
 
 extension NotchRootView {
-    /// The open player with the widgets chosen for its left and right columns.
+    /// The open player with the widgets chosen around it: a column on each side, and a second row under
+    /// it when one of the bottom places is taken. A column is there when either of its places is taken;
+    /// the other place of that column then stays empty.
     private func withSideColumns<Center: View>(@ViewBuilder center: () -> Center) -> some View {
-        HStack(spacing: 0) {
-            if let widget = model.sideWidgets.left {
-                SideColumn(widget: widget, side: .left, model: model)
+        let sides = model.sideWidgets
+        let notch = model.notchSize
+        return VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                if sides.hasLeftColumn { place(.left) }
+                center()
+                if sides.hasRightColumn { place(.right) }
             }
-            center()
-            if let widget = model.sideWidgets.right {
-                SideColumn(widget: widget, side: .right, model: model)
+            .frame(height: notch.height + NotchLayout.expandedBodyHeight)
+            if sides.hasBottomRow {
+                HStack(spacing: 0) {
+                    if sides.hasLeftColumn { place(.bottomLeft) }
+                    place(.bottom)
+                    if sides.hasRightColumn { place(.bottomRight) }
+                }
+                .frame(height: NotchLayout.bottomRowHeight(notch: notch))
+                // A hairline between the two rows.
+                .overlay(alignment: .top) {
+                    Rectangle()
+                        .fill(Color.white.opacity(0.08))
+                        .frame(height: 1)
+                        .padding(.horizontal, 16)
+                }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func place(_ side: SideWidgets.Side) -> some View {
+        if let widget = model.sideWidgets[side] {
+            SideColumn(widget: widget, side: side, model: model)
+        } else if side == .bottom {
+            Color.clear.frame(maxWidth: .infinity)
+        } else {
+            Color.clear.frame(width: NotchLayout.sideColumnWidth)
         }
     }
 }

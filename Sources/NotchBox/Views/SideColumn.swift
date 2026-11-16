@@ -21,7 +21,7 @@ extension NotchWidget {
     }
 }
 
-/// A side column of the open player, with the widget chosen for that side.
+/// A place around the open player (beside it or in the row under it), with the widget chosen for it.
 struct SideColumn: View {
     let widget: NotchWidget
     let side: SideWidgets.Side
@@ -37,24 +37,31 @@ struct SideColumn: View {
             }
         }
         .sideColumnFrame(side: side, notchHeight: model.notchSize.height)
-        .frame(width: NotchLayout.sideColumnWidth)
+        // The place below the player is as wide as the player; the others are one column wide.
+        .frame(width: side == .bottom ? nil : NotchLayout.sideColumnWidth)
+        .frame(maxWidth: side == .bottom ? .infinity : nil)
     }
 }
 
 extension View {
-    /// Side columns are padded 16 at the panel's edge and 12 next to the player, with a hairline between
-    /// them and the player below the notch band. Mirrored for the right side.
+    /// Places in the left and right columns are padded 16 at the panel's edge and 12 next to the middle,
+    /// with a hairline between them and the middle below their header. Mirrored for the right column.
+    /// The place below the player has the middle to itself: 16 on both sides and no hairline.
     func sideColumnFrame(side: SideWidgets.Side, notchHeight: CGFloat) -> some View {
-        self
-            .padding(.leading, side == .left ? 16 : 12)
-            .padding(.trailing, side == .left ? 12 : 16)
+        let isLeft = side == .left || side == .bottomLeft
+        let isRight = side == .right || side == .bottomRight
+        return self
+            .padding(.leading, isRight ? 12 : 16)
+            .padding(.trailing, isLeft ? 12 : 16)
             .padding(.bottom, 14)
-            .overlay(alignment: side == .left ? .trailing : .leading) {
-                Rectangle()
-                    .fill(Color.white.opacity(0.08))
-                    .frame(width: 1)
-                    .padding(.top, notchHeight + 8)
-                    .padding(.bottom, 18)
+            .overlay(alignment: isLeft ? .trailing : .leading) {
+                if isLeft || isRight {
+                    Rectangle()
+                        .fill(Color.white.opacity(0.08))
+                        .frame(width: 1)
+                        .padding(.top, notchHeight + 8)
+                        .padding(.bottom, 18)
+                }
             }
     }
 }

@@ -19,6 +19,7 @@ Control whatever is playing on your Mac from the MacBook notch.
   player and the video moves into the notch, from the same moment, so you can put the browser away and keep watching.
   Pass over the video and it fades away so you can see and click what is behind it; only its close button stays.
   Come down onto it from the menu bar instead and it stays solid, so YouTube's own controls work.
+- Want more at a glance? Settings adds a second row under the player, with room for three more widgets.
 - Signing in somewhere with a six-digit code from Google Authenticator? Bring your accounts over once, and when
   your browser is on that site's sign-in page the code slides out under the notch. Click it to copy it; the
   phone stays in your pocket.
@@ -47,9 +48,11 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 This downloads the latest release, puts `NotchBox.app` in `/Applications` (or `~/Applications` without admin
 rights) and opens it. A music note icon appears in the menu bar with Settings (⌘,), Check for Updates and Quit.
 
-**Settings** decides what sits left and right of the player when you hover the notch (Clipboard, Calendar, VPN,
-Sign-in codes or nothing; more widgets will follow), and holds the sign-in code, notch, launch-at-login and
-update options.
+**Settings** decides what sits around the player when you hover the notch: a widget on its left and on its right,
+and up to three more in a second row under it (bottom left, below and bottom right). Each place takes Clipboard,
+Calendar, VPN, Sign-in codes or nothing (more widgets will follow). A widget sits in one place at a time: picking
+one that is already placed swaps the two. With the bottom row empty the panel is as it always was; with a widget
+in it the panel is twice as tall. Settings also holds the sign-in code, notch, launch-at-login and update options.
 
 **VPN** shows whether your VPNs are connected and for how long, with a Disconnect button: FortiClient's VPN (or
 otherwise one from System Settings) and OpenVPN Connect, a row each when both are installed. OpenVPN profiles
@@ -244,6 +247,8 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
 - Oynatıcının sağında, panoyla aynı genişlikte takvimin durur: üstte bu haftanın günleri (etkinliği olan günlerde
   nokta), altında seçili günün etkinlikleri. Bir güne tıklayınca o günün etkinlikleri gelir. Zoom, Meet, Teams, Webex
   ve FaceTime görüşmelerinde yeşil bir Katıl düğmesi çıkar; etkinliğe tıklayınca Takvim açılır.
+- Bir bakışta daha fazlasını mı görmek istiyorsun? Ayarlar'dan oynatıcının altına ikinci bir satır eklenir; üç
+  bileşen daha sığar.
 - Bir yere Google Authenticator'daki altı haneli kodla mı giriyorsun? Hesaplarını bir kez aktar; tarayıcın o sitenin
   giriş sayfasındayken kod notch'un altından iner. Tıklayınca kopyalanır; telefonu eline alman gerekmez.
 - Apple Music ve Safari/Chrome'da YouTube ile test edildi. macOS'a "Şu An Çalıyor" bilgisi veren diğer uygulamalar
@@ -271,8 +276,11 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 Bu komut son sürümü indirir, `NotchBox.app`'i `/Applications` klasörüne (yönetici izni yoksa `~/Applications`)
 koyar ve açar. Menü çubuğunda bir müzik notası ikonu çıkar; Ayarlar (⌘,), Güncellemeleri denetle ve Çık oradadır.
 
-**Ayarlar**, notch'un üzerine geldiğinde oynatıcının solunda ve sağında ne duracağını seçtiğin yerdir (Pano, Takvim,
-VPN, Giriş kodları ya da boş; zamanla yeni bileşenler eklenecek). Giriş kodu, çentik, açılışta başlatma ve
+**Ayarlar**, notch'un üzerine geldiğinde oynatıcının çevresinde ne duracağını seçtiğin yerdir: solunda ve sağında
+birer bileşen, altındaki ikinci satırda da üç bileşen daha (sol altta, altta ve sağ altta). Her yere Pano, Takvim,
+VPN, Giriş kodları konabilir ya da yer boş bırakılabilir (zamanla yeni bileşenler eklenecek). Bir bileşen aynı
+anda tek yerde durur: başka bir yerde duran bileşeni seçersen ikisi yer değiştirir. Alt satır boşken panel eskisi
+gibidir; alt satıra bir bileşen koyunca panel iki katı yüksekliğe çıkar. Giriş kodu, çentik, açılışta başlatma ve
 güncelleme seçenekleri de buradadır.
 
 **VPN** bileşeni VPN'lerinin bağlı olup olmadığını ve ne kadar süredir bağlı olduklarını gösterir; "Bağlantıyı kes"

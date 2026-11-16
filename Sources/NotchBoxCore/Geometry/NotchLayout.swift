@@ -8,8 +8,8 @@ public enum NotchLayout {
     /// holds the small icons, so nothing is wasted above the header.
     public static let expandedBodyHeight: CGFloat = 154
     public static let emptyWidth: CGFloat = 300
-    /// A side column of the open player (clipboard, calendar, ...). Every widget has the same width, so
-    /// two columns keep the panel symmetric.
+    /// A side column of the open player (clipboard, calendar, ...) and the places under it. Every widget
+    /// beside the player has the same width, so two columns keep the panel symmetric.
     public static let sideColumnWidth: CGFloat = 240
     public static let clipboardWidth: CGFloat = sideColumnWidth
     public static let calendarWidth: CGFloat = sideColumnWidth
@@ -36,15 +36,10 @@ public enum NotchLayout {
             return notch
         case .mini:
             return CGSize(width: notch.width + 2 * miniSideWidth(notch: notch), height: notch.height)
-        case .expanded:
+        case .expanded, .expandedEmpty:
             return CGSize(
-                width: leadingExtension(for: state, sides: sides) + max(expandedWidth, notch.width + 80) + trailingExtension(for: state, sides: sides),
-                height: notch.height + expandedBodyHeight
-            )
-        case .expandedEmpty:
-            return CGSize(
-                width: leadingExtension(for: state, sides: sides) + max(emptyWidth, notch.width + 80) + trailingExtension(for: state, sides: sides),
-                height: notch.height + expandedBodyHeight
+                width: leadingExtension(for: state, sides: sides) + centerWidth(for: state, notch: notch) + trailingExtension(for: state, sides: sides),
+                height: notch.height + expandedBodyHeight + bottomExtension(for: state, notch: notch, sides: sides)
             )
         case .volume:
             return CGSize(width: notch.width + 2 * miniSideWidth(notch: notch), height: notch.height + volumeRowHeight)
@@ -99,18 +94,35 @@ public enum NotchLayout {
         return CGSize(width: width, height: (width * 9 / 16).rounded())
     }
 
-    /// Extra width added on the left of a state: the open player's left column, when one is chosen.
+    /// The player's own width in the open states; the place below it is as wide.
+    public static func centerWidth(for state: NotchDisplayState, notch: CGSize) -> CGFloat {
+        max(state == .expandedEmpty ? emptyWidth : expandedWidth, notch.width + 80)
+    }
+
+    /// The row of widgets under the open player. As tall as the row above it (a header the height of
+    /// the notch band, then the body), so a widget looks the same in either row.
+    public static func bottomRowHeight(notch: CGSize) -> CGFloat {
+        notch.height + expandedBodyHeight
+    }
+
+    /// Extra height added below a state: the open player's bottom row, when one of its places is taken.
+    public static func bottomExtension(for state: NotchDisplayState, notch: CGSize, sides: SideWidgets = .default) -> CGFloat {
+        hasSideColumns(state) && sides.hasBottomRow ? bottomRowHeight(notch: notch) : 0
+    }
+
+    /// Extra width added on the left of a state: the open player's left column, when a widget sits
+    /// beside the player or under that place.
     public static func leadingExtension(for state: NotchDisplayState, sides: SideWidgets = .default) -> CGFloat {
-        hasSideColumns(state) && sides.left != nil ? sideColumnWidth : 0
+        hasSideColumns(state) && sides.hasLeftColumn ? sideColumnWidth : 0
     }
 
     static func hasSideColumns(_ state: NotchDisplayState) -> Bool {
         state == .expanded || state == .expandedEmpty
     }
 
-    /// Extra width added on the right of a state: the open player's right column, when one is chosen.
+    /// Extra width added on the right of a state: the open player's right column.
     public static func trailingExtension(for state: NotchDisplayState, sides: SideWidgets = .default) -> CGFloat {
-        hasSideColumns(state) && sides.right != nil ? sideColumnWidth : 0
+        hasSideColumns(state) && sides.hasRightColumn ? sideColumnWidth : 0
     }
 
     /// How far the content's centre sits from the notch's centre, so that the player itself stays
@@ -119,11 +131,15 @@ public enum NotchLayout {
         (trailingExtension(for: state, sides: sides) - leadingExtension(for: state, sides: sides)) / 2
     }
 
-    /// The farthest any state reaches sideways from the notch's centre (width) and down (height).
+    /// A choice that takes both columns and the bottom row: the largest the open player gets.
+    static let largestChoice = SideWidgets(left: .clipboard, right: .calendar, bottom: .vpn)
+
+    /// The farthest any state reaches sideways from the notch's centre (width) and down (height), with
+    /// every column and row in use: the window is made once and must fit whatever is chosen later.
     public static func contentReach(notch: CGSize) -> CGSize {
         let states = NotchDisplayState.allCases
-        let reach = states.map { size(for: $0, notch: notch).width / 2 + abs(horizontalOffset(for: $0)) }
-        let heights = states.map { size(for: $0, notch: notch).height }
+        let reach = states.map { size(for: $0, notch: notch, sides: largestChoice).width / 2 }
+        let heights = states.map { size(for: $0, notch: notch, sides: largestChoice).height }
         return CGSize(width: reach.max() ?? notch.width / 2, height: heights.max() ?? notch.height)
     }
 
