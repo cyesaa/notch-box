@@ -63,6 +63,7 @@ final class NotchWindowController {
         switch state {
         case .video: button = NotchLayout.videoCloseButtonFrame(notch: geometry.notchSize).insetBy(dx: -4, dy: -4)
         case .mini: button = NotchLayout.miniActionFrame(notch: geometry.notchSize)
+        case .auth: button = NotchLayout.authActionFrame(notch: geometry.notchSize)
         default: button = nil
         }
         hoverTracker.buttonSuppressesHover = NotchInteraction.buttonSuppressesHover(in: state)

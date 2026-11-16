@@ -92,6 +92,60 @@ enum L10n {
     static func calendarNowUntil(_ time: String) -> String { String(format: string("calendar_now_until"), time) }
     static func calendarInMinutes(_ minutes: Int) -> String { String(format: string("calendar_in_minutes"), minutes) }
     static var clipboardClosePreview: String { string("clipboard_close_preview") }
+    static var cancel: String { string("cancel") }
+    static var authTitle: String { string("auth_title") }
+    static var authEmpty: String { string("auth_empty") }
+    static var authImportShort: String { string("auth_import_short") }
+    static var authCopy: String { string("auth_copy") }
+    static var authCopied: String { string("auth_copied") }
+    static var authHide: String { string("auth_hide") }
+    static var authNextAccount: String { string("auth_next_account") }
+    static func authPin(_ site: String) -> String { String(format: string("auth_pin"), site) }
+    static func authUnpin(_ site: String) -> String { String(format: string("auth_unpin"), site) }
+    static var authManage: String { string("auth_manage") }
+    static var authUnreadable: String { string("auth_unreadable") }
+    static var authUnreadableHint: String { string("auth_unreadable_hint") }
+    static var authRetry: String { string("auth_retry") }
+    static var settingsAuthHeader: String { string("settings_auth_header") }
+    static var settingsAuthFooter: String { string("settings_auth_footer") }
+    static var authShowOnSignIn: String { string("auth_show_on_sign_in") }
+    static func authAccountCount(_ count: Int) -> String { counted("auth_account_count", count) }
+    static var authManageButton: String { string("auth_manage_button") }
+    static var authWindowTitle: String { string("auth_window_title") }
+    static var authWindowIntro: String { string("auth_window_intro") }
+    static var authWindowEmptyTitle: String { string("auth_window_empty_title") }
+    static var authWindowEmptyText: String { string("auth_window_empty_text") }
+    static var authImportButton: String { string("auth_import_button") }
+    static var authDelete: String { string("auth_delete") }
+    static func authDeleteTitle(_ name: String) -> String { String(format: string("auth_delete_title"), name) }
+    static var authDeleteText: String { string("auth_delete_text") }
+    static var authScanTitle: String { string("auth_scan_title") }
+    static var authScanStep1: String { string("auth_scan_step1") }
+    static var authScanStep2: String { string("auth_scan_step2") }
+    static var authScanStep3: String { string("auth_scan_step3") }
+    static var authScanLooking: String { string("auth_scan_looking") }
+    static var authScanHint: String { string("auth_scan_hint") }
+    static func authScanFound(_ count: Int) -> String { counted("auth_scan_found", count) }
+    static func authScanMore(_ done: Int, _ total: Int) -> String { String(format: string("auth_scan_more"), done, total) }
+    static var authScanNotACode: String { string("auth_scan_not_a_code") }
+    static func authScanUnsupported(_ count: Int) -> String { counted("auth_scan_unsupported", count) }
+    static func authScanAdd(_ count: Int) -> String { counted("auth_scan_add", count) }
+    static var authCameraDenied: String { string("auth_camera_denied") }
+    static var authCameraOpenSettings: String { string("auth_camera_open_settings") }
+    static var authCameraMissing: String { string("auth_camera_missing") }
+    static func authAdded(_ count: Int) -> String { counted("auth_added", count) }
+    static var authAddedNone: String { string("auth_added_none") }
+    static var authSaveFailed: String { string("auth_save_failed") }
+    static var authUnlockReason: String { string("auth_unlock_reason") }
+
+    /// "<key>_none" for 0 (when there is one), "<key>_one" for 1, "<key>_other" with the number otherwise.
+    private static func counted(_ key: String, _ count: Int) -> String {
+        if count == 0 {
+            let none = string(key + "_none")
+            if none != key + "_none" { return none }
+        }
+        return count == 1 ? string(key + "_one") : String(format: string(key + "_other"), count)
+    }
 
     private static func string(_ key: String) -> String {
         NSLocalizedString(key, bundle: .main, comment: "")

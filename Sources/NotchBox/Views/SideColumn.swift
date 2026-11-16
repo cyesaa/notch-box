@@ -7,6 +7,7 @@ extension NotchWidget {
         case .clipboard: return L10n.clipboardTitle
         case .calendar: return L10n.calendarTitle
         case .vpn: return L10n.vpnTitle
+        case .auth: return L10n.authTitle
         }
     }
 
@@ -15,6 +16,7 @@ extension NotchWidget {
         case .clipboard: return "doc.on.clipboard"
         case .calendar: return "calendar"
         case .vpn: return "lock.shield"
+        case .auth: return "key.horizontal"
         }
     }
 }
@@ -31,6 +33,7 @@ struct SideColumn: View {
             case .clipboard: ClipboardView(model: model)
             case .calendar: CalendarView(model: model)
             case .vpn: VPNView(model: model)
+            case .auth: AuthView(model: model)
             }
         }
         .sideColumnFrame(side: side, notchHeight: model.notchSize.height)

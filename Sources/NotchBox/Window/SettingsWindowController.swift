@@ -5,10 +5,12 @@ import SwiftUI
 @MainActor
 final class SettingsWindowController {
     private let settings: AppSettings
+    private let auth: AuthModel
     private var window: NSWindow?
 
-    init(settings: AppSettings) {
+    init(settings: AppSettings, auth: AuthModel) {
         self.settings = settings
+        self.auth = auth
     }
 
     func show() {
@@ -22,7 +24,7 @@ final class SettingsWindowController {
     }
 
     private func makeWindow() -> NSWindow {
-        let hosting = NSHostingController(rootView: SettingsView(settings: settings))
+        let hosting = NSHostingController(rootView: SettingsView(settings: settings, auth: auth))
         hosting.sizingOptions = [.preferredContentSize]
         let window = NSWindow(contentViewController: hosting)
         window.title = L10n.settingsTitle

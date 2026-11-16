@@ -194,8 +194,8 @@ private struct ClipboardRow: View {
     }
 }
 
-/// A small icon button at the end of a clipboard row.
-private struct RowButton: View {
+/// A small icon button at the end of a row in a side column.
+struct RowButton: View {
     let symbol: String
     let label: String
     /// Drawn brighter (a pinned item's pin).

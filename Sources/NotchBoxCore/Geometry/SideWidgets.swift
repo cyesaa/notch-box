@@ -5,6 +5,8 @@ public enum NotchWidget: String, CaseIterable, Codable, Sendable {
     case clipboard
     case calendar
     case vpn
+    /// Sign-in codes (2FA).
+    case auth
 }
 
 /// Which widget sits left and right of the open player; either side can be empty.

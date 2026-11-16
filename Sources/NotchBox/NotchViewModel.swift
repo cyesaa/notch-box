@@ -99,6 +99,8 @@ final class NotchViewModel {
     @ObservationIgnored private var requestedOpenVPNProfile: String?
     @ObservationIgnored private let calendarProvider: CalendarProviding?
     @ObservationIgnored private var agendaTimer: Timer?
+    /// The sign-in codes: accounts, the page in the browser, the code under the notch.
+    @ObservationIgnored let auth: AuthModel
     @ObservationIgnored private let thumbnails = ClipboardThumbnails()
     @ObservationIgnored private var copiedWork: DispatchWorkItem?
 
@@ -119,6 +121,7 @@ final class NotchViewModel {
         openVPN: OpenVPNControlling? = nil,
         fortiTray: FortiTrayConnecting? = nil,
         calendarProvider: CalendarProviding? = nil,
+        auth: AuthModel? = nil,
         makePlayer: @escaping @MainActor (String, TimeInterval) -> YouTubePlayer? = { YouTubePlayer(videoID: $0, start: $1) },
         now: @escaping () -> Date = Date.init
     ) {
@@ -129,6 +132,7 @@ final class NotchViewModel {
         self.openVPN = openVPN
         self.fortiTray = fortiTray
         self.calendarProvider = calendarProvider
+        self.auth = auth ?? AuthModel(now: now)
         self.makePlayer = makePlayer
         self.nowPlayingService = nowPlayingService
         self.volumeControl = volumeControl
@@ -156,6 +160,7 @@ final class NotchViewModel {
         updateClipboardWatching()
         updateVPNWatching()
         refreshAgenda()
+        auth.setColumnVisible(showsSideColumns && sides.shows(.auth))
         onDisplayStateChange?(displayState)
     }
 
@@ -186,6 +191,8 @@ final class NotchViewModel {
                 MainActor.assumeIsolated { self?.appActivated(bundleID) }
             }
         }
+        auth.onPromptChange = { [weak self] in self?.apply() }
+        auth.start()
         calendarProvider?.onChange = { [weak self] in self?.refreshAgenda() }
         calendarProvider?.start()
         refreshAgenda()
@@ -203,6 +210,7 @@ final class NotchViewModel {
         videoPlayer?.stop()
         videoPlayer = nil
         nowPlayingService?.stop()
+        auth.stop()
         clipboardWatcher?.stop()
         copiedWork?.cancel()
         agendaTimer?.invalidate()
@@ -814,13 +822,16 @@ final class NotchViewModel {
 
     private func apply() {
         // A video keeps the notch open whatever the hover or media state says; the volume row shows
-        // briefly after a volume change unless the full player (with its own volume bar) is open.
+        // briefly after a volume change unless the full player (with its own volume bar) is open; a
+        // sign-in code shows under the closed notch while the browser is on its sign-in page.
         let base = machine.displayState
         let newState: NotchDisplayState
         if video != nil {
             newState = .video
         } else if !base.isOpen, volumeHUD.isVisible(at: now()) {
             newState = .volume
+        } else if !base.isOpen, !auth.promptAccountIDs.isEmpty {
+            newState = .auth
         } else {
             newState = base
         }
@@ -833,8 +844,9 @@ final class NotchViewModel {
             previewedClipboardItem = nil
         }
         updateAgendaTimer()
+        auth.setColumnVisible(showsSideColumns && sideWidgets.shows(.auth))
         // Listen to the audio only while a moving waveform is on screen.
-        let showsWaveform = displayState == .mini || displayState == .expanded || displayState == .volume
+        let showsWaveform = displayState == .mini || displayState == .expanded || displayState == .volume || displayState == .auth
         audioMeter?.setActive(showsWaveform && info?.clock.isPlaying == true)
         scheduleNextTick()
         scheduleVolumeHUDTick()

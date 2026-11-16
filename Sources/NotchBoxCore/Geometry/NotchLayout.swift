@@ -48,6 +48,8 @@ public enum NotchLayout {
             )
         case .volume:
             return CGSize(width: notch.width + 2 * miniSideWidth(notch: notch), height: notch.height + volumeRowHeight)
+        case .auth:
+            return CGSize(width: max(authWidth, notch.width + 2 * miniSideWidth(notch: notch)), height: notch.height + authRowHeight)
         case .video:
             let player = videoPlayerSize(notch: notch)
             return CGSize(
@@ -60,6 +62,17 @@ public enum NotchLayout {
     public static let videoCloseButtonSide: CGFloat = 24
     /// The volume row under the notch in the volume state, including its bottom margin.
     public static let volumeRowHeight: CGFloat = 34
+
+    /// The auth state is at least this wide, so an issuer, a code and its countdown fit on one row.
+    public static let authWidth: CGFloat = 300
+    /// The code row under the notch in the auth state, including its bottom margin.
+    public static let authRowHeight: CGFloat = 46
+
+    /// The auth state's code row, in content coordinates: the part that takes clicks (to copy the code)
+    /// without opening the panel.
+    public static func authActionFrame(notch: CGSize) -> CGRect {
+        CGRect(x: 0, y: notch.height, width: size(for: .auth, notch: notch).width, height: authRowHeight)
+    }
 
     /// The mini state's right wing (the waveform), in content coordinates: hovering it shows a
     /// play/pause button instead of opening the panel.
@@ -115,7 +128,7 @@ public enum NotchLayout {
     }
 
     public static func bottomCornerRadius(for state: NotchDisplayState) -> CGFloat {
-        if state == .volume { return 14 }
+        if state == .volume || state == .auth { return 14 }
         return state.isOpen ? 20 : 8
     }
 
@@ -124,7 +137,7 @@ public enum NotchLayout {
     public static func topCornerRadius(for state: NotchDisplayState) -> CGFloat {
         switch state {
         case .idle: return 0
-        case .mini, .volume: return 6
+        case .mini, .volume, .auth: return 6
         case .expanded, .expandedEmpty, .video: return 12
         }
     }

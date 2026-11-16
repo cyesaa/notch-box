@@ -65,6 +65,9 @@ struct NotchRootView: View {
         case .volume:
             VolumeHUDView(model: model)
                 .transition(.notchContent)
+        case .auth:
+            AuthHUDView(model: model)
+                .transition(.notchContent)
         }
     }
 }

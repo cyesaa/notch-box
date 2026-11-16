@@ -20,20 +20,21 @@ public enum NotchInteraction {
 
     /// Open panels take clicks. The video panel takes them all only when entered from the top; entered
     /// from elsewhere it takes them only over its close button, so the windows behind the see-through
-    /// video stay clickable. The mini notch takes them only over its play/pause button. Other closed
-    /// states never take them.
+    /// video stay clickable. The mini notch takes them only over its play/pause button, and the code row
+    /// only over the row itself. Other closed states never take them.
     public static func acceptsClicks(in state: NotchDisplayState, cursorOverButton: Bool, entry: PanelEntry?) -> Bool {
         switch state {
         case .video: return cursorOverButton || entry == .fromTop
-        case .mini: return cursorOverButton
+        case .mini, .auth: return cursorOverButton
         default: return state.isOpen
         }
     }
 
     /// Whether the cursor over the state's button counts as "not hovering": the mini notch's play/pause
-    /// area must not open the panel, while the video's close button sits inside the hovered panel.
+    /// area and the code row must not open the panel (the cursor is there to click them), while the
+    /// video's close button sits inside the hovered panel.
     public static func buttonSuppressesHover(in state: NotchDisplayState) -> Bool {
-        state == .mini
+        state == .mini || state == .auth
     }
 
     /// The video panel turns see-through while the cursor is over it, unless it came in from the top.

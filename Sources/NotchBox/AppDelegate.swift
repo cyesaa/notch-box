@@ -6,13 +6,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let updates = UpdateService()
     private var settings: AppSettings?
     private var settingsWindow: SettingsWindowController?
+    private var authWindow: AuthWindowController?
     private var windowController: NotchWindowController?
     private var model: NotchViewModel?
     private var wakeObserver: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        let tabReader = BrowserTabReader()
+        let auth = AuthModel(store: KeychainAuthStore(), tabReader: tabReader, defaults: .standard)
+        let authWindow = AuthWindowController(auth: auth)
+        auth.onOpenManager = { authWindow.show() }
+        self.authWindow = authWindow
+
         let settings = AppSettings(updates: updates)
-        let settingsWindow = SettingsWindowController(settings: settings)
+        let settingsWindow = SettingsWindowController(settings: settings, auth: auth)
         self.settings = settings
         self.settingsWindow = settingsWindow
         statusItemController = StatusItemController(updates: updates) { settingsWindow.show() }
@@ -24,13 +31,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             volumeControl: VolumeService(),
             mediaKeys: MediaKeySender(),
             audioMeter: AudioLevelMeter(),
-            tabReader: BrowserTabReader(),
+            tabReader: tabReader,
             clipboardWatcher: ClipboardMonitor(),
             pinnedStore: PinnedClipboardStore(),
             vpnControl: VPNService(),
             openVPN: OpenVPNConnectService(),
             fortiTray: FortiTrayConnector(),
-            calendarProvider: CalendarService()
+            calendarProvider: CalendarService(),
+            auth: auth
         )
         model.setSideWidgets(settings.sideWidgets)
         settings.onSideWidgetsChange = { [weak model] sides in model?.setSideWidgets(sides) }

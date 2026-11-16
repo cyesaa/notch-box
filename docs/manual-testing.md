@@ -218,6 +218,51 @@ defaults write com.notchbox.NotchBox UpdateInstallCommand "NOTCHBOX_ZIP=$PWD/dis
 - [ ] With OpenVPN Connect's window in front, "Connect ▾" and "End" leave the app open and act in it.
 - [ ] Only OpenVPN Connect installed: the whole column is OpenVPN's, with "Connect ▾".
 
+## Sign-in codes
+
+Needs a phone with Google Authenticator and at least one account in it. The accounts stay on the phone.
+
+- [ ] Before any account is stored, NotchBox never asks about the keychain or the browser, and Settings → Sign-in
+  codes says "No accounts".
+- [ ] Settings → "Manage Accounts…" asks for Touch ID (or the Mac's password); the wording of the question reads
+  well in English and Turkish. Cancelling opens nothing. After allowing, the "Sign-in Codes" window opens empty.
+- [ ] "Import from Google Authenticator…": macOS asks for the camera once; the picture is mirrored. With the
+  camera refused, the window says so and "Open Camera Settings" opens the right pane.
+- [ ] Google Authenticator → menu → Transfer accounts → Export accounts → the QR code held up to the camera: within
+  a second or two the window says how many accounts were found and names them. Any other QR code says it is not
+  from an authenticator app.
+- [ ] An export of more than 10 accounts (several QR codes): after the first, the window says "Code 1 of N read";
+  after the last, that line goes. Showing a code twice changes nothing.
+- [ ] "Add N Accounts" returns to the list with "N accounts added."; importing the same export again says they
+  were already here. The camera light goes off when the scanner closes and when the window is closed.
+- [ ] Every code matches the one Google Authenticator shows for the same account at the same moment.
+- [ ] In Keychain Access, the login keychain has one item "NotchBox sign-in codes"; nothing about the accounts is
+  in `~/Library/Application Support/NotchBox` or in `defaults read com.notchbox.NotchBox` (only the pins, by site).
+- [ ] With Safari (then Chrome) in front, open github.com/login with a GitHub account stored: macOS asks once for
+  permission to control the browser; after allowing, a row with "GitHub", the account, the code and a ring slides
+  out under the notch within two seconds. The ring runs down and the code changes when it is empty.
+- [ ] Clicking the row says "Copied", ⌘V in the page pastes the code, and the code does not appear in the
+  clipboard column. Pointing at the row does not open the player; pointing at the notch above it does.
+- [ ] The row stays from the password page to the two-factor page and goes once signed in; switching to another
+  app hides it and coming back shows it again. Left on the sign-in page for two minutes, it goes.
+- [ ] Right-click → Hide: the row goes and stays away on that site for five minutes; another site's sign-in page
+  still shows its code.
+- [ ] Two accounts on one service: the row has arrows; pressing them shows the other account, and the next visit
+  starts with it.
+- [ ] A site NotchBox does not recognise (a bank, a company portal): no row. With Sign-in codes chosen for a side,
+  hover the notch, press the pin on the right account; the sign-in page then shows its code, also after a restart.
+- [ ] A look-alike address (for example a page under `github.io` with `/login` in its path) shows no row.
+- [ ] Settings → "Show the code on sign-in pages" off: no row anywhere; the column still lists the codes.
+- [ ] Sign-in codes column: the accounts for the site in the browser come first, highlighted; with no browser in
+  front there are no pins. With no accounts it offers "Import…", which opens the accounts window (Touch ID first).
+- [ ] Deleting an account asks first, then removes it from the list, the column and its pins; deleting the last
+  one removes the keychain item.
+- [ ] Music playing while a code shows: the mini cover and waveform sit above the row; a volume change shows the
+  volume bar for a moment and the code comes back.
+- [ ] After installing a newer build over this one, the first launch asks for the login keychain password once
+  ("Always Allow"); refusing shows "The codes could not be read from the keychain" with "Try Again", and the
+  stored accounts are still there after allowing.
+
 ## Health check
 
 Watch the log in a second terminal. zsh has its own `log` command, so use the full path:

@@ -12,8 +12,10 @@ public enum NotchDisplayState: Equatable, Sendable {
     case video
     /// The system volume just changed: a row with the level under the (mini) notch, for a moment.
     case volume
+    /// The browser is on a sign-in page of a stored account: a row with its code under the (mini) notch.
+    case auth
 
-    public static let allCases: [NotchDisplayState] = [.idle, .mini, .expanded, .expandedEmpty, .video, .volume]
+    public static let allCases: [NotchDisplayState] = [.idle, .mini, .expanded, .expandedEmpty, .video, .volume, .auth]
 
     public var isOpen: Bool { self == .expanded || self == .expandedEmpty || self == .video }
 }

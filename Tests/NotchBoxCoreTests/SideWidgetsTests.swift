@@ -6,7 +6,7 @@ import Testing
 struct SideWidgetsTests {
     @Test func clipboardLeftAndCalendarRightByDefault() {
         #expect(SideWidgets.default == SideWidgets(left: .clipboard, right: .calendar))
-        #expect(NotchWidget.allCases == [.clipboard, .calendar, .vpn])
+        #expect(NotchWidget.allCases == [.clipboard, .calendar, .vpn, .auth])
     }
 
     @Test func choosingAWidgetForASide() {

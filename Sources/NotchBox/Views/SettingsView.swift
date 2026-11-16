@@ -4,6 +4,7 @@ import SwiftUI
 /// The Settings window: what sits beside the open player, how the notch behaves, and general options.
 struct SettingsView: View {
     let settings: AppSettings
+    let auth: AuthModel
 
     var body: some View {
         Form {
@@ -16,6 +17,25 @@ struct SettingsView: View {
                 Text(L10n.settingsSidesHeader)
             } footer: {
                 Text(L10n.settingsSidesFooter)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Toggle(L10n.authShowOnSignIn, isOn: Binding(
+                    get: { auth.showsOnSignIn },
+                    set: { auth.setShowsOnSignIn($0) }
+                ))
+                HStack {
+                    Text(L10n.authAccountCount(auth.entries.count))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button(L10n.authManageButton) { auth.openManager() }
+                }
+            } header: {
+                Text(L10n.settingsAuthHeader)
+            } footer: {
+                Text(L10n.settingsAuthFooter)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }

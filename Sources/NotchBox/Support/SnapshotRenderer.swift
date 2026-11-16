@@ -34,6 +34,10 @@ enum SnapshotRenderer {
         var vpn: VPNStatus = .disconnected
         /// OpenVPN Connect installed, with this status.
         var openVPN: VPNStatus?
+        /// The page in the browser, with sample sign-in accounts stored.
+        var page: String?
+        /// No sign-in accounts stored.
+        var noAccounts = false
     }
 
     static func render(to directory: URL) throws {
@@ -72,6 +76,12 @@ enum SnapshotRenderer {
             Scene(name: "12b-vpn-disconnected", state: .nothing, hovering: true, sides: SideWidgets(left: .vpn, right: .calendar), vpn: .disconnected),
             Scene(name: "12d-forticlient-and-openvpn", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: .vpn), vpn: .disconnected, openVPN: .connected),
             Scene(name: "12e-openvpn-only-disconnected", state: .nothing, hovering: true, sides: SideWidgets(left: .vpn, right: .calendar), vpn: .unavailable, openVPN: .disconnected),
+            Scene(name: "13a-auth-code-on-sign-in-page", state: .nothing, hovering: false, page: "https://accounts.google.com/v3/signin/challenge/totp"),
+            Scene(name: "13b-auth-code-while-playing-two-accounts", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: false, page: "https://github.com/sessions/two-factor/app"),
+            Scene(name: "13c-auth-code-virtual-notch", state: .nothing, hovering: false, virtualNotch: true, page: "https://github.com/login"),
+            Scene(name: "13d-auth-column-on-github", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .auth, right: .calendar), page: "https://github.com/login"),
+            Scene(name: "13e-auth-column-no-browser", state: .nothing, hovering: true, sides: SideWidgets(left: .clipboard, right: .auth)),
+            Scene(name: "13f-auth-column-empty", state: .nothing, hovering: true, sides: SideWidgets(left: .clipboard, right: .auth), noAccounts: true),
             Scene(name: "12c-only-left-column", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, sides: SideWidgets(left: .clipboard, right: nil)),
             Scene(name: "10-clipboard-image-preview", state: .info(track("Golden Hour", "Kai Moreno", "Late Light", playing: true, artwork: warm)), hovering: true, previewImage: true),
             Scene(name: "6-unavailable", state: .unavailable, hovering: true),
@@ -99,7 +109,8 @@ enum SnapshotRenderer {
             try render(scene, to: directory.appendingPathComponent(scene.name + ".png"))
         }
         try renderSettings(to: directory.appendingPathComponent("11-settings.png"))
-        print("Wrote \(scenes.count + 1) snapshots to \(directory.path)")
+        try renderAccounts(to: directory.appendingPathComponent("14-auth-accounts.png"))
+        print("Wrote \(scenes.count + 2) snapshots to \(directory.path)")
     }
 
     /// Newest first.
@@ -120,6 +131,7 @@ enum SnapshotRenderer {
             vpnControl: vpn,
             openVPN: openVPN,
             calendarProvider: SnapshotCalendar(access: scene.calendarAccess, now: clock.now),
+            auth: AuthModel(store: SnapshotAuthStore(entries: scene.noAccounts ? [] : sampleAccounts), now: { clock.now }),
             makePlayer: { _, _ in nil },
             now: { clock.now }
         )
@@ -140,6 +152,9 @@ enum SnapshotRenderer {
             model.refreshVPN()
             clock.now += 3_905
             model.refreshVPN()
+        }
+        if let page = scene.page {
+            model.auth.setPage(url: page)
         }
         if scene.volumeChange {
             volume.volume = 0.72
@@ -193,7 +208,19 @@ enum SnapshotRenderer {
     /// ImageRenderer leaves blank).
     private static func renderSettings(to url: URL) throws {
         let settings = AppSettings(updates: UpdateService())
-        let view = NSHostingView(rootView: SettingsView(settings: settings).environment(\.colorScheme, .dark))
+        let auth = AuthModel(store: SnapshotAuthStore(entries: sampleAccounts))
+        auth.start()
+        try draw(NSHostingView(rootView: AnyView(SettingsView(settings: settings, auth: auth).environment(\.colorScheme, .dark))), to: url)
+    }
+
+    /// The accounts window, drawn the same way.
+    private static func renderAccounts(to url: URL) throws {
+        let auth = AuthModel(store: SnapshotAuthStore(entries: sampleAccounts))
+        auth.start()
+        try draw(NSHostingView(rootView: AnyView(AuthManageView(auth: auth, state: AuthManageState()).background(Color(nsColor: .windowBackgroundColor)).environment(\.colorScheme, .dark))), to: url)
+    }
+
+    private static func draw(_ view: NSHostingView<AnyView>, to url: URL) throws {
         view.appearance = NSAppearance(named: .darkAqua)
         let size = view.fittingSize
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.borderless], backing: .buffered, defer: false)
@@ -206,6 +233,15 @@ enum SnapshotRenderer {
         guard let data = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
         try data.write(to: url)
     }
+
+    /// Made-up accounts; the secrets are only bytes to make codes from.
+    private static let sampleAccounts: [AuthEntry] = [
+        AuthEntry(id: "1", account: OTPAccount(secret: Data("notchbox-sample-1".utf8), issuer: "Google", name: "deniz@example.com")),
+        AuthEntry(id: "2", account: OTPAccount(secret: Data("notchbox-sample-2".utf8), issuer: "GitHub", name: "deniz")),
+        AuthEntry(id: "3", account: OTPAccount(secret: Data("notchbox-sample-3".utf8), issuer: "GitHub", name: "deniz-is")),
+        AuthEntry(id: "4", account: OTPAccount(secret: Data("notchbox-sample-4".utf8), issuer: "Amazon Web Services", name: "root-account-mfa-device@112233445566")),
+        AuthEntry(id: "5", account: OTPAccount(secret: Data("notchbox-sample-5".utf8), issuer: "", name: "vpn@ornek.com.tr", digits: 8)),
+    ]
 
     /// App icons can carry HDR content, which turns the whole render into a PQ (extended range) image
     /// that looks dim as a PNG. Redrawing it into 8-bit sRGB tone-maps it back.
@@ -276,6 +312,23 @@ private final class SnapshotTabReader: BrowserTabReading {
     func readTabs(of bundleIdentifier: String, completion: @escaping @MainActor (Result<[BrowserTab], Error>) -> Void) {
         completion(.success([]))
     }
+
+    func readActiveTab(of bundleIdentifier: String, process: pid_t, completion: @escaping @MainActor (Result<String?, Error>) -> Void) {
+        completion(.success(nil))
+    }
+}
+
+@MainActor
+private final class SnapshotAuthStore: AuthStoring {
+    let entries: [AuthEntry]
+    var mayHaveAccounts: Bool { !entries.isEmpty }
+
+    init(entries: [AuthEntry]) {
+        self.entries = entries
+    }
+
+    func load(completion: @escaping @MainActor ([AuthEntry]?) -> Void) { completion(entries) }
+    func save(_ entries: [AuthEntry], completion: @escaping @MainActor (Bool) -> Void) { completion(true) }
 }
 
 @MainActor

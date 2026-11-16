@@ -19,6 +19,9 @@ Control whatever is playing on your Mac from the MacBook notch.
   player and the video moves into the notch, from the same moment, so you can put the browser away and keep watching.
   Pass over the video and it fades away so you can see and click what is behind it; only its close button stays.
   Come down onto it from the menu bar instead and it stays solid, so YouTube's own controls work.
+- Signing in somewhere with a six-digit code from Google Authenticator? Bring your accounts over once, and when
+  your browser is on that site's sign-in page the code slides out under the notch. Click it to copy it; the
+  phone stays in your pocket.
 - Tested with Apple Music and YouTube in Safari and Chrome. Other apps that report "Now Playing" to macOS
   (such as Spotify) should work but are untested.
 - English and Turkish, picked from your system language.
@@ -44,8 +47,9 @@ curl -fsSL https://raw.githubusercontent.com/cyesaa/notch-box/main/install.sh | 
 This downloads the latest release, puts `NotchBox.app` in `/Applications` (or `~/Applications` without admin
 rights) and opens it. A music note icon appears in the menu bar with Settings (⌘,), Check for Updates and Quit.
 
-**Settings** decides what sits left and right of the player when you hover the notch (Clipboard, Calendar, VPN or
-nothing; more widgets will follow), and holds the notch, launch-at-login and update options.
+**Settings** decides what sits left and right of the player when you hover the notch (Clipboard, Calendar, VPN,
+Sign-in codes or nothing; more widgets will follow), and holds the sign-in code, notch, launch-at-login and
+update options.
 
 **VPN** shows whether your VPNs are connected and for how long, with a Disconnect button: FortiClient's VPN (or
 otherwise one from System Settings) and OpenVPN Connect, a row each when both are installed. OpenVPN profiles
@@ -59,6 +63,27 @@ up, so NotchBox quits FortiClient's window app before connecting (its menu bar i
 Connect brings its window forward for every command it gets while it is running, so NotchBox starts it in the
 background to connect (quitting it first when it is running) and quits it to disconnect; it then stays closed
 until the next connection. An app whose window you have in front is left alone.
+
+**Sign-in codes** makes the same six-digit codes as your authenticator app (2FA, TOTP). Bring your accounts over
+from Google Authenticator once: Settings → Sign-in codes → Manage Accounts… (asks for Touch ID or your Mac's
+password) → Import from Google Authenticator…. On the phone, open Google Authenticator's menu, choose Transfer
+accounts → Export accounts, and hold the QR code up to the Mac's camera. A large export is split over several QR
+codes; NotchBox says how many are still to come. If a code is not picked up, move the phone closer, turn its
+brightness up, or export fewer accounts at a time. The accounts stay in Google Authenticator as well: keep them
+there, so that you are not locked out if something happens to the Mac.
+
+From then on, when Safari, Chrome, Brave, Edge, Vivaldi or Arc is in front on a sign-in page of one of those
+accounts, a row slides out under the notch with the account, its code and a ring that runs down until the code
+changes. Click the row to copy the code. It stays through the steps of signing in and goes when you leave the
+page; right-click → Hide puts it away for five minutes, and "Show the code on sign-in pages" in Settings turns it
+off altogether. With two accounts on one site, the arrows on the row switch between them and the choice is
+remembered. Choosing Sign-in codes for a side in Settings also lists every account with its code beside the
+player; with the browser in front, the pin on a row there makes that account the one for the site you are on.
+
+NotchBox recognises a site by itself only when the service's name is its address (GitHub → github.com), for a
+short list of services that sign in somewhere else (Microsoft, AWS and the like), and for accounts without a
+service name whose e-mail address is at the site. For every other site, pin the account once. A look-alike
+address (github.xyz, something.github.io) gets no code.
 
 **Updating:** NotchBox looks for a new release soon after it starts and twice a day. When there is one, a dot
 appears on the music note and the menu starts with "Update available"; click it, then Update, and NotchBox
@@ -110,6 +135,17 @@ YouTube's own sign-in pages; NotchBox never sees it, and the session is kept in 
 with your browser. Videos start with captions off; YouTube's CC button turns them on. The notch player is a second
 copy of the video, so it starts where the browser was and the browser is moved to where you stopped when you close it.
 
+**Sign-in codes** keeps the accounts' secrets in your Mac's login keychain (one item, "NotchBox sign-in codes"):
+not in a file, not in iCloud, and never sent anywhere. Adding and deleting accounts asks for Touch ID or your
+Mac's password. Showing a code does not, so whoever sits at your unlocked Mac can read your codes, as with an
+unlocked phone; lock your Mac when you leave it. To know which code to show, NotchBox reads the address of the
+tab in view in the front browser window every second or two (macOS asks once for **Automation** permission),
+and only while you have accounts stored. Addresses are compared in memory and never saved or logged (only the
+name of a site you pin an account to is kept, in NotchBox's preferences), and the contents of pages are never
+read. The **camera** is on only while you import accounts: each picture is searched
+for a QR code and thrown away. A copied code is marked the way password managers mark passwords, so clipboard
+histories, NotchBox's own included, do not keep it.
+
 To move the waveform with the music, NotchBox asks for **System Audio Recording** permission the first time
 music plays (macOS 14.2 or later). It only measures how loud each frequency range is, many times a second;
 nothing is recorded or saved. If you deny it, the waveform simply animates on its own. You can change this in
@@ -139,6 +175,12 @@ to read. It may flash in Control Center or other "Now Playing" widgets; NotchBox
 - After installing a new version, System Audio Recording permission (for the waveform) and Accessibility
   permission (for connecting FortiClient's VPN, and in limited mode) must be granted again. If NotchBox is
   already listed under Accessibility, turn it off and on again.
+- NotchBox is not signed with a developer certificate, so macOS treats every new version as a new app: after an
+  update it may ask once for your login keychain password before the sign-in codes can be read (choose Always
+  Allow), and again for permission to read your browser.
+- Sign-in codes: a sign-in page is recognised by its address alone, so on some sites the code does not show by
+  itself; choose Sign-in codes for a side in Settings to have every code a hover away. Counter-based (HOTP)
+  accounts cannot be imported.
 
 ## Development
 
@@ -202,6 +244,8 @@ NotchBox, Mac'inde çalan her şeyi MacBook'un notch'undan kontrol etmeni sağla
 - Oynatıcının sağında, panoyla aynı genişlikte takvimin durur: üstte bu haftanın günleri (etkinliği olan günlerde
   nokta), altında seçili günün etkinlikleri. Bir güne tıklayınca o günün etkinlikleri gelir. Zoom, Meet, Teams, Webex
   ve FaceTime görüşmelerinde yeşil bir Katıl düğmesi çıkar; etkinliğe tıklayınca Takvim açılır.
+- Bir yere Google Authenticator'daki altı haneli kodla mı giriyorsun? Hesaplarını bir kez aktar; tarayıcın o sitenin
+  giriş sayfasındayken kod notch'un altından iner. Tıklayınca kopyalanır; telefonu eline alman gerekmez.
 - Apple Music ve Safari/Chrome'da YouTube ile test edildi. macOS'a "Şu An Çalıyor" bilgisi veren diğer uygulamalar
   (Spotify gibi) çalışmalı ama test edilmedi.
 - Arayüz Türkçe ve İngilizce; sistem diline göre seçilir.
@@ -228,8 +272,8 @@ Bu komut son sürümü indirir, `NotchBox.app`'i `/Applications` klasörüne (y�
 koyar ve açar. Menü çubuğunda bir müzik notası ikonu çıkar; Ayarlar (⌘,), Güncellemeleri denetle ve Çık oradadır.
 
 **Ayarlar**, notch'un üzerine geldiğinde oynatıcının solunda ve sağında ne duracağını seçtiğin yerdir (Pano, Takvim,
-VPN ya da boş; zamanla yeni bileşenler eklenecek). Çentik, açılışta başlatma ve güncelleme seçenekleri de
-buradadır.
+VPN, Giriş kodları ya da boş; zamanla yeni bileşenler eklenecek). Giriş kodu, çentik, açılışta başlatma ve
+güncelleme seçenekleri de buradadır.
 
 **VPN** bileşeni VPN'lerinin bağlı olup olmadığını ve ne kadar süredir bağlı olduklarını gösterir; "Bağlantıyı kes"
 düğmesi vardır: FortiClient'ın VPN'i (yoksa Sistem Ayarları'ndaki bir VPN) ve OpenVPN Connect; ikisi de kuruluysa
@@ -243,6 +287,27 @@ getirir; bu yüzden NotchBox bağlanmadan önce FortiClient'ın pencere uygulama
 servisleri çalışmaya devam eder). OpenVPN Connect ise çalışırken aldığı her komutta penceresini öne getirir; bu
 yüzden NotchBox bağlanmak için onu arka planda başlatır (çalışıyorsa önce kapatır), kesmek için de kapatır;
 uygulama bir sonraki bağlantıya kadar kapalı kalır. Penceresi o an önünde açık olan uygulamaya dokunulmaz.
+
+**Giriş kodları**, doğrulama uygulamanın ürettiği altı haneli kodların aynısını üretir (2FA, TOTP). Hesaplarını
+Google Authenticator'dan bir kez aktarırsın: Ayarlar → Giriş kodları → Hesapları Yönet… (Touch ID ya da Mac
+şifreni sorar) → Google Authenticator'dan Aktar…. Telefonda Google Authenticator'ın menüsünden Hesapları aktar →
+Hesapları dışa aktar'ı seç ve çıkan QR kodunu Mac'in kamerasına göster. Çok hesap varsa dışa aktarma birkaç QR
+koduna bölünür; NotchBox kaç tane kaldığını söyler. Kod okunmuyorsa telefonu yaklaştır, ekran parlaklığını artır
+ya da daha az hesabı birlikte dışa aktar. Hesaplar Google Authenticator'da da durmaya devam eder: orada
+kalsınlar ki Mac'ine bir şey olursa hesaplarına girebilesin.
+
+Bundan sonra Safari, Chrome, Brave, Edge, Vivaldi ya da Arc önde ve bu hesaplardan birinin giriş sayfasındayken
+notch'un altından bir satır iner: hesap, kodu ve kod değişene kadar azalan bir halka. Satıra tıklayınca kod
+kopyalanır. Giriş adımları boyunca durur, sayfadan çıkınca kaybolur; sağ tık → Gizle onu beş dakikalığına
+kaldırır, Ayarlar'daki "Giriş sayfalarında kodu göster" ise tamamen kapatır. Aynı sitede iki hesabın varsa
+satırdaki oklar hesaplar arasında geçer ve seçimin hatırlanır. Ayarlar'da bir tarafa Giriş kodları'nı seçersen
+bütün hesaplar kodlarıyla birlikte oynatıcının yanında da listelenir; tarayıcı öndeyken oradaki raptiye, o hesabı
+bulunduğun sitenin hesabı yapar.
+
+NotchBox bir siteyi kendiliğinden yalnızca şu durumlarda tanır: servisin adı adresiyle aynıysa (GitHub →
+github.com), başka bir adreste giriş yapan kısa bir servis listesindeyse (Microsoft, AWS gibi) ya da servis adı
+olmayan hesabın e-posta adresi o sitedeyse. Diğer siteler için hesabı bir kez sabitlemen yeter. Benzer görünen
+adreslerde (github.xyz, birsey.github.io) kod gösterilmez.
 
 **Güncelleme:** NotchBox açıldıktan kısa süre sonra ve günde iki kez yeni sürüm olup olmadığına bakar. Yeni sürüm
 varsa müzik notasının yanında bir nokta çıkar ve menünün en üstünde "Güncelleme var" yazar; tıklayıp Güncelle'ye
@@ -295,6 +360,17 @@ giriş sayfalarına yazarsın; NotchBox onu hiç görmez ve oturum tarayıcınla
 deposunda saklanır. Videolar altyazı kapalı başlar; YouTube'un CC düğmesi altyazıyı açar. Notch'taki oynatıcı
 videonun ikinci bir kopyasıdır: tarayıcının kaldığı yerden başlar, kapatınca tarayıcı senin durduğun yere alınır.
 
+**Giriş kodları**, hesapların gizli anahtarlarını Mac'inin oturum Anahtar Zinciri'nde saklar ("NotchBox sign-in
+codes" adlı tek öğe): bir dosyada değil, iCloud'da değil, hiçbir yere de gönderilmez. Hesap eklemek ve silmek
+Touch ID ya da Mac şifreni ister. Kodu göstermek istemez; yani kilidi açık Mac'inin başına geçen kişi kodlarını
+okuyabilir, tıpkı kilidi açık bir telefonda olduğu gibi. Mac'inin başından kalkarken kilitle. NotchBox hangi kodu
+göstereceğini bilmek için öndeki tarayıcı penceresinde görüntülenen sekmenin adresini bir iki saniyede bir okur
+(macOS bir kez **Otomasyon** izni ister), bunu da yalnızca kayıtlı hesabın varken yapar. Adresler bellekte
+karşılaştırılır, kaydedilmez ve günlüğe yazılmaz (yalnızca bir hesabı sabitlediğin sitenin adı NotchBox'ın
+tercihlerinde tutulur); sayfaların içeriği hiç okunmaz. **Kamera** yalnızca hesap
+aktarırken açıktır: her görüntüde QR kodu aranır ve görüntü atılır. Kopyalanan kod, şifre yöneticilerinin
+şifreleri işaretlediği gibi işaretlenir; böylece pano geçmişleri (NotchBox'ınki dahil) onu tutmaz.
+
 Ses dalgasının müziğe göre oynaması için NotchBox, ilk kez müzik çaldığında **Sistem Sesi Kaydı** izni ister
 (macOS 14.2 ve sonrası). Yalnızca her frekans aralığının ne kadar yüksek çaldığını saniyede birçok kez ölçer;
 hiçbir şey kaydedilmez ya da saklanmaz. İzin vermezsen dalga kendi kendine oynar. Bu ayarı Sistem Ayarları →
@@ -323,5 +399,11 @@ Bu parça Denetim Merkezi'nde ya da başka "Şu An Çalıyor" araçlarında bir 
 - Yeni sürüm kurulduktan sonra Sistem Sesi Kaydı izni (ses dalgası için) ve Erişilebilirlik izni (FortiClient
   VPN'ine bağlanmak için ve kısıtlı modda kullanılır) yeniden verilmelidir. NotchBox Erişilebilirlik listesinde
   zaten görünüyorsa kapatıp yeniden aç.
+- NotchBox bir geliştirici sertifikasıyla imzalı değildir; bu yüzden macOS her yeni sürümü yeni bir uygulama
+  sayar: güncellemeden sonra giriş kodlarını okuyabilmesi için bir kez oturum Anahtar Zinciri şifreni (Her Zaman
+  İzin Ver'i seç), tarayıcını okuyabilmesi için de yeniden izin isteyebilir.
+- Giriş kodları: giriş sayfası yalnızca adresinden tanınır; bu yüzden bazı sitelerde kod kendiliğinden çıkmaz.
+  Ayarlar'da bir tarafa Giriş kodları'nı seçersen bütün kodlar notch'un üzerine gelince elinin altında olur. Sayaç
+  tabanlı (HOTP) hesaplar aktarılamaz.
 
 Geliştirme ve lisans bilgileri için yukarıdaki İngilizce "Development" ve "License" bölümlerine bakın.

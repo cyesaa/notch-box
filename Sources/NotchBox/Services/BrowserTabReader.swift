@@ -8,6 +8,9 @@ protocol BrowserTabReading: AnyObject {
     /// Reads the open tabs of every running copy of the browser with `bundleIdentifier`;
     /// completes on the main thread.
     func readTabs(of bundleIdentifier: String, completion: @escaping @MainActor (Result<[BrowserTab], Error>) -> Void)
+    /// Reads the address of the tab in view in the front window of one running copy of a browser (nil
+    /// when it has no window); completes on the main thread.
+    func readActiveTab(of bundleIdentifier: String, process: pid_t, completion: @escaping @MainActor (Result<String?, Error>) -> Void)
 }
 
 /// Reads browser tabs through ScriptingBridge, addressing each running copy of the browser by process ID.
@@ -50,6 +53,34 @@ final class BrowserTabReader: BrowserTabReading {
                 }
             }
         }
+    }
+
+    func readActiveTab(of bundleIdentifier: String, process: pid_t, completion: @escaping @MainActor (Result<String?, Error>) -> Void) {
+        guard let tabKey = BrowserTabs.activeTabKey(forBundleIdentifier: bundleIdentifier) else {
+            completion(.failure(ReadError.unsupportedBrowser))
+            return
+        }
+        queue.async {
+            let result = Self.activeTabURL(ofProcess: process, tabKey: tabKey)
+            DispatchQueue.main.async { MainActor.assumeIsolated { completion(result) } }
+        }
+    }
+
+    /// The address of the tab in view in a browser process's front window. The address is never logged.
+    private nonisolated static func activeTabURL(ofProcess process: pid_t, tabKey: String) -> Result<String?, Error> {
+        guard let app = SBApplication(processIdentifier: process) else { return .failure(ReadError.notRunning) }
+        let errors = EventErrors()
+        app.delegate = errors
+        // Windows are listed front to back.
+        guard let windows = app.value(forKey: "windows") as? SBElementArray, let window = windows.firstObject as? SBObject else {
+            return errors.failed ? .failure(ReadError.notAuthorized) : .success(nil)
+        }
+        let tab = window.value(forKey: tabKey) as? SBObject
+        // A property comes back as its value, or as a reference that still has to be fetched.
+        let raw = tab?.value(forKey: "URL")
+        let url = (raw as? String) ?? ((raw as? SBObject)?.get() as? String)
+        if url == nil, errors.failed { return .failure(ReadError.notAuthorized) }
+        return .success(url)
     }
 
     /// The tabs of one browser process, or nil when it refused (or failed) the Apple Events.

@@ -6,6 +6,8 @@ import SwiftUI
 /// Only that right wing takes clicks (see `NotchInteraction`).
 struct CollapsedView: View {
     let model: NotchViewModel
+    /// False where the row is only shown (above a sign-in code): pointing there is about the code.
+    var isInteractive = true
 
     var body: some View {
         let notch = model.notchSize
@@ -41,7 +43,7 @@ struct CollapsedView: View {
     @ViewBuilder
     private func rightWing(artworkSide: CGFloat, notch: CGSize) -> some View {
         let isPlaying = model.info?.clock.isPlaying ?? false
-        if isPlaying && !model.isOverNotchButton {
+        if isPlaying && !(isInteractive && model.isOverNotchButton) {
             WaveformView(isPlaying: true, tint: Color(model.accent), meter: model.audioMeter)
                 .frame(width: artworkSide * 0.85, height: notch.height * 0.4)
                 .transition(.opacity)

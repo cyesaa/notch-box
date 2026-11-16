@@ -71,6 +71,13 @@ public enum BrowserTabs {
         titleKeys[bundleIdentifier]
     }
 
+    /// The window property that holds the tab in view: Safari calls it the current tab, the Chromium
+    /// browsers the active tab. nil for apps that are not supported browsers.
+    public static func activeTabKey(forBundleIdentifier bundleIdentifier: String) -> String? {
+        guard isSupportedBrowser(bundleIdentifier) else { return nil }
+        return bundleIdentifier == "com.apple.Safari" ? "currentTab" : "activeTab"
+    }
+
     /// Pairs a window's tab URLs with its tab titles (fetched as two lists); tabs without a URL are dropped.
     public static func tabs(urls: [String], titles: [String]) -> [BrowserTab] {
         urls.enumerated().compactMap { index, url in
